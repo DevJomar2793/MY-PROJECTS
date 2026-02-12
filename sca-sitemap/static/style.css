@@ -1,0 +1,21 @@
+body {
+  font-size: 0.875rem;
+}
+.sidebar {
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding-top: 56px; /* Height of navbar */
+}
+.sidebar .nav-link {
+  color: #fff;
+}
+.sidebar {
+  background-color: #343a40;
+}
+.content {
+  margin-left: 220px; /* Sidebar width */
+  padding: 20px;
+}
