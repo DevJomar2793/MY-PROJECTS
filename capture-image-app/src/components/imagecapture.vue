@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onBeforeUnmount } from "vue";
+import { Modal } from "bootstrap";
 
 const video = ref(null);
 const canvas = ref(null);
 
 const cameraActive = ref(false);
 const showTemplateModal = ref(false);
+const selectedTemplate = ref(null);
 const captured = ref(false);
 const image = ref(null);
 
@@ -80,51 +82,85 @@ const retake = () => {
   image.value = null;
 };
 
-//Film Strip Logic
-const applyFilmStrip = async () => {
-  const maxImages = props.imageList.length;
-
-  for (let i = 0; i < maxImages; i++) {
-    const styledImages = await createFilmStrip(props.imageList[i]);
-    props.imageList[i] = styledImages;
-  }
+//Selected Template
+const selectTemplate = (templatePath) => {
+  selectedTemplate.value = templatePath;
+  showTemplateModal.value = false;
+  generateFinalImage();
 };
 
-//Film Strip Template Using Canvass
-// const createFilmStrip = (imgsrc) => {
-//   return new Promise((resolve) => {
-//     const img = new Image();
-//     img.src = imgsrc;
+//Select Template if image capture is = 0
+const checkTemplate = () => {
+  if (props.imageList.length === 0) {
+    alert("No Images Found");
+    return;
+  }
 
-//     img.onload = () => {
-//       const padding = 40; // top & bottom film border
-//       const holeSize = 10;
+  const modal = new Modal(document.getElementById("templateList"));
+  modal.show();
+};
 
-//       const canvas = document.createElement("canvas");
-//       const ctx = canvas.getContext("2d");
+const checkCapturedImage = () => {
+  if (props.imageList.length === 0) {
+    alert("No Images Found");
+    return;
+  }
+  const modal = new Modal(document.getElementById("imageList"));
+  modal.show();
+};
 
-//       canvas.width = img.width;
-//       canvas.height = img.height + padding * 2;
+//Film Strip Template Using Canvas
+const finalCanvas = ref(null);
 
-//       //Background (black film)
-//       ctx.fillStyle = "black";
-//       ctx.fillRect(0, 0, canvas.width, canvas.height);
+const generateFinalImage = async () => {
+  const canvas = finalCanvas.value;
+  const ctx = canvas.getContext("2d");
 
-//       //Draw image in center
-//       ctx.drawImage(img, 0, padding, img.width, img.height);
+  const templateImg = new Image();
+  templateImg.src = selectedTemplate.value;
 
-//       //draw sprocket holes (left & right)
-//       ctx.fillStyle = "white";
+  templateImg.onload = async () => {
+    canvas.width = templateImg.width;
+    canvas.height = templateImg.height;
 
-//       for (let y = 10; y < canvas.height; y += 25) {
-//         ctx.fillRect(5, y, holeSize, holeSize);
-//         ctx.fillRect(canvas.width - 15, y, holeSize, holeSize);
-//       }
+    //draw template background first
+    ctx.drawImage(templateImg, 0, 0);
 
-//       resolve(canvas.toDataURL("image/png"));
-//     };
-//   });
-// };
+    //example positions for strip layout
+    const positions = [
+      { x: 50, y: 100, w: 300, h: 200 },
+      { x: 50, y: 320, w: 300, h: 200 },
+      { x: 50, y: 540, w: 300, h: 200 },
+    ];
+
+    for (let i = 0; i < imageList.value.length; i++) {
+      const img = new Image();
+      img.src = imageList.value[i];
+
+      await new Promise((resolve) => {
+        img.onload = () => {
+          ctx.drawImage(
+            img,
+            positions[i].x,
+            positions[i].y,
+            positions[i].w,
+            positions[i].h,
+          );
+        };
+        resolve();
+      });
+    }
+  };
+
+  //Convert to Image
+  const finalImage = canvas.toDataURL("image/png");
+
+  //Auto Download
+  const link = document.createElement("a");
+  link.href = finalImage;
+  link.download = "photo-strip.png";
+  link.click();
+};
 
 // Stop camera when leaving page
 onBeforeUnmount(() => {
@@ -175,14 +211,6 @@ onBeforeUnmount(() => {
               </button>
 
               <button
-                class="btn btn-danger"
-                @click="closeCamera"
-                v-if="cameraActive && !captured"
-              >
-                Close
-              </button>
-
-              <button
                 class="btn btn-warning"
                 @click="saveImage"
                 v-if="captured"
@@ -198,8 +226,7 @@ onBeforeUnmount(() => {
               <button
                 type="button"
                 class="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#imageList"
+                @click="checkCapturedImage"
                 v-if="cameraActive && !captured"
               >
                 Check Captured Images
@@ -207,18 +234,27 @@ onBeforeUnmount(() => {
 
               <button
                 type="button"
+                @click="checkTemplate"
                 class="btn btn-secondary"
-                data-bs-toggle="modal"
-                data-bs-target="#"
                 v-if="cameraActive && !captured"
               >
-                Choose Template
+                Apply Film Strip Template
+              </button>
+              <button
+                class="btn btn-danger"
+                @click="closeCamera"
+                v-if="cameraActive && !captured"
+              >
+                Close
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Hidden Canvas -->
+    <canvas ref="finalCanvas" style="display: none"></canvas>
 
     <!-- Modal -->
     <div
@@ -234,7 +270,7 @@ onBeforeUnmount(() => {
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" id="staticBackdropLabel">
-              Modal title
+              Image List
             </h1>
             <button
               type="button"
@@ -269,8 +305,6 @@ onBeforeUnmount(() => {
             >
               Close
             </button>
-
-            <button type="button" class="btn btn-primary">Save Images</button>
           </div>
         </div>
       </div>
@@ -279,7 +313,7 @@ onBeforeUnmount(() => {
     <!-- Modal for Selecting Template-->
     <div
       class="modal fade"
-      id="exampleModal"
+      id="templateList"
       tabindex="-1"
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
@@ -287,7 +321,9 @@ onBeforeUnmount(() => {
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+            <h1 class="modal-title fs-5" id="exampleModalLabel">
+              Template List
+            </h1>
             <button
               type="button"
               class="btn-close"
@@ -295,7 +331,16 @@ onBeforeUnmount(() => {
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">...</div>
+          <div class="modal-body">
+            <img
+              src="/src/imagetemplates/strip1.png"
+              @click="selectTemplate('/templates/strip1.png')"
+            />
+            <img
+              src="/src/imagetemplates/strip2.png"
+              @click="selectTemplate('/templates/strip1.png')"
+            />
+          </div>
           <div class="modal-footer">
             <button
               type="button"
