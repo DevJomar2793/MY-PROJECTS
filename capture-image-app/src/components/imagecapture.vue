@@ -17,7 +17,7 @@ let stream = null;
 const props = defineProps({
   imageList: {
     type: Array,
-    required: true,
+    default: () => [],
   },
 });
 
@@ -27,7 +27,11 @@ const emit = defineEmits(["remove", "add", "clear"]);
 const startCamera = async () => {
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" },
+      video: {
+        facingMode: "environment",
+        width: { ideal: 1260 },
+        height: { ideal: 960 }, // 4:3 ratio
+      },
       audio: false,
     });
 
@@ -59,11 +63,33 @@ const closeCamera = async () => {
 // Capture image
 const captureImage = () => {
   const ctx = canvas.value.getContext("2d");
+  const TARGET_WIDTH = 900;
+  const TARGET_HEIGHT = 1200; // 3:4 vertical photo style
 
-  canvas.value.width = video.value.videoWidth;
-  canvas.value.height = video.value.videoHeight;
+  canvas.value.width = TARGET_WIDTH;
+  canvas.value.height = TARGET_HEIGHT;
 
-  ctx.drawImage(video.value, 0, 0);
+  const videoWidth = video.value.videoWidth;
+  const videoHeight = video.value.videoHeight;
+
+  console.log("Captured width:", canvas.value.width);
+  console.log("Captured height:", canvas.value.height);
+
+  const size = Math.min(videoWidth, videoHeight);
+  const sx = (videoWidth - size) / 2;
+  const sy = (videoHeight - size) / 2;
+
+  ctx.drawImage(
+    video.value,
+    sx,
+    sy,
+    size,
+    size,
+    0,
+    0,
+    TARGET_WIDTH,
+    TARGET_HEIGHT,
+  );
 
   image.value = canvas.value.toDataURL("image/png");
   captured.value = true;
@@ -82,24 +108,6 @@ const retake = () => {
   image.value = null;
 };
 
-//Selected Template
-const selectTemplate = (templatePath) => {
-  selectedTemplate.value = templatePath;
-  showTemplateModal.value = false;
-  generateFinalImage();
-};
-
-//Select Template if image capture is = 0
-const checkTemplate = () => {
-  if (props.imageList.length === 0) {
-    alert("No Images Found");
-    return;
-  }
-
-  const modal = new Modal(document.getElementById("templateList"));
-  modal.show();
-};
-
 const checkCapturedImage = () => {
   if (props.imageList.length === 0) {
     alert("No Images Found");
@@ -113,53 +121,78 @@ const checkCapturedImage = () => {
 const finalCanvas = ref(null);
 
 const generateFinalImage = async () => {
+  if (!props.imageList || props.imageList.length === 0) {
+    alert("No Images Found");
+    return;
+  }
+
   const canvas = finalCanvas.value;
   const ctx = canvas.getContext("2d");
 
+  //final strip size
+  const TEMPLATE_WIDTH = 1024;
+  const TEMPLATE_HEIGHT = 1536;
+  const photoImages = props.imageList;
+  canvas.width = TEMPLATE_WIDTH;
+
+  canvas.height = TEMPLATE_HEIGHT;
+
+  //Load template background
   const templateImg = new Image();
-  templateImg.src = selectedTemplate.value;
+  templateImg.src = "/src/imagetemplates/strip2.png"; //(1026 x 1536)
 
   templateImg.onload = async () => {
-    canvas.width = templateImg.width;
-    canvas.height = templateImg.height;
+    ctx.drawImage(templateImg, 0, 0, TEMPLATE_WIDTH, TEMPLATE_HEIGHT);
 
-    //draw template background first
-    ctx.drawImage(templateImg, 0, 0);
+    //Photo Settings
+    const photoWidth = 800;
+    const photoHeight = 200;
+    const startX = (TEMPLATE_WIDTH - photoWidth) / 2;
+    const startY = 120;
+    const spacing = 80;
 
-    //example positions for strip layout
-    const positions = [
-      { x: 50, y: 100, w: 300, h: 200 },
-      { x: 50, y: 320, w: 300, h: 200 },
-      { x: 50, y: 540, w: 300, h: 200 },
-    ];
+    for (let i = 0; i < photoImages.length && i < 4; i++) {
+      if (!photoImages[i]) break;
 
-    for (let i = 0; i < imageList.value.length; i++) {
       const img = new Image();
-      img.src = imageList.value[i];
+      img.src = photoImages[i];
 
       await new Promise((resolve) => {
         img.onload = () => {
+          //CENTER CROP
+          const imgSize = Math.min(img.width, img.height);
+          const sx = (img.width - imgSize) / 2;
+          const sy = (img.height - imgSize) / 2;
+
           ctx.drawImage(
             img,
-            positions[i].x,
-            positions[i].y,
-            positions[i].w,
-            positions[i].h,
+            sx,
+            sy,
+            imgSize,
+            imgSize,
+            startX,
+            startY + i * (photoHeight + spacing),
+            photoWidth,
+            photoHeight,
           );
+          resolve();
         };
-        resolve();
       });
     }
+
+    //Convert to Image
+    const finalImage = canvas.toDataURL("image/png");
+
+    //Auto Download
+    const link = document.createElement("a");
+    link.href = finalImage;
+    link.download = "testing-image.png";
+    link.click();
   };
 
-  //Convert to Image
-  const finalImage = canvas.toDataURL("image/png");
-
-  //Auto Download
-  const link = document.createElement("a");
-  link.href = finalImage;
-  link.download = "photo-strip.png";
-  link.click();
+  templateImg.onerror = () => {
+    alert("Template image failed to load. Check file path.");
+  };
 };
 
 // Stop camera when leaving page
@@ -234,11 +267,11 @@ onBeforeUnmount(() => {
 
               <button
                 type="button"
-                @click="checkTemplate"
+                @click="generateFinalImage"
                 class="btn btn-secondary"
                 v-if="cameraActive && !captured"
               >
-                Apply Film Strip Template
+                Check With Film Strip
               </button>
               <button
                 class="btn btn-danger"
@@ -311,7 +344,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Modal for Selecting Template-->
-    <div
+    <!-- <div
       class="modal fade"
       id="templateList"
       tabindex="-1"
@@ -333,8 +366,8 @@ onBeforeUnmount(() => {
           </div>
           <div class="modal-body">
             <img
-              src="/src/imagetemplates/strip1.png"
-              @click="selectTemplate('/templates/strip1.png')"
+              src="/src/imagetemplates/strip2.png"
+              @click="selectTemplate('/templates/strip2.png')"
             />
             <img
               src="/src/imagetemplates/strip2.png"
@@ -349,10 +382,12 @@ onBeforeUnmount(() => {
             >
               Close
             </button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-primary">
+              Choose Template
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
