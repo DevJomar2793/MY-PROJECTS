@@ -63,8 +63,8 @@ const closeCamera = async () => {
 // Capture image
 const captureImage = () => {
   const ctx = canvas.value.getContext("2d");
-  const TARGET_WIDTH = 900;
-  const TARGET_HEIGHT = 1200; // 3:4 vertical photo style
+  const TARGET_WIDTH = 350;
+  const TARGET_HEIGHT = 280; // 3:4 vertical photo style
 
   canvas.value.width = TARGET_WIDTH;
   canvas.value.height = TARGET_HEIGHT;
@@ -72,12 +72,16 @@ const captureImage = () => {
   const videoWidth = video.value.videoWidth;
   const videoHeight = video.value.videoHeight;
 
-  console.log("Captured width:", canvas.value.width);
-  console.log("Captured height:", canvas.value.height);
+  // console.log("Captured width:", canvas.value.width);
+  // console.log("Captured height:", canvas.value.height);
 
   const size = Math.min(videoWidth, videoHeight);
   const sx = (videoWidth - size) / 2;
   const sy = (videoHeight - size) / 2;
+
+  console.log("Image Size:", size);
+  console.log("sizeX:", sx);
+  console.log("sizeY:", sy);
 
   ctx.drawImage(
     video.value,
@@ -145,11 +149,11 @@ const generateFinalImage = async () => {
     ctx.drawImage(templateImg, 0, 0, TEMPLATE_WIDTH, TEMPLATE_HEIGHT);
 
     //Photo Settings
-    const photoWidth = 800;
-    const photoHeight = 200;
+    const photoWidth = 375;
+    const photoHeight = 347;
     const startX = (TEMPLATE_WIDTH - photoWidth) / 2;
-    const startY = 120;
-    const spacing = 80;
+    const startY = 20;
+    const spacing = 40;
 
     for (let i = 0; i < photoImages.length && i < 4; i++) {
       if (!photoImages[i]) break;
