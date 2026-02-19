@@ -1,17 +1,20 @@
 <script setup>
-import { ref, onBeforeUnmount } from "vue";
+import { ref, onBeforeUnmount, onMounted } from "vue";
 import { Modal } from "bootstrap";
 
 const video = ref(null);
 const canvas = ref(null);
+const selectedTemplate = ref(null);
+const image = ref(null);
+const submitModalRef = ref(null);
+let stream = null;
 
 const cameraActive = ref(false);
 const showTemplateModal = ref(false);
-const selectedTemplate = ref(null);
 const captured = ref(false);
-const image = ref(null);
+const loading = ref(false);
 
-let stream = null;
+let modalInstance = null;
 
 //Multiple Image Handler
 const props = defineProps({
@@ -121,6 +124,32 @@ const checkCapturedImage = () => {
   modal.show();
 };
 
+const checkTemplate = (templatePath) => {
+  selectedTemplate.value = templatePath;
+  showTemplateModal.value = false;
+
+  const modal = new Modal(document.getElementById("templateList"));
+  modal.show();
+};
+
+const handleSubmit = async () => {
+  loading.value = true;
+
+  try {
+    //Simulate API call
+    await new Promise((r) => setTimeout(r, 2000));
+
+    alert("success!");
+
+    modalInstance.hide();
+    document.body.classList.remove();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
+};
+
 //Film Strip Template Using Canvas
 const finalCanvas = ref(null);
 
@@ -185,19 +214,23 @@ const generateFinalImage = async () => {
     }
 
     //Convert to Image
-    const finalImage = canvas.toDataURL("image/png");
+    // const finalImage = canvas.toDataURL("image/png");
 
     //Auto Download
-    const link = document.createElement("a");
-    link.href = finalImage;
-    link.download = "testing-image.png";
-    link.click();
+    // const link = document.createElement("a");
+    // link.href = finalImage;
+    // link.download = "testing-image.png";
+    // link.click();
   };
 
   templateImg.onerror = () => {
     alert("Template image failed to load. Check file path.");
   };
 };
+
+onMounted(() => {
+  modalInstance = new Modal(submitModalRef.value);
+});
 
 // Stop camera when leaving page
 onBeforeUnmount(() => {
@@ -271,11 +304,11 @@ onBeforeUnmount(() => {
 
               <button
                 type="button"
-                @click="generateFinalImage"
+                @click="checkTemplate"
                 class="btn btn-secondary"
                 v-if="cameraActive && !captured"
               >
-                Check With Film Strip
+                Apply Template
               </button>
               <button
                 class="btn btn-danger"
@@ -348,7 +381,7 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- Modal for Selecting Template-->
-    <!-- <div
+    <div
       class="modal fade"
       id="templateList"
       tabindex="-1"
@@ -358,9 +391,7 @@ onBeforeUnmount(() => {
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">
-              Template List
-            </h1>
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Template</h1>
             <button
               type="button"
               class="btn-close"
@@ -371,11 +402,11 @@ onBeforeUnmount(() => {
           <div class="modal-body">
             <img
               src="/src/imagetemplates/strip2.png"
-              @click="selectTemplate('/templates/strip2.png')"
+              @click="selectedTemplate('/templates/strip2.png')"
             />
             <img
               src="/src/imagetemplates/strip2.png"
-              @click="selectTemplate('/templates/strip1.png')"
+              @click="selectedTemplate('/templates/strip1.png')"
             />
           </div>
           <div class="modal-footer">
@@ -386,12 +417,57 @@ onBeforeUnmount(() => {
             >
               Close
             </button>
-            <button type="button" class="btn btn-primary">
-              Choose Template
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#spinnerLoading"
+            >
+              Apply Template
             </button>
           </div>
         </div>
       </div>
-    </div> -->
+    </div>
+
+    <!-- Spinner Loading Modal-->
+    <div
+      class="modal fade"
+      id="spinnerLoading"
+      tabindex="-1"
+      ref="submitModalRef"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Submit Data</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <p>Apply Template on your image?</p>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              class="btn btn-primary"
+              @click="handleSubmit"
+              :disabled="loading"
+            >
+              <span
+                v-if="loading"
+                class="spinner-border spinner-border-sm me-2"
+              ></span>
+
+              {{ loading ? "Processing..." : "Submit" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
