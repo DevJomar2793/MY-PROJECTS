@@ -1,14 +1,27 @@
-from fastapi import FastAPI, UploadFile, File, Depends
+from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from database import Sessionlocal, engine
 from model import Base, ImageModel
-from schema import ImageCreate
+from schema import ImageCreate, ImageResponse
 
 app = FastAPI()
 
+# Add CORS middleware BEFORE other middleware and routes
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
+)
+
 #Create Database Table
-Base.metadata.create_all(bind=engine)
+Base.metadata.drop_all(bind=engine)  # Drop existing tables
+Base.metadata.create_all(bind=engine)  # Recreate with new schema
 
 #Dependency
 def get_db():
@@ -18,14 +31,30 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/api/v1/upload-image", response_model=ImageCreate)
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+@app.post("/api/v1/upload-image", response_model=ImageResponse)
 async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_db)):
-    
-    image_byte = await file.read()
+    try:
+        print(f"Receiving file: {file.filename}")
+        image_byte = await file.read()
+        print(f"File size: {len(image_byte)} bytes")
 
-    new_image = ImageModel(filename=file.filename, image_data=image_byte)
+        new_image = ImageModel(filename=file.filename, image_data=image_byte)
+        print("ImageModel created")
 
-    db.add(new_image)
-    db.commit()
+        db.add(new_image)
+        db.commit()
+        db.refresh(new_image)
+        print(f"Image saved with ID: {new_image.id}")
 
-    return new_image
+        return new_image
+    except Exception as e:
+        print(f"Error in upload_image: {str(e)}")
+        print(f"Error type: {type(e).__name__}")
+        import traceback
+        traceback.print_exc()
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")

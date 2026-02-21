@@ -4,6 +4,12 @@ class ImageCreate(BaseModel):
     id: int
     filename: str
 
-    class config:
-        orm_model = True
-    
+    class Config:
+        from_attributes = True
+
+class ImageResponse(BaseModel):
+    id: int
+    filename: str
+
+    class Config:
+        from_attributes = True

@@ -1,12 +1,16 @@
 <script setup>
 import { ref, onBeforeUnmount, onMounted } from "vue";
 import { Modal } from "bootstrap";
+import api from "../api/axios";
 
 const video = ref(null);
 const canvas = ref(null);
 const selectedTemplate = ref(null);
 const image = ref(null);
 const submitModalRef = ref(null);
+const finalImageRef = ref(null);
+const finalImageData = ref(null);
+const savingImage = ref(false);
 let stream = null;
 
 const cameraActive = ref(false);
@@ -15,6 +19,7 @@ const captured = ref(false);
 const loading = ref(false);
 
 let modalInstance = null;
+let finalImageModalInstance = null;
 
 //Multiple Image Handler
 const props = defineProps({
@@ -24,7 +29,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["remove", "add", "clear"]);
+const emit = defineEmits(["remove", "add", "clear", "save-image"]);
 
 // Start camera
 const startCamera = async () => {
@@ -66,37 +71,13 @@ const closeCamera = async () => {
 // Capture image
 const captureImage = () => {
   const ctx = canvas.value.getContext("2d");
-  const TARGET_WIDTH = 350;
-  const TARGET_HEIGHT = 280; // 3:4 vertical photo style
+  // const TARGET_WIDTH = 350;
+  // const TARGET_HEIGHT = 280; // 3:4 vertical photo style
 
-  canvas.value.width = TARGET_WIDTH;
-  canvas.value.height = TARGET_HEIGHT;
+  canvas.value.width = video.value.videoWidth;
+  canvas.value.height = video.value.videoHeight;
 
-  const videoWidth = video.value.videoWidth;
-  const videoHeight = video.value.videoHeight;
-
-  // console.log("Captured width:", canvas.value.width);
-  // console.log("Captured height:", canvas.value.height);
-
-  const size = Math.min(videoWidth, videoHeight);
-  const sx = (videoWidth - size) / 2;
-  const sy = (videoHeight - size) / 2;
-
-  console.log("Image Size:", size);
-  console.log("sizeX:", sx);
-  console.log("sizeY:", sy);
-
-  ctx.drawImage(
-    video.value,
-    sx,
-    sy,
-    size,
-    size,
-    0,
-    0,
-    TARGET_WIDTH,
-    TARGET_HEIGHT,
-  );
+  ctx.drawImage(video.value, 0, 0);
 
   image.value = canvas.value.toDataURL("image/png");
   captured.value = true;
@@ -136,15 +117,116 @@ const handleSubmit = async () => {
   loading.value = true;
 
   try {
-    //Simulate API call
-    await new Promise((r) => setTimeout(r, 2000));
+    if (!props.imageList || props.imageList.length === 0) {
+      alert("No Images Found");
+      loading.value = false;
+      return;
+    }
 
-    alert("success!");
+    // Wrap the entire image generation in a promise
+    await new Promise((resolve, reject) => {
+      const canvas = finalCanvas.value;
+      const ctx = canvas.getContext("2d");
 
-    modalInstance.hide();
-    document.body.classList.remove();
+      //final strip size
+      const TEMPLATE_WIDTH = 1024;
+      const TEMPLATE_HEIGHT = 1536;
+      const photoImages = props.imageList;
+      canvas.width = TEMPLATE_WIDTH;
+      canvas.height = TEMPLATE_HEIGHT;
+
+      //Load template background
+      const templateImg = new Image();
+      templateImg.src = "/src/imagetemplates/strip2.png"; //(1026 x 1536)
+
+      templateImg.onload = async () => {
+        try {
+          ctx.drawImage(templateImg, 0, 0, TEMPLATE_WIDTH, TEMPLATE_HEIGHT);
+
+          //Photo Settings
+          const photoWidth = 375;
+          const photoHeight = 347;
+          const startX = (TEMPLATE_WIDTH - photoWidth) / 2;
+          const startY = 20;
+          const spacing = 40;
+
+          for (let i = 0; i < photoImages.length && i < 4; i++) {
+            if (!photoImages[i]) break;
+
+            const img = new Image();
+            img.src = photoImages[i];
+
+            await new Promise((resolveImg) => {
+              img.onload = () => {
+                //CENTER CROP
+                const imgSize = Math.min(img.width, img.height);
+                const sx = (img.width - imgSize) / 2;
+                const sy = (img.height - imgSize) / 2;
+
+                ctx.drawImage(
+                  img,
+                  sx,
+                  sy,
+                  imgSize,
+                  imgSize,
+                  startX,
+                  startY + i * (photoHeight + spacing),
+                  photoWidth,
+                  photoHeight,
+                );
+                resolveImg();
+              };
+              img.onerror = () => {
+                console.error(`Failed to load image ${i}`);
+                resolveImg();
+              };
+            });
+          }
+
+          //Convert to Image
+          const finalImage = canvas.toDataURL("image/png");
+          finalImageData.value = finalImage;
+
+          //Auto Download (uncomment to enable)
+          // const link = document.createElement("a");
+          // link.href = finalImage;
+          // link.download = "photo-strip.png";
+          // link.click();
+
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      templateImg.onerror = () => {
+        reject(new Error("Template image failed to load. Check file path."));
+      };
+    });
+
+    // Remove all backdrops and modal-open class
+    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+    document.body.classList.remove("modal-open");
+    document.body.style.overflow = "";
+
+    // Hide and dispose of the modal
+    if (modalInstance) {
+      modalInstance.hide();
+    }
+
+    // Show final image modal
+    setTimeout(() => {
+      if (!finalImageModalInstance) {
+        finalImageModalInstance = new Modal(
+          document.getElementById("finalImageModal"),
+          { backdrop: false },
+        );
+      }
+      finalImageModalInstance.show();
+    }, 100);
   } catch (error) {
     console.error(error);
+    alert("Error: " + error.message);
   } finally {
     loading.value = false;
   }
@@ -213,6 +295,8 @@ const generateFinalImage = async () => {
       });
     }
 
+    console.log("My Image:", canvas.toDataURL("image/png"));
+
     //Convert to Image
     // const finalImage = canvas.toDataURL("image/png");
 
@@ -228,8 +312,35 @@ const generateFinalImage = async () => {
   };
 };
 
+const saveImageToDatabase = () => {
+  if (!finalImageData.value) {
+    alert("No image to save");
+    return;
+  }
+
+  // Emit the image data to parent component
+  emit("save-image", finalImageData.value);
+
+  // Close modal after a short delay to allow parent to process
+  setTimeout(() => {
+    if (finalImageModalInstance) {
+      finalImageModalInstance.hide();
+    }
+    document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+    document.body.classList.remove("modal-open");
+    finalImageData.value = null;
+  }, 500);
+};
+
 onMounted(() => {
-  modalInstance = new Modal(submitModalRef.value);
+  if (submitModalRef.value) {
+    modalInstance = new Modal(submitModalRef.value, { backdrop: false });
+  }
+  if (finalImageRef.value) {
+    finalImageModalInstance = new Modal(finalImageRef.value, {
+      backdrop: false,
+    });
+  }
 });
 
 // Stop camera when leaving page
@@ -404,10 +515,10 @@ onBeforeUnmount(() => {
               src="/src/imagetemplates/strip2.png"
               @click="selectedTemplate('/templates/strip2.png')"
             />
-            <img
+            <!-- <img
               src="/src/imagetemplates/strip2.png"
               @click="selectedTemplate('/templates/strip1.png')"
-            />
+            /> -->
           </div>
           <div class="modal-footer">
             <button
@@ -464,6 +575,58 @@ onBeforeUnmount(() => {
               ></span>
 
               {{ loading ? "Processing..." : "Submit" }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Image Modal-->
+    <div
+      class="modal fade"
+      id="finalImageModal"
+      tabindex="-1"
+      ref="finalImageRef"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Your Photo Strip</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+
+          <div class="modal-body text-center">
+            <img
+              v-if="finalImageData"
+              :src="finalImageData"
+              class="img-fluid rounded"
+              alt="Final photo strip"
+            />
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click="saveImageToDatabase"
+              :disabled="savingImage"
+            >
+              <span
+                v-if="savingImage"
+                class="spinner-border spinner-border-sm me-2"
+              ></span>
+              {{ savingImage ? "Saving..." : "Save to Database" }}
             </button>
           </div>
         </div>
