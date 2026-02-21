@@ -25,7 +25,7 @@ const clearImages = () => {
   images.value = [];
 };
 
-const saveImage = async (finalImageData) => {
+const saveImage = async (finalImageData, filename = "photo-strip.png") => {
   savingImage.value = true;
 
   try {
@@ -39,7 +39,8 @@ const saveImage = async (finalImageData) => {
 
     // Create FormData
     const formData = new FormData();
-    formData.append("file", blob, "photo-strip.png");
+    const safeName = (filename || "photo-strip.png").toString().slice(0, 200);
+    formData.append("file", blob, safeName);
     console.log("FormData created, sending to backend...");
 
     // Send to backend
@@ -50,6 +51,8 @@ const saveImage = async (finalImageData) => {
 
     // Clear images after successful save
     clearImages();
+    // Notify other components to refresh image list
+    window.dispatchEvent(new CustomEvent("images-updated"));
   } catch (error) {
     console.error("Full error object:", error);
     console.error("Error message:", error.message);

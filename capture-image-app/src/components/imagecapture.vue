@@ -11,6 +11,8 @@ const submitModalRef = ref(null);
 const finalImageRef = ref(null);
 const finalImageData = ref(null);
 const savingImage = ref(false);
+const filenameInput = ref("");
+const finalFilenameRef = ref(null);
 let stream = null;
 
 const cameraActive = ref(false);
@@ -318,8 +320,26 @@ const saveImageToDatabase = () => {
     return;
   }
 
-  // Emit the image data to parent component
-  emit("save-image", finalImageData.value);
+  const rawName = (filenameInput.value || "").trim();
+  if (!rawName) {
+    alert("Please enter a filename before saving.");
+    return;
+  }
+
+  const sanitizeFilename = (name) => {
+    // replace spaces with dashes, remove unsafe chars, limit length
+    let n = name.replace(/\s+/g, "-");
+    n = n.replace(/[^a-zA-Z0-9_\-\.]/g, "");
+    if (!/\.(png|jpg|jpeg)$/i.test(n)) n = n + ".png";
+    return n.slice(0, 200);
+  };
+
+  const filename = sanitizeFilename(rawName);
+
+  savingImage.value = true;
+
+  // Emit the image data and filename to parent component
+  emit("save-image", finalImageData.value, filename);
 
   // Close modal after a short delay to allow parent to process
   setTimeout(() => {
@@ -329,6 +349,8 @@ const saveImageToDatabase = () => {
     document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
     document.body.classList.remove("modal-open");
     finalImageData.value = null;
+    filenameInput.value = "";
+    savingImage.value = false;
   }, 500);
 };
 
@@ -341,6 +363,20 @@ onMounted(() => {
       backdrop: false,
     });
   }
+  // focus filename input when final image modal is shown
+  if (finalImageRef.value) {
+    finalImageRef.value.addEventListener("shown.bs.modal", () => {
+      setTimeout(() => {
+        try {
+          if (finalFilenameRef.value && finalFilenameRef.value.focus) {
+            finalFilenameRef.value.focus();
+          }
+        } catch (e) {
+          // ignore
+        }
+      }, 120);
+    });
+  }
 });
 
 // Stop camera when leaving page
@@ -350,35 +386,47 @@ onBeforeUnmount(() => {
   }
 });
 </script>
-
 <template>
-  <div class="container py-4">
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-6">
-        <div class="card shadow-sm">
-          <div class="card-body text-center">
-            <h5 class="mb-3">📸 Capture Image</h5>
+  <div class="capture-root container py-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex align-items-start gap-3 flex-column flex-md-row">
+          <div class="media-col flex-fill">
+            <h5 class="mb-2">Capture</h5>
 
-            <!-- Camera Preview -->
-            <video
-              ref="video"
-              autoplay
-              playsinline
-              class="mb-3 w-100 rounded"
-              v-show="!captured"
-            ></video>
+            <div
+              class="preview rounded overflow-hidden bg-dark position-relative"
+              aria-live="polite"
+            >
+              <video
+                ref="video"
+                autoplay
+                playsinline
+                class="w-100 h-100 object-fit-cover"
+                v-show="!captured"
+                aria-label="Live camera preview"
+              ></video>
 
-            <!-- Hidden Canvas -->
-            <canvas ref="canvas" class="d-none"></canvas>
+              <img
+                v-if="captured"
+                :src="image"
+                class="w-100 h-100 object-fit-contain"
+                alt="Captured photo preview"
+              />
+            </div>
 
-            <!-- Captured Image -->
-            <img :src="image" class="w-100 rounded mb-3" v-if="captured" />
+            <canvas ref="canvas" class="d-none" aria-hidden="true"></canvas>
 
-            <div class="d-grid gap-2">
+            <div
+              class="mt-3 d-flex gap-2 flex-wrap controls"
+              role="toolbar"
+              aria-label="Capture controls"
+            >
               <button
-                class="btn btn-primary"
+                class="btn btn-outline-primary"
                 @click="startCamera"
                 v-if="!cameraActive"
+                aria-label="Open camera"
               >
                 Open Camera
               </button>
@@ -387,6 +435,7 @@ onBeforeUnmount(() => {
                 class="btn btn-success"
                 @click="captureImage"
                 v-if="cameraActive && !captured"
+                aria-label="Take photo"
               >
                 Capture
               </button>
@@ -395,47 +444,103 @@ onBeforeUnmount(() => {
                 class="btn btn-warning"
                 @click="saveImage"
                 v-if="captured"
+                aria-label="Save captured photo"
               >
                 Save
               </button>
 
-              <button class="btn btn-secondary" @click="retake" v-if="captured">
+              <button
+                class="btn btn-secondary"
+                @click="retake"
+                v-if="captured"
+                aria-label="Retake photo"
+              >
                 Retake
               </button>
 
-              <!-- Button trigger modal -->
               <button
-                type="button"
-                class="btn btn-primary"
-                @click="checkCapturedImage"
-                v-if="cameraActive && !captured"
-              >
-                Check Captured Images
-              </button>
-
-              <button
-                type="button"
-                @click="checkTemplate"
-                class="btn btn-secondary"
-                v-if="cameraActive && !captured"
-              >
-                Apply Template
-              </button>
-              <button
-                class="btn btn-danger"
+                class="btn btn-danger ms-auto"
                 @click="closeCamera"
-                v-if="cameraActive && !captured"
+                v-if="cameraActive"
+                aria-label="Close camera"
               >
                 Close
               </button>
             </div>
           </div>
+
+          <div class="thumbs-col" aria-label="Captured thumbnails">
+            <h6 class="mb-2">Thumbnails</h6>
+            <div class="thumb-strip d-flex gap-2" role="list">
+              <div
+                v-for="(img, idx) in props.imageList"
+                :key="idx"
+                class="thumb-item"
+                role="listitem"
+              >
+                <button
+                  class="thumb-btn"
+                  @click="emit('remove', idx)"
+                  aria-label="Remove image"
+                >
+                  ×
+                </button>
+                <img
+                  :src="img"
+                  :alt="`Thumbnail ${idx + 1}`"
+                  class="thumb-img"
+                />
+              </div>
+              <div
+                v-if="props.imageList.length === 0"
+                class="empty-thumb text-muted small"
+              >
+                No images yet
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <button
+                class="btn btn-outline-primary w-100"
+                @click="checkCapturedImage"
+                :disabled="props.imageList.length === 0"
+              >
+                View Image List
+              </button>
+
+              <button
+                class="btn btn-primary w-100 mt-2"
+                @click="checkTemplate"
+                :disabled="props.imageList.length === 0"
+              >
+                Choose Template
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 text-end apply-row">
+          <button
+            class="btn btn-primary apply-btn"
+            @click="
+              () => {
+                if (!modalInstance)
+                  modalInstance = new Modal(submitModalRef.value, {
+                    backdrop: false,
+                  });
+                modalInstance.show();
+              }
+            "
+            :disabled="loading || props.imageList.length === 0"
+            aria-label="Apply template and generate"
+          >
+            Apply Template
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Hidden Canvas -->
-    <canvas ref="finalCanvas" style="display: none"></canvas>
+    <canvas ref="finalCanvas" style="display: none" aria-hidden="true"></canvas>
 
     <!-- Modal -->
     <div
@@ -600,6 +705,18 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="modal-body text-center">
+            <div class="mb-3 text-start">
+              <label for="finalFilename" class="form-label">Filename</label>
+              <input
+                id="finalFilename"
+                ref="finalFilenameRef"
+                v-model="filenameInput"
+                class="form-control"
+                placeholder="my-photo-strip.png"
+                aria-label="Filename for final image"
+              />
+            </div>
+
             <img
               v-if="finalImageData"
               :src="finalImageData"
@@ -634,3 +751,104 @@ onBeforeUnmount(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.capture-root .preview {
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.object-fit-cover {
+  object-fit: cover;
+}
+.object-fit-contain {
+  object-fit: contain;
+}
+.thumb-strip {
+  max-height: 220px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.thumb-item {
+  position: relative;
+  width: 120px;
+  flex: 0 0 auto;
+}
+.thumb-img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+.thumb-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  line-height: 20px;
+}
+.empty-thumb {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Controls styling for touch targets */
+.controls .btn {
+  min-height: 44px;
+  padding: 0.6rem 0.9rem;
+}
+.thumb-strip {
+  -webkit-overflow-scrolling: touch;
+}
+.apply-row {
+  display: block;
+}
+.apply-btn {
+  border-radius: 8px;
+}
+
+@media (max-width: 767px) {
+  .capture-root {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .capture-root .preview {
+    height: 48vh;
+  }
+  .controls {
+    flex-direction: column;
+  }
+  .controls .btn {
+    width: 100%;
+  }
+  .thumb-img {
+    height: 110px;
+  }
+  .thumb-item {
+    width: 38%;
+  }
+  .apply-row {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    padding: 8px 0;
+    background: rgba(255, 255, 255, 0.95);
+  }
+  .apply-btn {
+    width: 100%;
+    font-weight: 600;
+    padding: 0.75rem;
+  }
+  .thumb-strip {
+    gap: 12px;
+  }
+}
+</style>

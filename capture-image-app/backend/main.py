@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from database import Sessionlocal, engine
 from model import Base, ImageModel
 from schema import ImageCreate, ImageResponse
+import base64
 
 app = FastAPI()
 
@@ -20,7 +21,7 @@ app.add_middleware(
 )
 
 #Create Database Table
-Base.metadata.drop_all(bind=engine)  # Drop existing tables
+# Base.metadata.drop_all(bind=engine)  # Drop existing tables
 Base.metadata.create_all(bind=engine)  # Recreate with new schema
 
 #Dependency
@@ -58,3 +59,21 @@ async def upload_image(file: UploadFile = File(...), db: Session = Depends(get_d
         traceback.print_exc()
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
+
+
+@app.get("/api/v1/images")
+def list_images(db: Session = Depends(get_db)):
+    """Return list of images with base64-encoded data."""
+    imgs = db.query(ImageModel).order_by(ImageModel.id.desc()).all()
+    result = []
+    for img in imgs:
+        try:
+            b64 = base64.b64encode(img.image_data).decode("utf-8") if img.image_data else ""
+        except Exception:
+            b64 = ""
+        result.append({
+            "id": img.id,
+            "filename": img.filename,
+            "data": b64,
+        })
+    return result
