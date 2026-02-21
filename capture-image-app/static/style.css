@@ -3,3 +3,257 @@ img {
   width: 100%;
   border-radius: 12px;
 }
+
+/* Index Vue */
+/* @keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} */
+
+/* Image Capture Vue */
+.capture-root .preview {
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.object-fit-cover {
+  object-fit: cover;
+}
+.object-fit-contain {
+  object-fit: contain;
+}
+.thumb-strip {
+  max-height: 220px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+.thumb-item {
+  position: relative;
+  width: 120px;
+  flex: 0 0 auto;
+}
+.thumb-img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+.thumb-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  line-height: 20px;
+}
+.empty-thumb {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Controls styling for touch targets */
+.controls .btn {
+  min-height: 44px;
+  padding: 0.6rem 0.9rem;
+}
+.thumb-strip {
+  -webkit-overflow-scrolling: touch;
+}
+.apply-row {
+  display: block;
+}
+.apply-btn {
+  border-radius: 8px;
+}
+
+.alert {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 300px;
+  font-weight: 500;
+  border: none;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .capture-root {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .capture-root .preview {
+    height: 48vh;
+  }
+  .controls {
+    flex-direction: column;
+  }
+  .controls .btn {
+    width: 100%;
+  }
+  .thumb-img {
+    height: 110px;
+  }
+  .thumb-item {
+    width: 38%;
+  }
+  .apply-row {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    padding: 8px 0;
+    background: rgba(255, 255, 255, 0.95);
+  }
+  .apply-btn {
+    width: 100%;
+    font-weight: 600;
+    padding: 0.75rem;
+  }
+  .thumb-strip {
+    gap: 12px;
+  }
+
+  /* Center the capture UI on small screens */
+  .capture-root .d-flex.flex-column {
+    align-items: center; /* center children horizontally */
+    text-align: center;
+  }
+
+  .capture-root .card {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .capture-root .media-col,
+  .capture-root .thumbs-col {
+    width: 100%;
+  }
+
+  /* Center controls and thumbnail strip */
+  .capture-root .controls {
+    justify-content: center;
+    align-items: center;
+  }
+
+  .capture-root .thumb-strip {
+    justify-content: center;
+  }
+
+  /* Make apply button centered instead of right-aligned */
+  .capture-root .apply-row {
+    text-align: center;
+  }
+}
+
+/* Image Table Vue */
+.imagetable-card .thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.image-wrap {
+  position: relative;
+  height: 0;
+  padding-bottom: 75%; /* 4:3 ratio */
+  overflow: hidden;
+}
+.image-wrap .thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.no-preview {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f8f9fa;
+}
+.image-card {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.image-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+}
+.image-wrap:hover .overlay {
+  opacity: 1;
+}
+.overlay-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.preview-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1055;
+  padding: 2rem;
+}
+.preview-box {
+  max-width: 1000px;
+  width: 100%;
+}
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+.skeleton-card {
+  height: 140px;
+  background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s linear infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}

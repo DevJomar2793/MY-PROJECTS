@@ -8,9 +8,25 @@ const images = ref([]); //Array of images
 const MAX_IMAGES = 4;
 const savingImage = ref(false);
 
+// Toast notification system
+const toastMessage = ref("");
+const toastType = ref("info");
+const showToast = ref(false);
+
+const showNotification = (message, type = "info", duration = 3000) => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+  if (duration > 0) {
+    setTimeout(() => {
+      showToast.value = false;
+    }, duration);
+  }
+};
+
 const addImage = (img) => {
   if (images.value.length >= MAX_IMAGES) {
-    alert("You reach the maximum images");
+    showNotification("You reached the maximum number of images", "warning");
     return;
   }
 
@@ -46,7 +62,7 @@ const saveImage = async (finalImageData, filename = "photo-strip.png") => {
     // Send to backend
     const result = await api.post("/api/v1/upload-image", formData);
 
-    alert("Image saved to database successfully!");
+    showNotification("Image saved to database successfully!", "success");
     console.log("Response:", result.data);
 
     // Clear images after successful save
@@ -58,8 +74,9 @@ const saveImage = async (finalImageData, filename = "photo-strip.png") => {
     console.error("Error message:", error.message);
     console.error("Error code:", error.code);
     console.error("Error response:", error.response);
-    alert(
+    showNotification(
       "Error saving image: " + (error.response?.data?.detail || error.message),
+      "error",
     );
   } finally {
     savingImage.value = false;
@@ -75,4 +92,40 @@ const saveImage = async (finalImageData, filename = "photo-strip.png") => {
     @clear="clearImages"
     @save-image="saveImage"
   />
+
+  <!-- Toast Notification -->
+  <div
+    v-if="showToast"
+    class="position-fixed top-0 start-50 translate-middle-x p-3"
+    style="z-index: 9999; margin-top: 20px"
+  >
+    <div
+      :class="[
+        'alert alert-dismissible fade show',
+        toastType === 'error'
+          ? 'alert-danger'
+          : toastType === 'warning'
+            ? 'alert-warning'
+            : toastType === 'success'
+              ? 'alert-success'
+              : 'alert-info',
+      ]"
+      role="alert"
+      style="
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 300px;
+        font-weight: 500;
+        border: none;
+        animation: slideDown 0.3s ease-out;
+      "
+    >
+      <span>{{ toastMessage }}</span>
+      <button
+        type="button"
+        class="btn-close"
+        @click="showToast = false"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
 </template>

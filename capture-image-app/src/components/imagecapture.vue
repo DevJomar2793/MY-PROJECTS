@@ -20,6 +20,22 @@ const showTemplateModal = ref(false);
 const captured = ref(false);
 const loading = ref(false);
 
+// Toast notification system
+const toastMessage = ref("");
+const toastType = ref("info");
+const showToast = ref(false);
+
+const showNotification = (message, type = "info", duration = 3000) => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+  if (duration > 0) {
+    setTimeout(() => {
+      showToast.value = false;
+    }, duration);
+  }
+};
+
 let modalInstance = null;
 let finalImageModalInstance = null;
 
@@ -48,7 +64,7 @@ const startCamera = async () => {
     video.value.srcObject = stream;
     cameraActive.value = true;
   } catch (err) {
-    alert("Camera access denied or unavailable");
+    showNotification("Camera access denied or unavailable", "error");
     console.error(err);
   }
 };
@@ -90,6 +106,7 @@ const saveImage = () => {
   emit("add", image.value); // send to parent
   captured.value = false;
   image.value = null;
+  showNotification("Image saved to list", "success");
 };
 
 // Retake photo
@@ -100,7 +117,7 @@ const retake = () => {
 
 const checkCapturedImage = () => {
   if (props.imageList.length === 0) {
-    alert("No Images Found");
+    showNotification("No images found", "warning");
     return;
   }
   const modal = new Modal(document.getElementById("imageList"));
@@ -120,7 +137,7 @@ const handleSubmit = async () => {
 
   try {
     if (!props.imageList || props.imageList.length === 0) {
-      alert("No Images Found");
+      showNotification("No images found", "warning");
       loading.value = false;
       return;
     }
@@ -202,6 +219,10 @@ const handleSubmit = async () => {
       };
 
       templateImg.onerror = () => {
+        showNotification(
+          "Template image failed to load. Check file path.",
+          "error",
+        );
         reject(new Error("Template image failed to load. Check file path."));
       };
     });
@@ -228,7 +249,7 @@ const handleSubmit = async () => {
     }, 100);
   } catch (error) {
     console.error(error);
-    alert("Error: " + error.message);
+    showNotification("Error: " + error.message, "error");
   } finally {
     loading.value = false;
   }
@@ -239,7 +260,7 @@ const finalCanvas = ref(null);
 
 const generateFinalImage = async () => {
   if (!props.imageList || props.imageList.length === 0) {
-    alert("No Images Found");
+    showNotification("No images found", "warning");
     return;
   }
 
@@ -310,19 +331,22 @@ const generateFinalImage = async () => {
   };
 
   templateImg.onerror = () => {
-    alert("Template image failed to load. Check file path.");
+    showNotification(
+      "Template image failed to load. Check file path.",
+      "error",
+    );
   };
 };
 
 const saveImageToDatabase = () => {
   if (!finalImageData.value) {
-    alert("No image to save");
+    showNotification("No image to save", "warning");
     return;
   }
 
   const rawName = (filenameInput.value || "").trim();
   if (!rawName) {
-    alert("Please enter a filename before saving.");
+    showNotification("Please enter a filename before saving.", "warning");
     return;
   }
 
@@ -513,7 +537,7 @@ onBeforeUnmount(() => {
                 @click="checkTemplate"
                 :disabled="props.imageList.length === 0"
               >
-                Choose Template
+                Check Template
               </button>
             </div>
           </div>
@@ -586,7 +610,7 @@ onBeforeUnmount(() => {
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-danger"
               data-bs-dismiss="modal"
             >
               Close
@@ -628,19 +652,19 @@ onBeforeUnmount(() => {
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-danger"
               data-bs-dismiss="modal"
             >
               Close
             </button>
-            <button
+            <!-- <button
               type="button"
               class="btn btn-primary"
               data-bs-toggle="modal"
               data-bs-target="#spinnerLoading"
             >
               Apply Template
-            </button>
+            </button> -->
           </div>
         </div>
       </div>
@@ -656,7 +680,7 @@ onBeforeUnmount(() => {
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Submit Data</h5>
+            <h5 class="modal-title">Message</h5>
             <button
               type="button"
               class="btn-close"
@@ -679,7 +703,7 @@ onBeforeUnmount(() => {
                 class="spinner-border spinner-border-sm me-2"
               ></span>
 
-              {{ loading ? "Processing..." : "Submit" }}
+              {{ loading ? "Processing..." : "Yes" }}
             </button>
           </div>
         </div>
@@ -728,7 +752,7 @@ onBeforeUnmount(() => {
           <div class="modal-footer">
             <button
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-danger"
               data-bs-dismiss="modal"
             >
               Close
@@ -743,112 +767,40 @@ onBeforeUnmount(() => {
                 v-if="savingImage"
                 class="spinner-border spinner-border-sm me-2"
               ></span>
-              {{ savingImage ? "Saving..." : "Save to Database" }}
+              {{ savingImage ? "Saving..." : "Save" }}
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div
+      v-if="showToast"
+      class="position-fixed top-0 start-50 translate-middle-x p-3"
+      style="z-index: 9999; margin-top: 20px"
+    >
+      <div
+        :class="[
+          'alert alert-dismissible fade show',
+          toastType === 'error'
+            ? 'alert-danger'
+            : toastType === 'warning'
+              ? 'alert-warning'
+              : toastType === 'success'
+                ? 'alert-success'
+                : 'alert-info',
+        ]"
+        role="alert"
+      >
+        <span>{{ toastMessage }}</span>
+        <button
+          type="button"
+          class="btn-close"
+          @click="showToast = false"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.capture-root .preview {
-  height: 360px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.object-fit-cover {
-  object-fit: cover;
-}
-.object-fit-contain {
-  object-fit: contain;
-}
-.thumb-strip {
-  max-height: 220px;
-  overflow-x: auto;
-  padding-bottom: 6px;
-}
-.thumb-item {
-  position: relative;
-  width: 120px;
-  flex: 0 0 auto;
-}
-.thumb-img {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
-}
-.thumb-btn {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 26px;
-  height: 26px;
-  line-height: 20px;
-}
-.empty-thumb {
-  min-height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-/* Controls styling for touch targets */
-.controls .btn {
-  min-height: 44px;
-  padding: 0.6rem 0.9rem;
-}
-.thumb-strip {
-  -webkit-overflow-scrolling: touch;
-}
-.apply-row {
-  display: block;
-}
-.apply-btn {
-  border-radius: 8px;
-}
-
-@media (max-width: 767px) {
-  .capture-root {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-  .capture-root .preview {
-    height: 48vh;
-  }
-  .controls {
-    flex-direction: column;
-  }
-  .controls .btn {
-    width: 100%;
-  }
-  .thumb-img {
-    height: 110px;
-  }
-  .thumb-item {
-    width: 38%;
-  }
-  .apply-row {
-    position: sticky;
-    bottom: 0;
-    z-index: 50;
-    padding: 8px 0;
-    background: rgba(255, 255, 255, 0.95);
-  }
-  .apply-btn {
-    width: 100%;
-    font-weight: 600;
-    padding: 0.75rem;
-  }
-  .thumb-strip {
-    gap: 12px;
-  }
-}
-</style>
