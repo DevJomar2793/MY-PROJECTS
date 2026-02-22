@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onBeforeUnmount, onMounted } from "vue";
 import { Modal } from "bootstrap";
-import templateImage from "@/imagetemplates/strip2.png";
+
+const templateImage = new URL("../imagetemplates/strip2.png", import.meta.url)
+  .href;
 
 const video = ref(null);
 const canvas = ref(null);
