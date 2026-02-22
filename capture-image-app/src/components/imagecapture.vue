@@ -205,7 +205,8 @@ const handleSubmit = async () => {
           }
 
           //Convert to Image
-          finalImage.value = canvas.toDataURL("image/png");
+          const finalImage = canvas.toDataURL("image/png");
+          finalImageData.value = finalImage; // Store in ref
           resolve();
         } catch (error) {
           reject(error);
