@@ -2,9 +2,9 @@ from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from database import Sessionlocal, engine
-from model import Base, ImageModel
-from schema import ImageCreate, ImageResponse
+from backend.database import Sessionlocal, engine
+from backend.model import Base, ImageModel
+from backend.schema import ImageCreate, ImageResponse
 import base64
 
 app = FastAPI()
