@@ -15,7 +15,7 @@ except Exception:
 	pass
 
 # Read DATABASE_URL from environment. Do NOT hardcode credentials here.
-DATABASE_URL = os.getenv("DATABASE_URL", "")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./jow-capture-image.db")
 if not DATABASE_URL:
 	raise RuntimeError(
 		"DATABASE_URL environment variable is not set. Create backend/.env or set the env var."
