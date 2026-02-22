@@ -12,8 +12,13 @@ const previewName = ref("");
 const fetchImages = async () => {
   loading.value = true;
   try {
-    const res = await api.get("/api/v1/images");
-    console.log("/api/v1/images response:", res.data);
+    const res = await api.get(
+      "https://image-capture-app-90x2.onrender.com/api/v1/images",
+    );
+    console.log(
+      "https://image-capture-app-90x2.onrender.com/api/v1/images response:",
+      res.data,
+    );
     images.value = res.data.map((i) => {
       const name = i.filename || "";
       const lower = name.toLowerCase();

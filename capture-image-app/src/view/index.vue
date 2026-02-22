@@ -60,7 +60,10 @@ const saveImage = async (finalImageData, filename = "photo-strip.png") => {
     console.log("FormData created, sending to backend...");
 
     // Send to backend
-    const result = await api.post("/api/v1/upload-image", formData);
+    const result = await api.post(
+      "https://image-capture-app-90x2.onrender.com/api/v1/upload-image",
+      formData,
+    );
 
     showNotification("Image saved to database successfully!", "success");
     console.log("Response:", result.data);
