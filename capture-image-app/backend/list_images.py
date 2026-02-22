@@ -1,5 +1,5 @@
-from backend.database import Sessionlocal
-from backend.model import ImageModel
+from database import Sessionlocal
+from model import ImageModel
 
 def main():
     db = Sessionlocal()

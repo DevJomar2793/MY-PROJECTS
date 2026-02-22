@@ -6,7 +6,7 @@ from database import Sessionlocal, engine
 from model import Base, ImageModel
 from schema import ImageCreate, ImageResponse
 import base64
-import uvicorn
+
 
 app = FastAPI()
 
