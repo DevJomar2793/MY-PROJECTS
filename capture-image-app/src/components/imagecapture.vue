@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onBeforeUnmount, onMounted } from "vue";
 import { Modal } from "bootstrap";
-import api from "../api/axios";
+import template from "@/imagetemplates/strip2.png";
 
 const video = ref(null);
 const canvas = ref(null);
@@ -156,7 +156,7 @@ const handleSubmit = async () => {
 
       //Load template background
       const templateImg = new Image();
-      templateImg.src = "/src/imagetemplates/strip2.png"; //(1026 x 1536)
+      templateImg.src = template; //(1026 x 1536)
 
       templateImg.onload = async () => {
         try {
@@ -277,7 +277,7 @@ const generateFinalImage = async () => {
 
   //Load template background
   const templateImg = new Image();
-  templateImg.src = "/src/imagetemplates/strip2.png"; //(1026 x 1536)
+  templateImg.src = "@/imagetemplates/strip2.png"; //(1026 x 1536)
 
   templateImg.onload = async () => {
     ctx.drawImage(templateImg, 0, 0, TEMPLATE_WIDTH, TEMPLATE_HEIGHT);
