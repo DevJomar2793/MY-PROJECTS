@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onBeforeUnmount, onMounted } from "vue";
 import { Modal } from "bootstrap";
-import template from "@/imagetemplates/strip2.png";
+import templateImage from "@/imagetemplates/strip2.png";
 
 const video = ref(null);
 const canvas = ref(null);
@@ -155,12 +155,12 @@ const handleSubmit = async () => {
       canvas.height = TEMPLATE_HEIGHT;
 
       //Load template background
-      const templateImg = new Image();
-      templateImg.src = template; //(1026 x 1536)
+      const template = new Image();
+      // templateImg.src = template; //(1026 x 1536)
 
-      templateImg.onload = async () => {
+      template.onload = async () => {
         try {
-          ctx.drawImage(templateImg, 0, 0, TEMPLATE_WIDTH, TEMPLATE_HEIGHT);
+          ctx.drawImage(template, 0, 0, TEMPLATE_WIDTH, TEMPLATE_HEIGHT);
 
           //Photo Settings
           const photoWidth = 375;
@@ -199,6 +199,8 @@ const handleSubmit = async () => {
                 console.error(`Failed to load image ${i}`);
                 resolveImg();
               };
+
+              template.src = templateImage; // Set template source after defining onload and onerror
             });
           }
 
