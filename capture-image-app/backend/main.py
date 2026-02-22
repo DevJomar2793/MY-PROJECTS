@@ -6,6 +6,7 @@ from backend.database import Sessionlocal, engine
 from backend.model import Base, ImageModel
 from backend.schema import ImageCreate, ImageResponse
 import base64
+import uvicorn
 
 app = FastAPI()
 
@@ -78,5 +79,5 @@ def list_images(db: Session = Depends(get_db)):
         })
     return result
 
-    if __name__ == "__main__":
-        uvicorn.run(app, host="0.0.0.0", port=8000)
+if __name__ == " __main__ ":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
