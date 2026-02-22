@@ -158,7 +158,7 @@ const handleSubmit = async () => {
 
       //Load template background
       const template = new Image();
-      // templateImg.src = template; //(1026 x 1536)
+      templateImg.crossOrigin = "anonymous"; // Handle CORS if template is from a different origin
 
       template.onload = async () => {
         try {
