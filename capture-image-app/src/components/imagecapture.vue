@@ -225,7 +225,7 @@ const handleSubmit = async () => {
         );
         reject(new Error("Template image failed to load. Check file path."));
       };
-      template.src = templateImage; // Set template source after defining onload and onerror
+      template.src = selectedTemplate.value || templateImage; // Set template source after defining onload and onerror
     });
 
     // Remove all backdrops and modal-open class
@@ -593,7 +593,7 @@ onBeforeUnmount(() => {
           <div class="modal-body">
             <!-- Handle Images -->
             <div class="row mt-3">
-              <div v-for="(img, index) in imageList" :key="index">
+              <div v-for="(img, index) in props.imageList" :key="index">
                 <div class="card mb-4" style="width: 18rem">
                   <img :src="img" alt="..." class="card-img-top" />
                   <div class="card-body p-2 text-center">
@@ -641,10 +641,7 @@ onBeforeUnmount(() => {
             ></button>
           </div>
           <div class="modal-body">
-            <img
-              :src="templateImage"
-              @click="selectedTemplate(templateImage)"
-            />
+            <img :src="templateImage" @click="checkTemplate(templateImage)" />
             <!-- <img
               src="/src/imagetemplates/strip2.png"
               @click="selectedTemplate('/templates/strip1.png')"
