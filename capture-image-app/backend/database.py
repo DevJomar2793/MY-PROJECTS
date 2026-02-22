@@ -15,7 +15,7 @@ except Exception:
 	pass
 
 # Read DATABASE_URL from environment. Do NOT hardcode credentials here.
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://jow_capture_image_user:K2SeDee0ILvljYUVFoD4WtNGnLsrQBEw@dpg-d6df1nfpm1nc739ovubg-a/jow_capture_image")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://jow_capture_image_user:K2SeDee0ILvljYUVFoD4WtNGnLsrQBEw@dpg-d6df1nfpm1nc739ovubg-a.singapore-postgres.render.com/jow_capture_image")
 if not DATABASE_URL:
 	raise RuntimeError(
 		"DATABASE_URL environment variable is not set. Create backend/.env or set the env var."
