@@ -2,9 +2,9 @@ from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from backend.database import Sessionlocal, engine
-from backend.model import Base, ImageModel
-from backend.schema import ImageCreate, ImageResponse
+from database import Sessionlocal, engine
+from model import Base, ImageModel
+from schema import ImageCreate, ImageResponse
 import base64
 import uvicorn
 
@@ -79,5 +79,5 @@ def list_images(db: Session = Depends(get_db)):
         })
     return result
 
-if __name__ == " __main__ ":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# if __name__ == " __main__ ":
+#     uvicorn.run(app, host="0.0.0.0", port=8000)
