@@ -215,7 +215,6 @@ const handleSubmit = async () => {
           // link.click();
 
           resolve();
-          xx``;
         } catch (error) {
           reject(error);
         }
