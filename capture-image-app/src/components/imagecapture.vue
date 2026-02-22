@@ -642,7 +642,7 @@ onBeforeUnmount(() => {
           </div>
           <div class="modal-body">
             <img
-              src="/src/imagetemplates/strip2.png"
+              :src="templateImage"
               @click="selectedTemplate(templateImage)"
             />
             <!-- <img
