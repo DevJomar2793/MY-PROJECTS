@@ -205,15 +205,7 @@ const handleSubmit = async () => {
           }
 
           //Convert to Image
-          const finalImage = canvas.toDataURL("image/png");
-          finalImageData.value = finalImage;
-
-          //Auto Download (uncomment to enable)
-          // const link = document.createElement("a");
-          // link.href = finalImage;
-          // link.download = "photo-strip.png";
-          // link.click();
-
+          finalImage.value = canvas.toDataURL("image/png");
           resolve();
         } catch (error) {
           reject(error);
