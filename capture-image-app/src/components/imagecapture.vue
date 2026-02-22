@@ -199,8 +199,6 @@ const handleSubmit = async () => {
                 console.error(`Failed to load image ${i}`);
                 resolveImg();
               };
-
-              template.src = templateImage; // Set template source after defining onload and onerror
             });
           }
 
@@ -220,13 +218,14 @@ const handleSubmit = async () => {
         }
       };
 
-      templateImg.onerror = () => {
+      template.onerror = () => {
         showNotification(
           "Template image failed to load. Check file path.",
           "error",
         );
         reject(new Error("Template image failed to load. Check file path."));
       };
+      template.src = templateImage; // Set template source after defining onload and onerror
     });
 
     // Remove all backdrops and modal-open class
@@ -260,85 +259,85 @@ const handleSubmit = async () => {
 //Film Strip Template Using Canvas
 const finalCanvas = ref(null);
 
-const generateFinalImage = async () => {
-  if (!props.imageList || props.imageList.length === 0) {
-    showNotification("No images found", "warning");
-    return;
-  }
+// const generateFinalImage = async () => {
+//   if (!props.imageList || props.imageList.length === 0) {
+//     showNotification("No images found", "warning");
+//     return;
+//   }
 
-  const canvas = finalCanvas.value;
-  const ctx = canvas.getContext("2d");
+//   const canvas = finalCanvas.value;
+//   const ctx = canvas.getContext("2d");
 
-  //final strip size
-  const TEMPLATE_WIDTH = 1024;
-  const TEMPLATE_HEIGHT = 1536;
-  const photoImages = props.imageList;
-  canvas.width = TEMPLATE_WIDTH;
+//   //final strip size
+//   const TEMPLATE_WIDTH = 1024;
+//   const TEMPLATE_HEIGHT = 1536;
+//   const photoImages = props.imageList;
+//   canvas.width = TEMPLATE_WIDTH;
 
-  canvas.height = TEMPLATE_HEIGHT;
+//   canvas.height = TEMPLATE_HEIGHT;
 
-  //Load template background
-  const templateImg = new Image();
-  templateImg.src = "@/imagetemplates/strip2.png"; //(1026 x 1536)
+//   //Load template background
+//   const templateImg = new Image();
+//   templateImg.src = "@/imagetemplates/strip2.png"; //(1026 x 1536)
 
-  templateImg.onload = async () => {
-    ctx.drawImage(templateImg, 0, 0, TEMPLATE_WIDTH, TEMPLATE_HEIGHT);
+//   templateImg.onload = async () => {
+//     ctx.drawImage(templateImg, 0, 0, TEMPLATE_WIDTH, TEMPLATE_HEIGHT);
 
-    //Photo Settings
-    const photoWidth = 375;
-    const photoHeight = 347;
-    const startX = (TEMPLATE_WIDTH - photoWidth) / 2;
-    const startY = 20;
-    const spacing = 40;
+//     //Photo Settings
+//     const photoWidth = 375;
+//     const photoHeight = 347;
+//     const startX = (TEMPLATE_WIDTH - photoWidth) / 2;
+//     const startY = 20;
+//     const spacing = 40;
 
-    for (let i = 0; i < photoImages.length && i < 4; i++) {
-      if (!photoImages[i]) break;
+//     for (let i = 0; i < photoImages.length && i < 4; i++) {
+//       if (!photoImages[i]) break;
 
-      const img = new Image();
-      img.src = photoImages[i];
+//       const img = new Image();
+//       img.src = photoImages[i];
 
-      await new Promise((resolve) => {
-        img.onload = () => {
-          //CENTER CROP
-          const imgSize = Math.min(img.width, img.height);
-          const sx = (img.width - imgSize) / 2;
-          const sy = (img.height - imgSize) / 2;
+//       await new Promise((resolve) => {
+//         img.onload = () => {
+//           //CENTER CROP
+//           const imgSize = Math.min(img.width, img.height);
+//           const sx = (img.width - imgSize) / 2;
+//           const sy = (img.height - imgSize) / 2;
 
-          ctx.drawImage(
-            img,
-            sx,
-            sy,
-            imgSize,
-            imgSize,
-            startX,
-            startY + i * (photoHeight + spacing),
-            photoWidth,
-            photoHeight,
-          );
-          resolve();
-        };
-      });
-    }
+//           ctx.drawImage(
+//             img,
+//             sx,
+//             sy,
+//             imgSize,
+//             imgSize,
+//             startX,
+//             startY + i * (photoHeight + spacing),
+//             photoWidth,
+//             photoHeight,
+//           );
+//           resolve();
+//         };
+//       });
+//     }
 
-    console.log("My Image:", canvas.toDataURL("image/png"));
+//     console.log("My Image:", canvas.toDataURL("image/png"));
 
-    //Convert to Image
-    // const finalImage = canvas.toDataURL("image/png");
+//     //Convert to Image
+//     // const finalImage = canvas.toDataURL("image/png");
 
-    //Auto Download
-    // const link = document.createElement("a");
-    // link.href = finalImage;
-    // link.download = "testing-image.png";
-    // link.click();
-  };
+//     //Auto Download
+//     // const link = document.createElement("a");
+//     // link.href = finalImage;
+//     // link.download = "testing-image.png";
+//     // link.click();
+//   };
 
-  templateImg.onerror = () => {
-    showNotification(
-      "Template image failed to load. Check file path.",
-      "error",
-    );
-  };
-};
+//   templateImg.onerror = () => {
+//     showNotification(
+//       "Template image failed to load. Check file path.",
+//       "error",
+//     );
+//   };
+// };
 
 const saveImageToDatabase = () => {
   if (!finalImageData.value) {
@@ -644,7 +643,7 @@ onBeforeUnmount(() => {
           <div class="modal-body">
             <img
               src="/src/imagetemplates/strip2.png"
-              @click="selectedTemplate('/templates/strip2.png')"
+              @click="selectedTemplate(templateImage)"
             />
             <!-- <img
               src="/src/imagetemplates/strip2.png"
