@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const api = axios.create({
-    baseURL: "http://127.0.0.1:8000",
+    baseURL: "https://image-capture-app-90x2.onrender.com",
     timeout: 30000,
     withCredentials: false,
 })

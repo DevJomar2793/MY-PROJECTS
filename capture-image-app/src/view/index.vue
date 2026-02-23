@@ -65,7 +65,7 @@ const saveImage = async (finalImageData, filename = "photo-strip.png") => {
       formData,
     );
 
-    showNotification("Image saved to database successfully!", "success");
+    showNotification("Image successfully saved!", "success");
     console.log("Response:", result.data);
 
     // Clear images after successful save
