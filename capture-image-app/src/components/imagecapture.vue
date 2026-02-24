@@ -560,7 +560,9 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <router-link>Go To Dashboard -></router-link>>
+    <router-link to="/dashboard" class="btn btn-outline-primary"
+      >Go To Dashboard -></router-link
+    >
 
     <canvas ref="finalCanvas" style="display: none" aria-hidden="true"></canvas>
 
