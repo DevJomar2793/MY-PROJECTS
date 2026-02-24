@@ -560,6 +560,8 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
+    <router-link>Go To Dashboard -></router-link>>
+
     <canvas ref="finalCanvas" style="display: none" aria-hidden="true"></canvas>
 
     <!-- Modal -->
