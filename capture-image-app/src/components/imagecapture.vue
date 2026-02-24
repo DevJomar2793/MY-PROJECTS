@@ -560,9 +560,11 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <router-link to="/dashboard" class="btn btn-outline-primary"
-      >Go To Dashboard -></router-link
-    >
+    <div class="d-flex justify-content-center align-items-center vh-100">
+      <router-link to="/dashboard" class="btn btn-outline-primary"
+        >Go To Dashboard -></router-link
+      >
+    </div>
 
     <canvas ref="finalCanvas" style="display: none" aria-hidden="true"></canvas>
 
