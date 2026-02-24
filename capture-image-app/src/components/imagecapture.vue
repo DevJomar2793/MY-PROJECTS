@@ -560,7 +560,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <div class="d-flex justify-content-center align-items-center vh-100">
+    <div class="d-flex justify-content-center align-items-center">
       <router-link to="/dashboard" class="btn btn-outline-primary"
         >Go To Dashboard -></router-link
       >
