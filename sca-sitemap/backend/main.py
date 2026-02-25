@@ -66,10 +66,12 @@ def create_page(page: PageCreate, db: Session = Depends(get_db)):
 def get_screen(db: Session = Depends(get_db)):
     return db.query(ScreenList).order_by(ScreenList.id.desc()).all()
 
+# Get Buyer Screen
 @app.get("/api/v1/GetBuyerScreen", response_model=List[PageResponse])
 def get_buyers_creen(db: Session = Depends(get_db)):
     return db.query(ScreenList).filter(ScreenList.alpha == "B").order_by(ScreenList.id.desc()).all()
 
+# Update Buyer Screen
 @app.put("/api/v1/UpdateBuyerScreen/{id}")
 def update_screen(id: int, data: PageUpdate, db: Session = Depends(get_db)):
     screen = db.query(ScreenList).filter(ScreenList.id == id).first()
@@ -93,10 +95,17 @@ def update_screen(id: int, data: PageUpdate, db: Session = Depends(get_db)):
 
     return {"message": "Successfully Updated"}
 
-    @app.get("/api/v1/screens/search")
-    def search_screen(q: str = Query(..., min_length=1), db: Session = Depends(get_db)):
-        
-        results = (db.query(Screen).filter(or_(Screen.screen_label.ilike(f"%{q}"))).order_by(Screen.id.desc()).all())
+# Get Seller Screen
+@app.get("/api/v1/GetSellerScreen", response_model=List[PageResponse])
+def get_seller_creen(db: Session = Depends(get_db)):
+    return db.query(ScreenList).filter(ScreenList.alpha == "S").order_by(ScreenList.id.desc()).all()
+
+
+# Search Screen
+@app.get("/api/v1/screens/search")
+def search_screen(q: str = Query(..., min_length=1), db: Session = Depends(get_db)):
+    
+    results = (db.query(Screen).filter(or_(Screen.screen_label.ilike(f"%{q}"))).order_by(Screen.id.desc()).all())
 
 
     return results
