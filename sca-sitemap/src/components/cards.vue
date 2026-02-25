@@ -1,34 +1,54 @@
 <template>
-  <div class="row mb-4">
-    <div class="col-md-3">
-      <div class="card text-bg-primary shadow-sm">
+  <div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+      <div class="card stat-card card-indigo">
         <div class="card-body">
-          <h5 class="card-title">Users</h5>
-          <p class="card-text fs-4">1,234</p>
+          <!-- <div class="stat-icon">
+            <i class="bi bi-people"></i>
+          </div> -->
+          <div class="stat-info">
+            <div class="stat-label">Buyers Page</div>
+            <div class="stat-value">0</div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card text-bg-success shadow-sm">
+    <div class="col-md-6 col-xl-3">
+      <div class="card stat-card card-teal">
         <div class="card-body">
-          <h5 class="card-title">Sales</h5>
-          <p class="card-text fs-4">$12,345</p>
+          <!-- <div class="stat-icon">
+            <i class="bi bi-currency-dollar"></i>
+          </div> -->
+          <div class="stat-info">
+            <div class="stat-label">Sellers Page</div>
+            <div class="stat-value">0</div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card text-bg-warning shadow-sm">
+    <div class="col-md-6 col-xl-3">
+      <div class="card stat-card card-amber">
         <div class="card-body">
-          <h5 class="card-title">Orders</h5>
-          <p class="card-text fs-4">567</p>
+          <!-- <div class="stat-icon">
+            <i class="bi bi-cart"></i>
+          </div> -->
+          <div class="stat-info">
+            <div class="stat-label">Appraisal Boss Page</div>
+            <div class="stat-value">0</div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card text-bg-danger shadow-sm">
+    <div class="col-md-6 col-xl-3">
+      <div class="card stat-card card-rose">
         <div class="card-body">
-          <h5 class="card-title">Issues</h5>
-          <p class="card-text fs-4">23</p>
+          <!-- <div class="stat-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div> -->
+          <div class="stat-info">
+            <div class="stat-label">Issues</div>
+            <div class="stat-value">0</div>
+          </div>
         </div>
       </div>
     </div>

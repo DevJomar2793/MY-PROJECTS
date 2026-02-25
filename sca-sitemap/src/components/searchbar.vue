@@ -1,12 +1,24 @@
+<script setup>
+defineProps(["modelValue"]);
+defineEmits(["update:modelValue"]);
+</script>
+
 <template>
-  <form class="d-flex" role="search">
+  <div class="input-group search-input-group">
+    <span class="input-group-text bg-white border-end-0" style="border-color: #e2e8f0;">
+      <i class="bi bi-search text-muted"></i>
+    </span>
     <input
-      class="form-control me-2"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+      class="form-control border-start-0"
       type="search"
-      style="width: 500px"
-      placeholder="Search..."
+      placeholder="Search screens..."
       aria-label="Search"
+      style="border-color: #e2e8f0;"
     />
-    <button class="btn btn-outline-primary" type="submit">Search</button>
-  </form>
+    <button class="btn btn-accent" type="button">
+      Search
+    </button>
+  </div>
 </template>

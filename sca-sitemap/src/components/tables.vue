@@ -1,12 +1,63 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed } from "vue";
 
 // props and emits
-defineProps({
+const props = defineProps({
   pages: {
     type: Array,
     required: true,
   },
+  searchQuery: {
+    type: String,
+    default: "",
+  },
+});
+
+// Sorting state
+const sortKey = ref("id");
+const sortOrder = ref("asc");
+
+function toggleSort(key) {
+  if (sortKey.value === key) {
+    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+  } else {
+    sortKey.value = key;
+    sortOrder.value = "asc";
+  }
+}
+
+function sortIcon(key) {
+  if (sortKey.value !== key) return "bi-arrow-down-up";
+  return sortOrder.value === "asc" ? "bi-sort-up" : "bi-sort-down";
+}
+
+const sortedPages = computed(() => {
+  let result = [...props.pages];
+
+  if (props.searchQuery) {
+    const q = props.searchQuery.toLowerCase();
+    result = result.filter((page) => {
+      return (
+        String(page.id || "").toLowerCase().includes(q) ||
+        String(page.alpha || "").toLowerCase().includes(q) ||
+        String(page.screen_number || "").toLowerCase().includes(q) ||
+        String(page.file_label || "").toLowerCase().includes(q) ||
+        String(page.screen_description || "").toLowerCase().includes(q) ||
+        formatDate(page.created_at).toLowerCase().includes(q)
+      );
+    });
+  }
+
+  const key = sortKey.value;
+  const order = sortOrder.value === "asc" ? 1 : -1;
+  return result.sort((a, b) => {
+    const aVal = a[key] ?? "";
+    const bVal = b[key] ?? "";
+    if (typeof aVal === "number" && typeof bVal === "number") {
+      return (aVal - bVal) * order;
+    }
+    return String(aVal).localeCompare(String(bVal)) * order;
+  });
 });
 
 const emit = defineEmits(["updatePage"]);
@@ -81,46 +132,71 @@ function formatDate(dateStr) {
 </script>
 
 <template>
-  <div class="card shadow-sm">
-    <div class="card-header">Recent Added</div>
-    <div class="card-body">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Alpha</th>
-            <th>Screen Number</th>
-            <th>File Label</th>
-            <th>Screen Description</th>
-            <th>Created At</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="page in pages" :key="page.id">
-            <td>{{ page.id }}</td>
-            <td>{{ page.alpha }}</td>
-            <td>{{ page.screen_number }}</td>
-            <td>{{ page.file_label }}</td>
-            <td>{{ page.screen_description }}</td>
-            <td>{{ formatDate(page.created_at) }}</td>
-            <td>
-              <div class="d-flex justify-content-start gap-2">
-                <button
-                  @click="openEdit(page)"
-                  type="button"
-                  class="btn btn-primary"
-                  data-bs-toggle="modal"
-                  data-bs-target="#updateScreen"
-                >
-                  Edit
-                </button>
-                <button type="button" class="btn btn-danger">Delete</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="card data-card">
+    <div class="card-header">
+      <i class="bi bi-clock-history"></i>
+      Recent Added
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th class="sortable-th" @click="toggleSort('id')">
+                ID <i class="bi" :class="sortIcon('id')"></i>
+              </th>
+              <th class="sortable-th" @click="toggleSort('alpha')">
+                Alpha <i class="bi" :class="sortIcon('alpha')"></i>
+              </th>
+              <th class="sortable-th" @click="toggleSort('screen_number')">
+                Screen Number <i class="bi" :class="sortIcon('screen_number')"></i>
+              </th>
+              <th class="sortable-th" @click="toggleSort('file_label')">
+                File Label <i class="bi" :class="sortIcon('file_label')"></i>
+              </th>
+              <th class="sortable-th" @click="toggleSort('screen_description')">
+                Screen Description <i class="bi" :class="sortIcon('screen_description')"></i>
+              </th>
+              <th class="sortable-th" @click="toggleSort('created_at')">
+                Created At <i class="bi" :class="sortIcon('created_at')"></i>
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="page in sortedPages" :key="page.id">
+              <td class="fw-semibold">#{{ page.id }}</td>
+              <td><span class="badge-alpha">{{ page.alpha }}</span></td>
+              <td>{{ page.screen_number }}</td>
+              <td>{{ page.file_label }}</td>
+              <td>{{ page.screen_description }}</td>
+              <td class="text-muted">{{ formatDate(page.created_at) }}</td>
+              <td>
+                <div class="d-flex gap-1">
+                  <button
+                    @click="openEdit(page)"
+                    type="button"
+                    class="btn btn-outline-primary btn-action"
+                    data-bs-toggle="modal"
+                    data-bs-target="#updateScreen"
+                  >
+                    <i class="bi bi-pencil-square"></i> Edit
+                  </button>
+                  <button type="button" class="btn btn-outline-danger btn-action">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="pages.length === 0">
+              <td colspan="7" class="text-center text-muted py-4">
+                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                No screens found
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -131,16 +207,16 @@ function formatDate(dateStr) {
     data-bs-backdrop="static"
     data-bs-keyboard="false"
     tabindex="-1"
-    aria-labelledby="staticBackdropLabel"
+    aria-labelledby="editScreenLabel"
     aria-hidden="true"
   >
     <div class="modal-dialog modal-dialog-scrollable">
-      <form>
+      <form @submit.prevent="updatePage">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="staticBackdropLabel">
-              Update Screen
-            </h1>
+            <h5 class="modal-title" id="editScreenLabel">
+              <i class="bi bi-pencil-square me-2"></i>Update Screen
+            </h5>
             <button
               id="editModalClose"
               type="button"
@@ -151,111 +227,119 @@ function formatDate(dateStr) {
           </div>
 
           <div class="modal-body">
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Alpha</label
-              >
-              <input
-                v-model="form.alpha"
-                type="text"
-                class="form-control"
-                id="exampleFormControlInput1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Screen Number</label
-              >
-              <input
-                v-model.number="form.screen_number"
-                type="number"
-                class="form-control"
-                id="exampleFormControlInput1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Screen Type</label
-              >
-              <input
-                v-model="form.screen_type"
-                type="text"
-                class="form-control"
-                id="exampleFormControlInput1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Screen Description</label
-              >
-              <input
-                v-model="form.screen_description"
-                type="text"
-                class="form-control"
-                id="exampleFormControlInput1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >File Label</label
-              >
-              <input
-                v-model="form.file_label"
-                type="text"
-                class="form-control"
-                id="exampleFormControlInput1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Screen Label</label
-              >
-              <input
-                v-model="form.screen_label"
-                type="text"
-                class="form-control"
-                id="exampleFormControlInput1"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Notes</label
-              >
-              <textarea
-                v-model="form.notes"
-                type="text"
-                class="form-control"
-                id="exampleFormControlInput1"
-              ></textarea>
-            </div>
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Sitemap</label
-              >
-              <textarea
-                v-model="form.sitemap"
-                type="text"
-                class="form-control"
-                id="exampleFormControlInput1"
-              ></textarea>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input
+                    v-model="form.alpha"
+                    type="text"
+                    class="form-control"
+                    id="editAlpha"
+                    placeholder="Alpha"
+                  />
+                  <label for="editAlpha">Alpha</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input
+                    v-model.number="form.screen_number"
+                    type="number"
+                    class="form-control"
+                    id="editScreenNumber"
+                    placeholder="Screen Number"
+                  />
+                  <label for="editScreenNumber">Screen Number</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <input
+                    v-model="form.screen_type"
+                    type="text"
+                    class="form-control"
+                    id="editScreenType"
+                    placeholder="Screen Type"
+                  />
+                  <label for="editScreenType">Screen Type</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <input
+                    v-model="form.screen_description"
+                    type="text"
+                    class="form-control"
+                    id="editScreenDesc"
+                    placeholder="Screen Description"
+                  />
+                  <label for="editScreenDesc">Screen Description</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input
+                    v-model="form.file_label"
+                    type="text"
+                    class="form-control"
+                    id="editFileLabel"
+                    placeholder="File Label"
+                  />
+                  <label for="editFileLabel">File Label</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating">
+                  <input
+                    v-model="form.screen_label"
+                    type="text"
+                    class="form-control"
+                    id="editScreenLabel2"
+                    placeholder="Screen Label"
+                  />
+                  <label for="editScreenLabel2">Screen Label</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <textarea
+                    v-model="form.notes"
+                    class="form-control"
+                    id="editNotes"
+                    placeholder="Notes"
+                    style="height: 80px"
+                  ></textarea>
+                  <label for="editNotes">Notes</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <textarea
+                    v-model="form.sitemap"
+                    class="form-control"
+                    id="editSitemap"
+                    placeholder="Sitemap"
+                    style="height: 80px"
+                  ></textarea>
+                  <label for="editSitemap">Sitemap</label>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="modal-footer">
             <button
-              id="editModalClose"
               type="button"
-              class="btn btn-secondary"
+              class="btn btn-light"
               data-bs-dismiss="modal"
             >
-              Close
+              Cancel
             </button>
             <button
-              @click.prevent="updatePage"
-              type="button"
-              class="btn btn-success"
+              type="submit"
+              class="btn btn-accent"
             >
-              Update
+              <i class="bi bi-check-lg me-1"></i> Update
             </button>
           </div>
         </div>

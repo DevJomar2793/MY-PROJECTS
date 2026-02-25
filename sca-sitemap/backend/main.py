@@ -39,14 +39,7 @@ def get_db():
     finally:
         db.close()
 
-#Database Connection
-# @app.get("/db-check")
-# def get_data(db: Session = Depends(get_db)):
-#     try:
-#         db.execute(text("SELECT 1"))
-#         return {"Status:": "Database Connected"}
-#     except Exception as e:
-#         return {"Status": "Database Failed", "error": str(e)}
+ 
 
 @app.post("/api/v1/PageCreate")
 def create_page(page: PageCreate, db: Session = Depends(get_db)):

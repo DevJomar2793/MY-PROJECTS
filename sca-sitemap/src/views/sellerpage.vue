@@ -21,7 +21,7 @@ const pages = ref([]);
 const searchQuery = ref("");
 
 async function getPages() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/GetBuyerScreen");
+  const res = await fetch("http://127.0.0.1:8000/api/v1/GetBuyerScreen"); // Modify this to GetSellerScreen if/when your backend has it
   pages.value = await res.json();
 }
 
@@ -35,7 +35,7 @@ onMounted(getPages);
       <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h1>Buyer Screens</h1>
+            <h1>Seller Screens</h1>
             <p>Manage and review buyer screen entries.</p>
           </div>
           <AddScreenModal @submit="addPage" />
