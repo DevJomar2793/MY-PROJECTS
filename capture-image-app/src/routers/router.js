@@ -8,6 +8,7 @@ const router = createRouter({
     routes: [
         { path: "/", component: Index },
         { path: "/dashboard", component: Dashboard },
+        { path: "/index.html", redirect: "/" },
     ],
 });
 
