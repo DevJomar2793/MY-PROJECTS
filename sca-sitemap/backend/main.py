@@ -40,7 +40,7 @@ def get_db():
         db.close()
 
  
-
+# Screen Creation
 @app.post("/api/v1/PageCreate")
 def create_page(page: PageCreate, db: Session = Depends(get_db)):
 
@@ -61,7 +61,7 @@ def create_page(page: PageCreate, db: Session = Depends(get_db)):
 
     return {"message": "Item Added Successfully", "page_id": new_page.id }
 
-
+# Screen Reading
 @app.get("/api/v1/GetSpecificScreen", response_model=List[PageResponse])
 def get_screen(db: Session = Depends(get_db)):
     return db.query(ScreenList).order_by(ScreenList.id.desc()).all()
