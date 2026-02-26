@@ -6,7 +6,7 @@ class ScreenList(Base):
     __tablename__ = "tbl_screen_list"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    alpha = Column(String(5))
+    alpha = Column(String(10))
     screen_number = Column(String(10), nullable=False)
     screen_type = Column(String(10), nullable=False)
     screen_description = Column(String(250), nullable=False)

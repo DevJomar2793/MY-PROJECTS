@@ -71,8 +71,8 @@ def get_screen(db: Session = Depends(get_db)):
 def get_buyers_creen(db: Session = Depends(get_db)):
     return db.query(ScreenList).filter(ScreenList.alpha == "B").order_by(ScreenList.id.desc()).all()
 
-# Update Buyer Screen
-@app.put("/api/v1/UpdateBuyerScreen/{id}")
+# Update Screen
+@app.put("/api/v1/UpdateScreen/{id}")
 def update_screen(id: int, data: PageUpdate, db: Session = Depends(get_db)):
     screen = db.query(ScreenList).filter(ScreenList.id == id).first()
 
@@ -109,3 +109,14 @@ def search_screen(q: str = Query(..., min_length=1), db: Session = Depends(get_d
 
 
     return results
+
+# Delete Screen
+@app.delete("/api/v1/DeleteScreen/{id}")
+def delete_screen(id: int, db: Session = Depends(get_db)):
+    screen = db.query(ScreenList).filter(ScreenList.id == id).first()
+    if not screen:
+        raise HTTPException(status_code=404, detail="Screen not found")
+    
+    db.delete(screen)
+    db.commit()
+    return {"message": "Successfully Deleted"}

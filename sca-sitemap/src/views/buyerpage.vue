@@ -4,16 +4,45 @@ import Cards from "../components/cards.vue";
 import Table from "../components/tables.vue";
 import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
+import Swal from 'sweetalert2';
 
 import { ref, onMounted } from "vue";
 
 //Add Screen Endpoint
 async function addPage(data) {
-  await fetch("http://127.0.0.1:8000/api/v1/PageCreate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/v1/PageCreate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (res.ok) {
+      const modalCloseBtn = document.querySelector('#addScreen .btn-close');
+      if (modalCloseBtn) modalCloseBtn.click();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Screen added successfully!',
+        timer: 1500,
+        showConfirmButton: false
+      });
+      getPages();
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to add screen',
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'An error occurred while adding screen',
+    });
+  }
 }
 
 //Read Screen Endpoint

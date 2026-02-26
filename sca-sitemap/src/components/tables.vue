@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
+import Swal from 'sweetalert2';
 
 // props and emits
 const props = defineProps({
@@ -104,25 +105,90 @@ async function updatePage() {
     sitemap: form.value.sitemap ?? "",
   };
 
-  const res = await fetch(
-    `http://127.0.0.1:8000/api/v1/UpdateBuyerScreen/${selectedId.value}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:8000/api/v1/UpdateScreen/${selectedId.value}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    },
-  );
+    );
 
-  if (!res.ok) {
-    console.error(await res.json());
-    return;
+    if (!res.ok) {
+      console.error(await res.json());
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to update data',
+      });
+      return;
+    }
+    
+    emit("updatePage");
+
+    //close Modal
+    document.getElementById("editModalClose").click();
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: 'Data updated successfully!',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'An error occurred while updating',
+    });
   }
-  emit("updatePage");
+}
 
-  //close Modal
-  document.getElementById("editModalClose").click();
+// Delete Data
+async function deletePage(id) {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/api/v1/DeleteScreen/${id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Deleted!",
+          text: "Data has been deleted.",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        emit("updatePage");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to delete data",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "An error occurred while deleting",
+      });
+    }
+  }
 }
 
 // DateTime Function
@@ -182,7 +248,7 @@ function formatDate(dateStr) {
                   >
                     <i class="bi bi-pencil-square"></i> Edit
                   </button>
-                  <button type="button" class="btn btn-outline-danger btn-action">
+                  <button @click="deletePage(page.id)" type="button" class="btn btn-outline-danger btn-action">
                     <i class="bi bi-trash"></i> Delete
                   </button>
                 </div>
