@@ -91,6 +91,7 @@ const closeCamera = async () => {
 // Capture image
 const captureImage = () => {
   const ctx = canvas.value.getContext("2d");
+  
   // const TARGET_WIDTH = 350;
   // const TARGET_HEIGHT = 280; // 3:4 vertical photo style
 
