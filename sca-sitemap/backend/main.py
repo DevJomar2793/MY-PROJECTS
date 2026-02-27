@@ -100,6 +100,16 @@ def update_screen(id: int, data: PageUpdate, db: Session = Depends(get_db)):
 def get_seller_creen(db: Session = Depends(get_db)):
     return db.query(ScreenList).filter(ScreenList.alpha == "S").order_by(ScreenList.id.desc()).all()
 
+# Get Appraisal Boss Screen
+@app.get("/api/v1/GetAppraisalBossScreen", response_model=List[PageResponse])
+def get_appraisal_boss_creen(db: Session = Depends(get_db)):
+    return db.query(ScreenList).filter(ScreenList.alpha == "AB").order_by(ScreenList.id.desc()).all()
+
+# Get Admin Screen
+@app.get("/api/v1/GetAdminScreen", response_model=List[PageResponse])
+def get_admin_creen(db: Session = Depends(get_db)):
+    return db.query(ScreenList).filter(ScreenList.alpha == "A").order_by(ScreenList.id.desc()).all()
+
 
 # Search Screen
 @app.get("/api/v1/screens/search")

@@ -410,4 +410,12 @@ body {
     margin-left: 70px;
     padding: 1rem;
   }
+  .footer {
+    margin-left: 70px;
+  }
+}
+
+/* ===== Footer ===== */
+.footer {
+  margin-left: 250px;
 }

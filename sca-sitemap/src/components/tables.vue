@@ -16,7 +16,7 @@ const props = defineProps({
 
 // Sorting state
 const sortKey = ref("id");
-const sortOrder = ref("asc");
+const sortOrder = ref("desc");
 
 function toggleSort(key) {
   if (sortKey.value === key) {
@@ -62,6 +62,13 @@ const sortedPages = computed(() => {
 });
 
 const emit = defineEmits(["updatePage"]);
+
+// Detail view state
+const viewPage = ref(null);
+
+function openView(page) {
+  viewPage.value = page;
+}
 
 //Local edit State
 const selectedId = ref(null);
@@ -212,16 +219,16 @@ function formatDate(dateStr) {
                 ID <i class="bi" :class="sortIcon('id')"></i>
               </th>
               <th class="sortable-th" @click="toggleSort('alpha')">
-                Alpha <i class="bi" :class="sortIcon('alpha')"></i>
+                Screen Label <i class="bi" :class="sortIcon('alpha')"></i>
               </th>
               <th class="sortable-th" @click="toggleSort('screen_number')">
                 Screen Number <i class="bi" :class="sortIcon('screen_number')"></i>
               </th>
               <th class="sortable-th" @click="toggleSort('file_label')">
-                File Label <i class="bi" :class="sortIcon('file_label')"></i>
+                Screen Description <i class="bi" :class="sortIcon('file_label')"></i>
               </th>
               <th class="sortable-th" @click="toggleSort('screen_description')">
-                Screen Description <i class="bi" :class="sortIcon('screen_description')"></i>
+                File Label <i class="bi" :class="sortIcon('screen_description')"></i>
               </th>
               <th class="sortable-th" @click="toggleSort('created_at')">
                 Created At <i class="bi" :class="sortIcon('created_at')"></i>
@@ -232,10 +239,21 @@ function formatDate(dateStr) {
           <tbody>
             <tr v-for="page in sortedPages" :key="page.id">
               <td class="fw-semibold">#{{ page.id }}</td>
-              <td><span class="badge-alpha">{{ page.alpha }}</span></td>
+              <td>
+                <button
+                  @click="openView(page)"
+                  type="button"
+                  class="btn btn-link p-0 text-decoration-none fw-semibold screen-label-link"
+                  data-bs-toggle="modal"
+                  data-bs-target="#viewScreen"
+                >
+                  <span class="badge-alpha">{{ page.screen_label || '—' }}</span>
+                  <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                </button>
+              </td>
               <td>{{ page.screen_number }}</td>
-              <td>{{ page.file_label }}</td>
               <td>{{ page.screen_description }}</td>
+              <td>{{ page.file_label }}</td>
               <td class="text-muted">{{ formatDate(page.created_at) }}</td>
               <td>
                 <div class="d-flex gap-1">
@@ -412,4 +430,145 @@ function formatDate(dateStr) {
       </form>
     </div>
   </div>
+  <!-- View / Detail Screen Modal -->
+  <div
+    class="modal fade"
+    id="viewScreen"
+    tabindex="-1"
+    aria-labelledby="viewScreenLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title d-flex align-items-center gap-2" id="viewScreenLabel">
+            <i class="bi bi-layout-text-window-reverse"></i>
+            Screen Details
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" v-if="viewPage">
+          <div class="row g-3">
+            <!-- ID -->
+            <div class="col-md-6">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-hash me-1"></i>ID</span>
+                <span class="detail-value">#{{ viewPage.id }}</span>
+              </div>
+            </div>
+            <!-- Alpha -->
+            <div class="col-md-6">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-alphabet me-1"></i>Alpha</span>
+                <span class="detail-value">{{ viewPage.alpha || '—' }}</span>
+              </div>
+            </div>
+            <!-- Screen Number -->
+            <div class="col-md-6">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-sort-numeric-down me-1"></i>Screen Number</span>
+                <span class="detail-value">{{ viewPage.screen_number ?? '—' }}</span>
+              </div>
+            </div>
+            <!-- Screen Type -->
+            <div class="col-md-6">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-tag me-1"></i>Screen Type</span>
+                <span class="detail-value">{{ viewPage.screen_type || '—' }}</span>
+              </div>
+            </div>
+            <!-- Screen Label -->
+            <div class="col-md-6">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-card-text me-1"></i>Screen Label</span>
+                <span class="detail-value">{{ viewPage.screen_label || '—' }}</span>
+              </div>
+            </div>
+            <!-- File Label -->
+            <div class="col-md-6">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-file-earmark me-1"></i>File Label</span>
+                <span class="detail-value">{{ viewPage.file_label || '—' }}</span>
+              </div>
+            </div>
+            <!-- Screen Description -->
+            <div class="col-12">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-text-paragraph me-1"></i>Screen Description</span>
+                <span class="detail-value">{{ viewPage.screen_description || '—' }}</span>
+              </div>
+            </div>
+            <!-- Notes -->
+            <div class="col-12">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-journal-text me-1"></i>Notes</span>
+                <span class="detail-value detail-multiline">{{ viewPage.notes || '—' }}</span>
+              </div>
+            </div>
+            <!-- Sitemap -->
+            <div class="col-12">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-diagram-3 me-1"></i>Sitemap</span>
+                <span class="detail-value detail-multiline">{{ viewPage.sitemap || '—' }}</span>
+              </div>
+            </div>
+            <!-- Created At -->
+            <div class="col-12">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-clock me-1"></i>Created At</span>
+                <span class="detail-value text-muted">{{ formatDate(viewPage.created_at) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+          <button
+            type="button"
+            class="btn btn-accent"
+            data-bs-dismiss="modal"
+            @click="openEdit(viewPage)"
+            data-bs-toggle="modal"
+            data-bs-target="#updateScreen"
+          >
+            <i class="bi bi-pencil-square me-1"></i> Edit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
+
+<style scoped>
+.screen-label-link {
+  cursor: pointer;
+}
+.screen-label-link:hover .badge-alpha {
+  opacity: 0.8;
+}
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: var(--bs-body-bg, #f8f9fa);
+  border-radius: 8px;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+}
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bs-secondary-color, #6c757d);
+}
+.detail-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--bs-body-color, #212529);
+}
+.detail-multiline {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+</style>

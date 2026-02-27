@@ -4,6 +4,7 @@ import Cards from "../components/cards.vue";
 import Table from "../components/tables.vue";
 import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
+import Footer from "../components/footer.vue";
 import Swal from 'sweetalert2';
 
 import { ref, onMounted } from "vue";
@@ -66,7 +67,7 @@ onMounted(getPages);
         <div class="d-flex justify-content-between align-items-center">
           <div>
             <h1>Seller Screens</h1>
-            <p>Manage and review buyer screen entries.</p>
+            <p>Manage and review seller screen entries.</p>
           </div>
           <AddScreenModal @submit="addPage" />
         </div>
@@ -82,4 +83,5 @@ onMounted(getPages);
       <Table :pages="pages" :search-query="searchQuery" @updatePage="getPages" />
     </div>
   </main>
+  <Footer />
 </template>

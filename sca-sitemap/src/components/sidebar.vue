@@ -47,6 +47,16 @@ const route = useRoute();
               <span>Seller</span>
             </router-link>
           </li>
+           <li class="nav-item">
+            <router-link to="/appraisalboss" class="nav-link">
+              <span>Appraisal Boss</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/admin" class="nav-link">
+              <span>Admin</span>
+            </router-link>
+          </li>
         </ul>
       </li>
 
