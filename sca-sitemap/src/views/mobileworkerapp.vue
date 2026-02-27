@@ -68,7 +68,7 @@ onMounted(getPages);
             <h1>Mobile Worker App Screens</h1>
             <p>Manage and review mobile worker app screen entries.</p>
           </div>
-          <AddScreenModal @submit="addPage" />
+          <!-- <AddScreenModal @submit="addPage" /> -->
         </div>
       </div>
 

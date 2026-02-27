@@ -68,7 +68,7 @@ onMounted(getPages);
             <h1>Appraisal Boss Screens</h1>
             <p>Manage and review appraisal boss screen entries.</p>
           </div>
-          <AddScreenModal @submit="addPage" />
+          <!-- <AddScreenModal @submit="addPage" /> -->
         </div>
       </div>
 

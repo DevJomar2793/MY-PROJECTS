@@ -68,7 +68,7 @@ onMounted(getPages);
             <h1>Read Module Screens</h1>
             <p>Manage and review read module screen entries.</p>
           </div>
-          <AddScreenModal @submit="addPage" />
+          <!-- <AddScreenModal @submit="addPage" /> -->
         </div>
       </div>
 

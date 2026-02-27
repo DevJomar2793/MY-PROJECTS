@@ -68,7 +68,7 @@ onMounted(getPages);
             <h1>Admin Screens</h1>
             <p>Manage and review admin screen entries.</p>
           </div>
-          <AddScreenModal @submit="addPage" />
+          <!-- <AddScreenModal @submit="addPage" /> -->
         </div>
       </div>
 

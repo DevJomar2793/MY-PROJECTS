@@ -69,7 +69,7 @@ onMounted(getPages);
             <h1>Seller Screens</h1>
             <p>Manage and review seller screen entries.</p>
           </div>
-          <AddScreenModal @submit="addPage" />
+          <!-- <AddScreenModal @submit="addPage" /> -->
         </div>
       </div>
 
