@@ -65,8 +65,8 @@ onMounted(getPages);
       <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
           <div>
-            <h1>Buyer Screens</h1>
-            <p>Manage and review buyer screen entries.</p>
+            <h1>Admin Screens</h1>
+            <p>Manage and review admin screen entries.</p>
           </div>
           <AddScreenModal @submit="addPage" />
         </div>

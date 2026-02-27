@@ -16,6 +16,17 @@ const form = ref({
 
 function submitForm() {
   emit("submit", { ...form.value });
+
+  form.value = {
+    alpha: "",
+    screen_number: null,
+    screen_type: "",
+    screen_decription: "",
+    file_label: "",
+    screen_label: "",
+    notes: "",
+    sitemap: "",
+  };
 }
 </script>
 
@@ -53,6 +64,13 @@ function submitForm() {
               class="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
+            ></button>
+            <!-- Hidden close used by parent to dismiss natively -->
+            <button
+              id="addScreenModalClose"
+              type="button"
+              data-bs-dismiss="modal"
+              style="display:none"
             ></button>
           </div>
 

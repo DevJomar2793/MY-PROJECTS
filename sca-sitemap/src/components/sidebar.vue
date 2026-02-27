@@ -57,6 +57,26 @@ const route = useRoute();
               <span>Admin</span>
             </router-link>
           </li>
+          <li class="nav-item">
+            <router-link to="/mobileworkerapp" class="nav-link">
+              <span>Mobile Worker App</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/marketplace" class="nav-link">
+              <span>Marketplace</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/readmodule" class="nav-link">
+              <span>Read Module</span>
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/controllermodule" class="nav-link">
+              <span>Controller Module</span>
+            </router-link>
+          </li>
         </ul>
       </li>
 

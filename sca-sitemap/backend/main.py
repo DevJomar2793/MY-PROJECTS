@@ -110,6 +110,26 @@ def get_appraisal_boss_creen(db: Session = Depends(get_db)):
 def get_admin_creen(db: Session = Depends(get_db)):
     return db.query(ScreenList).filter(ScreenList.alpha == "A").order_by(ScreenList.id.desc()).all()
 
+# Get Mobile Worker App Screen
+@app.get("/api/v1/GetMobileWorkerScreen", response_model=List[PageResponse])
+def get_mobile_worker_creen(db: Session = Depends(get_db)):
+    return db.query(ScreenList).filter(ScreenList.alpha == "MW").order_by(ScreenList.id.desc()).all()
+
+# Get Marketplace Screen
+@app.get("/api/v1/GetMarketplaceScreen", response_model=List[PageResponse])
+def get_marketplace_creen(db: Session = Depends(get_db)):
+    return db.query(ScreenList).filter(ScreenList.alpha == "M").order_by(ScreenList.id.desc()).all()
+
+# Get Read Module Screen
+@app.get("/api/v1/GetReadModuleScreen", response_model=List[PageResponse])
+def get_read_module_creen(db: Session = Depends(get_db)):
+    return db.query(ScreenList).filter(ScreenList.alpha == "RM").order_by(ScreenList.id.desc()).all()
+
+#Get Controller Module Screen
+@app.get("/api/v1/GetControllerModuleScreen", response_model=List[PageResponse])
+def get_controller_module_creen(db: Session = Depends(get_db)):
+    return db.query(ScreenList).filter(ScreenList.alpha == "CM").order_by(ScreenList.id.desc()).all()
+
 
 # Search Screen
 @app.get("/api/v1/screens/search")

@@ -215,14 +215,14 @@ function formatDate(dateStr) {
         <table class="table table-hover align-middle mb-0">
           <thead>
             <tr>
-              <th class="sortable-th" @click="toggleSort('id')">
+              <!-- <th class="sortable-th" @click="toggleSort('id')">
                 ID <i class="bi" :class="sortIcon('id')"></i>
+              </th> -->
+              <th class="sortable-th" @click="toggleSort('screen_number')">
+                Screen Number <i class="bi" :class="sortIcon('screen_number')"></i>
               </th>
               <th class="sortable-th" @click="toggleSort('alpha')">
                 Screen Label <i class="bi" :class="sortIcon('alpha')"></i>
-              </th>
-              <th class="sortable-th" @click="toggleSort('screen_number')">
-                Screen Number <i class="bi" :class="sortIcon('screen_number')"></i>
               </th>
               <th class="sortable-th" @click="toggleSort('file_label')">
                 Screen Description <i class="bi" :class="sortIcon('file_label')"></i>
@@ -238,7 +238,8 @@ function formatDate(dateStr) {
           </thead>
           <tbody>
             <tr v-for="page in sortedPages" :key="page.id">
-              <td class="fw-semibold">#{{ page.id }}</td>
+              <!-- <td class="fw-semibold">#{{ page.id }}</td> -->
+              <td>{{ page.screen_number }}</td>
               <td>
                 <button
                   @click="openView(page)"
@@ -248,10 +249,10 @@ function formatDate(dateStr) {
                   data-bs-target="#viewScreen"
                 >
                   <span class="badge-alpha">{{ page.screen_label || '—' }}</span>
-                  <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                  <!-- <i class="bi bi-box-arrow-up-right ms-1 small"></i> -->
                 </button>
               </td>
-              <td>{{ page.screen_number }}</td>
+              
               <td>{{ page.screen_description }}</td>
               <td>{{ page.file_label }}</td>
               <td class="text-muted">{{ formatDate(page.created_at) }}</td>
@@ -450,12 +451,12 @@ function formatDate(dateStr) {
         <div class="modal-body" v-if="viewPage">
           <div class="row g-3">
             <!-- ID -->
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
               <div class="detail-field">
                 <span class="detail-label"><i class="bi bi-hash me-1"></i>ID</span>
                 <span class="detail-value">#{{ viewPage.id }}</span>
               </div>
-            </div>
+            </div> -->
             <!-- Alpha -->
             <div class="col-md-6">
               <div class="detail-field">
