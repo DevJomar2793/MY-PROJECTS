@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed, watch } from "vue";
 
 const emit = defineEmits(["submit", "closeModal"]);
 
@@ -12,6 +12,41 @@ const form = ref({
   screen_label: "",
   notes: "",
   sitemap: "",
+});
+
+// Auto-generate screen_label from alpha + screen_number
+const autoScreenLabel = computed(() => {
+  const a = form.value.alpha?.trim() ?? "";
+  const n = form.value.screen_number ?? "";
+  if (a && n !== "" && n !== null) return `${a}-0${n}`;
+  if (a) return a;
+  if (n !== "" && n !== null) return `0${n}`;
+  return "";
+});
+
+watch(autoScreenLabel, (val) => {
+  form.value.screen_label = val;
+});
+
+//Auto-generate file_label from alpha + screen_number + description
+const autoFileLabel = computed(() => {
+  const a = form.value.alpha?.trim() ?? "";
+  const n = form.value.screen_number ?? "";
+  const d = form.value.screen_description?.trim() ?? "";
+  if (a && n !== "" && n !== null && d !== "") return `${a}-0${n}-${d}`;
+  if (a) return a;
+  if (n !== "" && n !== null) return `0${n}`;
+  return "";
+});
+
+watch(autoFileLabel, (val) => {
+  form.value.file_label = val;
+});
+
+// Detect if sitemap value looks like a URL
+const sitemapIsUrl = computed(() => {
+  const v = form.value.sitemap?.trim() ?? "";
+  return /^https?:\/\//i.test(v);
 });
 
 function submitForm() {
@@ -145,7 +180,7 @@ function submitForm() {
                     id="addScreenLabel2"
                     placeholder="Screen Label"
                   />
-                  <label for="addScreenLabel2">Screen Label</label>
+                  <label for="addScreenLabel2">Screen Label <small class="text-muted">(auto)</small></label>
                 </div>
               </div>
               <div class="col-12">
@@ -170,6 +205,10 @@ function submitForm() {
                     style="height: 80px"
                   ></textarea>
                   <label for="addSitemap">Sitemap</label>
+                </div>
+                <div v-if="sitemapIsUrl" class="mt-1 px-1">
+                  <i class="bi bi-link-45deg text-primary me-1"></i>
+                  <a :href="form.sitemap.trim()" target="_blank" rel="noopener noreferrer" class="text-primary small">{{ form.sitemap.trim() }}</a>
                 </div>
               </div>
             </div>

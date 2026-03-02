@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import Swal from 'sweetalert2';
 
 // props and emits
@@ -202,6 +202,32 @@ async function deletePage(id) {
 function formatDate(dateStr) {
   return dateStr ? new Date(dateStr).toLocaleString() : "N/A";
 }
+
+// Auto-generate screen_label from alpha + screen_number in edit form
+const editAutoScreenLabel = computed(() => {
+  const a = form.value.alpha?.trim() ?? "";
+  const n = form.value.screen_number ?? "";
+  if (a && n !== "" && n !== null) return `${a}-0.${n}`;
+  if (a) return a;
+  if (n !== "" && n !== null) return `0.${n}`;
+  return "";
+});
+
+watch(editAutoScreenLabel, (val) => {
+  form.value.screen_label = val;
+});
+
+// Detect if edit sitemap is a URL
+const editSitemapIsUrl = computed(() => {
+  const v = form.value.sitemap?.trim() ?? "";
+  return /^https?:\/\//i.test(v);
+});
+
+// Detect if view-modal sitemap is a URL
+const viewSitemapIsUrl = computed(() => {
+  const v = viewPage.value?.sitemap?.trim() ?? "";
+  return /^https?:\/\//i.test(v);
+});
 </script>
 
 <template>
@@ -382,7 +408,7 @@ function formatDate(dateStr) {
                     id="editScreenLabel2"
                     placeholder="Screen Label"
                   />
-                  <label for="editScreenLabel2">Screen Label</label>
+                  <label for="editScreenLabel2">Screen Label <small class="text-muted">(auto)</small></label>
                 </div>
               </div>
               <div class="col-12">
@@ -407,6 +433,10 @@ function formatDate(dateStr) {
                     style="height: 80px"
                   ></textarea>
                   <label for="editSitemap">Sitemap</label>
+                </div>
+                <div v-if="editSitemapIsUrl" class="mt-1 px-1">
+                  <i class="bi bi-link-45deg text-primary me-1"></i>
+                  <a :href="form.sitemap.trim()" target="_blank" rel="noopener noreferrer" class="text-primary small">{{ form.sitemap.trim() }}</a>
                 </div>
               </div>
             </div>
@@ -510,7 +540,11 @@ function formatDate(dateStr) {
             <div class="col-12">
               <div class="detail-field">
                 <span class="detail-label"><i class="bi bi-diagram-3 me-1"></i>Sitemap</span>
-                <span class="detail-value detail-multiline">{{ viewPage.sitemap || '—' }}</span>
+                <span v-if="viewSitemapIsUrl" class="detail-value">
+                  <i class="bi bi-link-45deg me-1 text-primary"></i>
+                  <a :href="viewPage.sitemap.trim()" target="_blank" rel="noopener noreferrer">{{ viewPage.sitemap.trim() }}</a>
+                </span>
+                <span v-else class="detail-value detail-multiline">{{ viewPage.sitemap || '—' }}</span>
               </div>
             </div>
             <!-- Created At -->
