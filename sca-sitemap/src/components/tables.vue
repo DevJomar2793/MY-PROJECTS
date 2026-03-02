@@ -218,14 +218,14 @@ watch(editAutoScreenLabel, (val) => {
 });
 
 // Detect if edit sitemap is a URL
-const editSitemapIsUrl = computed(() => {
-  const v = form.value.sitemap?.trim() ?? "";
-  return /^https?:\/\//i.test(v);
-});
+// const editSitemapIsUrl = computed(() => {
+//   const v = form.value.sitemap?.trim() ?? "";
+//   return /^https?:\/\//i.test(v);
+// });
 
 // Detect if view-modal sitemap is a URL
-const viewSitemapIsUrl = computed(() => {
-  const v = viewPage.value?.sitemap?.trim() ?? "";
+const viewLinkIsUrl = computed(() => {
+  const v = viewPage.value.link?.trim() ?? "";
   return /^https?:\/\//i.test(v);
 });
 </script>
@@ -540,11 +540,18 @@ const viewSitemapIsUrl = computed(() => {
             <div class="col-12">
               <div class="detail-field">
                 <span class="detail-label"><i class="bi bi-diagram-3 me-1"></i>Sitemap</span>
-                <span v-if="viewSitemapIsUrl" class="detail-value">
+                <span class="detail-value detail-multiline">{{ viewPage.sitemap || '—' }}</span>
+              </div>
+            </div>
+            <!-- Link -->
+            <div class="col-12">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-link-45deg me-1"></i>Link</span>
+                <span v-if="viewLinkIsUrl" class="detail-value">
                   <i class="bi bi-link-45deg me-1 text-primary"></i>
-                  <a :href="viewPage.sitemap.trim()" target="_blank" rel="noopener noreferrer">{{ viewPage.sitemap.trim() }}</a>
+                  <a :href="viewPage.link.trim()" target="_blank" rel="noopener noreferrer">{{ viewPage.link.trim() }}</a>
                 </span>
-                <span v-else class="detail-value detail-multiline">{{ viewPage.sitemap || '—' }}</span>
+                <span v-else class="detail-value detail-multiline">{{ viewPage.link || '—' }}</span>
               </div>
             </div>
             <!-- Created At -->
@@ -557,8 +564,8 @@ const viewSitemapIsUrl = computed(() => {
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-          <button
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+          <!-- <button
             type="button"
             class="btn btn-accent"
             data-bs-dismiss="modal"
@@ -567,7 +574,7 @@ const viewSitemapIsUrl = computed(() => {
             data-bs-target="#updateScreen"
           >
             <i class="bi bi-pencil-square me-1"></i> Edit
-          </button>
+          </button> -->
         </div>
       </div>
     </div>

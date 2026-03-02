@@ -167,6 +167,7 @@ function submitForm() {
                     class="form-control"
                     id="addFileLabel"
                     placeholder="File Label"
+                    readonly="true"
                   />
                   <label for="addFileLabel">File Label</label>
                 </div>
@@ -179,8 +180,9 @@ function submitForm() {
                     class="form-control"
                     id="addScreenLabel2"
                     placeholder="Screen Label"
+                    readonly="true"
                   />
-                  <label for="addScreenLabel2">Screen Label <small class="text-muted">(auto)</small></label>
+                  <label for="addScreenLabel2">Screen Label</label>
                 </div>
               </div>
               <div class="col-12">
@@ -205,6 +207,17 @@ function submitForm() {
                     style="height: 80px"
                   ></textarea>
                   <label for="addSitemap">Sitemap</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <input
+                    v-model="form.link"
+                    class="form-control"
+                    id="addLink"
+                    placeholder="Link"
+                  />
+                  <label for="addLink">Link</label>
                 </div>
                 <div v-if="sitemapIsUrl" class="mt-1 px-1">
                   <i class="bi bi-link-45deg text-primary me-1"></i>

@@ -53,6 +53,7 @@ def create_page(page: PageCreate, db: Session = Depends(get_db)):
             screen_label=page.screen_label,
             notes=page.notes,
             sitemap=page.sitemap,
+            link=page.link,
     )
 
     db.add(new_page)
@@ -89,6 +90,7 @@ def update_screen(id: int, data: PageUpdate, db: Session = Depends(get_db)):
     screen.screen_label = data.screen_label
     screen.notes = data.notes
     screen.sitemap = data.sitemap
+    screen.link = data.link
 
     db.commit()
     # db.refresh(screen)

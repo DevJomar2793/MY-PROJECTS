@@ -12,6 +12,7 @@ class PageCreate(BaseModel):
     screen_label: str
     notes: str
     sitemap: str
+    link: str
 
 
 class PageResponse(BaseModel):
@@ -24,6 +25,7 @@ class PageResponse(BaseModel):
     screen_label: Optional[str]
     notes: Optional[str]
     sitemap: Optional[str]
+    link: Optional[str]
     created_at: Optional[datetime]
 
 class PageUpdate(BaseModel):
@@ -35,6 +37,7 @@ class PageUpdate(BaseModel):
     screen_label: str | None = None
     notes: str | None = None
     sitemap: str | None = None
+    link: str | None = None
 
 
     class Config:

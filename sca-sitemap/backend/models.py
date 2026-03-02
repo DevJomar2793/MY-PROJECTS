@@ -14,5 +14,7 @@ class ScreenList(Base):
     screen_label = Column(String(150), nullable=False)
     notes = Column(String(250), nullable=True)
     sitemap = Column(String(250), nullable=False)
+    link = Column(String(250), nullable=False)
     created_at = Column(DateTime, default=func.now(), server_default=func.now(), nullable=False)
+    # updated_at = Column(DateTime, default=func.now(), server_default=func.now(), nullable=False)
 
