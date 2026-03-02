@@ -415,6 +415,39 @@ body {
   }
 }
 
+/* ===== Tables.vue ===== */
+.screen-label-link {
+  cursor: pointer;
+}
+.screen-label-link:hover .badge-alpha {
+  opacity: 0.8;
+}
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  background: var(--bs-body-bg, #f8f9fa);
+  border-radius: 8px;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+}
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bs-secondary-color, #6c757d);
+}
+.detail-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--bs-body-color, #212529);
+}
+.detail-multiline {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* ===== Footer ===== */
 .footer {
   margin-left: 250px;
