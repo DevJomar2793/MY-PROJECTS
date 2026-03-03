@@ -96,6 +96,7 @@ function openEdit(page) {
     screen_label: page.screen_label,
     notes: page.notes,
     sitemap: page.sitemap,
+    link: page.link,
   };
 }
 
@@ -110,6 +111,7 @@ async function updatePage() {
     screen_label: form.value.screen_label ?? "",
     notes: form.value.notes ?? "",
     sitemap: form.value.sitemap ?? "",
+    link: form.value.link ?? "",
   };
 
   try {
@@ -434,9 +436,21 @@ const viewLinkIsUrl = computed(() => {
                   ></textarea>
                   <label for="editSitemap">Sitemap</label>
                 </div>
-                <div v-if="editSitemapIsUrl" class="mt-1 px-1">
+              </div>
+              <div class="col-12">
+                <div class="form-floating">
+                  <textarea
+                    v-model="form.link"
+                    class="form-control"
+                    id="editLink"
+                    placeholder="Link"
+                    style="height: 80px"
+                  ></textarea>
+                  <label for="editLink">Link</label>
+                </div>
+                <div v-if="editLinkIsUrl" class="mt-1 px-1">
                   <i class="bi bi-link-45deg text-primary me-1"></i>
-                  <a :href="form.sitemap.trim()" target="_blank" rel="noopener noreferrer" class="text-primary small">{{ form.sitemap.trim() }}</a>
+                  <a :href="form.link.trim()" target="_blank" rel="noopener noreferrer" class="text-primary small">{{ form.link.trim() }}</a>
                 </div>
               </div>
             </div>

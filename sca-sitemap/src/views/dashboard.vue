@@ -30,7 +30,7 @@ async function addPage(data) {
       return;
     }
 
-    await getPages();
+    await refreshAll();
 
     Swal.fire({
       icon: "success",
@@ -49,6 +49,7 @@ async function addPage(data) {
 }
 
 //Read Screen Endpoint
+const cardsRef = ref(null);
 const pages = ref([]);
 const searchQuery = ref("");
 
@@ -57,7 +58,12 @@ async function getPages() {
   pages.value = await res.json();
 }
 
-onMounted(getPages);
+async function refreshAll() {
+  await getPages();
+  cardsRef.value?.refreshCounts();
+}
+
+onMounted(getPages)
 </script>
 <template>
   <SideBar />
@@ -75,13 +81,13 @@ onMounted(getPages);
       </div>
 
       <!-- Stat Cards -->
-      <Cards />
+      <Cards ref="cardsRef" />
 
       <!-- Search & Table -->
       <div class="d-flex justify-content-between align-items-center mb-3">
         <SearchBar v-model="searchQuery" />
       </div>
-      <Table :pages="pages" :search-query="searchQuery" @updatePage="getPages" />
+      <Table :pages="pages" :search-query="searchQuery" @updatePage="refreshAll" />
     </div>
   </main>
   <Footer />

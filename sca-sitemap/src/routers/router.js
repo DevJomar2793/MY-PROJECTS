@@ -8,6 +8,7 @@ import MobileWorkerApp from "../views/mobileworkerapp.vue"
 import Marketplace from "../views/marketplace.vue";
 import ReadModule from "../views/readmodule.vue";
 import ControllerModule from "../views/controllermodule.vue";
+import Login from "../views/login.vue";
 
 const routes = [
     {path: "/", name:"Dashboard", component: Dashboard },
@@ -18,7 +19,8 @@ const routes = [
     {path: "/mobileworkerapp", name:"MobileWorkerApp", component: MobileWorkerApp},
     {path: "/marketplace", name:"Marketplace", component: Marketplace},
     {path: "/readmodule", name:"ReadModule", component: ReadModule},
-    {path: "/controllermodule", name:"ControllerModule", component: ControllerModule}
+    {path: "/controllermodule", name:"ControllerModule", component: ControllerModule},
+    {path: "/login", name:"Login", component: Login}
     
 ];
 

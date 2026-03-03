@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import text, or_
+from sqlalchemy import text, or_, func
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine
 from fastapi.middleware.cors import CORSMiddleware
@@ -152,3 +152,44 @@ def delete_screen(id: int, db: Session = Depends(get_db)):
     db.delete(screen)
     db.commit()
     return {"message": "Successfully Deleted"}
+
+
+# Get Total Count Screen of Buyer
+@app.get("/api/v1/gettotalcountforbuyers")
+def get_total_count_buyers(db: Session = Depends(get_db)):
+    return db.query(func.count(ScreenList.alpha)).filter(ScreenList.alpha == "B").scalar()
+
+# Get Total Count Screen of Sellers
+@app.get("/api/v1/gettotalcountforsellers")
+def get_total_count_sellers(db: Session = Depends(get_db)):
+    return db.query(func.count(ScreenList.alpha)).filter(ScreenList.alpha == "S").scalar()
+
+#Get total Count Screen of Appraisal Boss
+@app.get("/api/v1/gettotalcountforappraisalboss")
+def get_total_count_appraisal_boss(db: Session = Depends(get_db)):
+    return db.query(func.count(ScreenList.alpha)).filter(ScreenList.alpha == "AB").scalar()
+
+#Get total Count Screen of Admin
+@app.get("/api/v1/gettotalcountforadmin")
+def get_total_count_admin(db: Session = Depends(get_db)):
+    return db.query(func.count(ScreenList.alpha)).filter(ScreenList.alpha == "A").scalar()
+
+#Get total Count Screen of Mobile Worker
+@app.get("/api/v1/gettotalcountformobileworker")
+def get_total_count_mobile_worker(db: Session = Depends(get_db)):
+    return db.query(func.count(ScreenList.alpha)).filter(ScreenList.alpha == "MW").scalar()
+
+#Get total Count Screen of Marketplace
+@app.get("/api/v1/gettotalcountformarketplace")
+def get_total_count_marketplace(db: Session = Depends(get_db)):
+    return db.query(func.count(ScreenList.alpha)).filter(ScreenList.alpha == "M").scalar()
+
+#Get total Count Screen of Read Module
+@app.get("/api/v1/gettotalcountforreadmodule")
+def get_total_count_read_module(db: Session = Depends(get_db)):
+    return db.query(func.count(ScreenList.alpha)).filter(ScreenList.alpha == "RM").scalar()
+
+#Get total Count Screen of Controller Module
+@app.get("/api/v1/gettotalcountforcontrollermodule")
+def get_total_count_controller_module(db: Session = Depends(get_db)):
+    return db.query(func.count(ScreenList.alpha)).filter(ScreenList.alpha == "CM").scalar()
