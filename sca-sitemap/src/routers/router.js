@@ -13,28 +13,43 @@ import Report from "../views/report.vue";
 import Login from "../views/login.vue";
 import Signup from "../views/signup.vue";
 import ForgotPassword from "../views/forgot-password.vue";
+import ResetPassword from "../views/reset-password.vue";
 
 const routes = [
+    // Public routes
     {path: "/", name:"Index", component: Index},
-    {path: "/dashboard", name:"Dashboard", component: Dashboard },
-    {path: "/buyer", name:"Buyer", component: Buyer},
-    {path: "/seller", name:"Seller", component: Seller},
-    {path: "/appraisalboss", name:"AppraisalBoss", component: AppraisalBoss},
-    {path: "/admin", name:"Admin", component: Admin},
-    {path: "/mobileworkerapp", name:"MobileWorkerApp", component: MobileWorkerApp},
-    {path: "/marketplace", name:"Marketplace", component: Marketplace},
-    {path: "/readmodule", name:"ReadModule", component: ReadModule},
-    {path: "/controllermodule", name:"ControllerModule", component: ControllerModule},
     {path: "/login", name:"Login", component: Login},
     {path: "/signup", name:"Signup", component: Signup},
     {path: "/forgot-password", name:"ForgotPassword", component: ForgotPassword},
-    // {path: "/report", name:"Report", component: Report}
+    {path: "/reset-password", name:"ResetPassword", component: ResetPassword},
+
+    // Protected routes
+    {path: "/dashboard", name:"Dashboard", component: Dashboard, meta: { requiresAuth: true } },
+    {path: "/buyer", name:"Buyer", component: Buyer, meta: { requiresAuth: true }},
+    {path: "/seller", name:"Seller", component: Seller, meta: { requiresAuth: true }},
+    {path: "/appraisalboss", name:"AppraisalBoss", component: AppraisalBoss, meta: { requiresAuth: true }},
+    {path: "/admin", name:"Admin", component: Admin, meta: { requiresAuth: true }},
+    {path: "/mobileworkerapp", name:"MobileWorkerApp", component: MobileWorkerApp, meta: { requiresAuth: true }},
+    {path: "/marketplace", name:"Marketplace", component: Marketplace, meta: { requiresAuth: true }},
+    {path: "/readmodule", name:"ReadModule", component: ReadModule, meta: { requiresAuth: true }},
+    {path: "/controllermodule", name:"ControllerModule", component: ControllerModule, meta: { requiresAuth: true }},
+    // {path: "/report", name:"Report", component: Report, meta: { requiresAuth: true }}
     
 ];
 
 const router =  createRouter({
     history: createWebHistory(),
     routes,
+});
+
+// Navigation Guard
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('access_token');
+    if (to.meta.requiresAuth && !token) {
+        next({ name: 'Login' });
+    } else {
+        next();
+    }
 });
 
 export default router;

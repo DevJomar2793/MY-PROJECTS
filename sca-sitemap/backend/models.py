@@ -18,3 +18,15 @@ class ScreenList(Base):
     created_at = Column(DateTime, default=func.now(), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), server_default=func.now(), nullable=False)
 
+
+class User(Base):
+    __tablename__ = "tbl_users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    full_name = Column(String(150), nullable=False)
+    email = Column(String(150), unique=True, nullable=False, index=True)
+    hashed_password = Column(String(255), nullable=False)
+    created_at = Column(DateTime, default=func.now(), server_default=func.now(), nullable=False)
+    reset_token = Column(String(255), nullable=True)
+    token_expiration = Column(DateTime, nullable=True)
+

@@ -1,19 +1,30 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-// import Swal from 'sweetalert2';
+import api from '../api/axios';
 
 const router = useRouter();
 
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
+const loading = ref(false);
+const errorMsg = ref('');
 
-const handleLogin = () => {
-    // Basic mock login action for demo
-    if (email.value && password.value) {
-        // e.g. router.push('/dashboard');
-        console.log('Logging in with', email.value);
+const handleLogin = async () => {
+    errorMsg.value = '';
+    loading.value = true;
+    try {
+        const res = await api.post('/api/v1/login', {
+            email: email.value,
+            password: password.value
+        });
+        localStorage.setItem('access_token', res.data.access_token);
+        router.push('/dashboard');
+    } catch (err) {
+        errorMsg.value = err.response?.data?.detail || 'Login failed. Please try again.';
+    } finally {
+        loading.value = false;
     }
 }
 </script>
@@ -59,6 +70,13 @@ const handleLogin = () => {
               </div>
 
               <form @submit.prevent="handleLogin">
+
+                <!-- Error Alert -->
+                <div v-if="errorMsg" class="alert alert-danger alert-dismissible fade show rounded-3 py-2 px-3 d-flex align-items-center" role="alert">
+                  <i class="bi bi-exclamation-circle me-2"></i>
+                  <span class="small">{{ errorMsg }}</span>
+                  <button type="button" class="btn-close btn-close-sm ms-auto" @click="errorMsg = ''" aria-label="Close" style="font-size: 0.65rem;"></button>
+                </div>
                 
                 <div class="form-floating mb-3">
                   <input
@@ -103,8 +121,9 @@ const handleLogin = () => {
                 </div>
 
                 <div class="d-grid mb-4">
-                  <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold shadow-sm login-btn py-3">
-                    Sign In
+                  <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold shadow-sm login-btn py-3" :disabled="loading">
+                    <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    {{ loading ? 'Signing In...' : 'Sign In' }}
                   </button>
                 </div>
 

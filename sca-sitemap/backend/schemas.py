@@ -44,3 +44,35 @@ class PageUpdate(BaseModel):
     class Config:
         from_attributes = True
      
+
+# ─── Auth Schemas ─────────────────────────────────────────────
+class UserCreate(BaseModel):
+    full_name: str
+    email: str
+    password: str
+    confirm_password: str
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+class UserResponse(BaseModel):
+    id: int
+    full_name: str
+    email: str
+    created_at: Optional[datetime]
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+    confirm_password: str

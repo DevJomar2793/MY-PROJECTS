@@ -1,20 +1,47 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import api from '../api/axios';
 
-const name = ref('');
+const router = useRouter();
+const fullName = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const showPassword = ref(false);
+const loading = ref(false);
+const errorMsg = ref('');
+const successMsg = ref('');
 
-const handleSignup = () => {
-    if (password.value !== confirmPassword.value) {
-        // Here you would add real validation
+const handleSignup = async () => {
+    errorMsg.value = '';
+    successMsg.value = '';
+
+    // Client-side validation
+    if (password.value.length < 8) {
+        errorMsg.value = 'Password must be at least 8 characters';
         return;
     }
-    // Mock signup 
-    console.log('Signing up', name.value, email.value);
+    if (password.value !== confirmPassword.value) {
+        errorMsg.value = 'Passwords do not match';
+        return;
+    }
+
+    loading.value = true;
+    try {
+        await api.post('/api/v1/register', {
+            full_name: fullName.value,
+            email: email.value,
+            password: password.value,
+            confirm_password: confirmPassword.value
+        });
+        successMsg.value = 'Account created successfully! Redirecting to login...';
+        setTimeout(() => router.push('/login'), 2000);
+    } catch (err) {
+        errorMsg.value = err.response?.data?.detail || 'Registration failed. Please try again.';
+    } finally {
+        loading.value = false;
+    }
 }
 </script>
 
@@ -60,10 +87,21 @@ const handleSignup = () => {
               </div>
 
               <form @submit.prevent="handleSignup" class="fade-in-up delay-2">
+
+                <!-- Alerts -->
+                <div v-if="errorMsg" class="alert alert-danger alert-dismissible fade show rounded-3 py-2 px-3 d-flex align-items-center" role="alert">
+                  <i class="bi bi-exclamation-circle me-2"></i>
+                  <span class="small">{{ errorMsg }}</span>
+                  <button type="button" class="btn-close btn-close-sm ms-auto" @click="errorMsg = ''" aria-label="Close" style="font-size: 0.65rem;"></button>
+                </div>
+                <div v-if="successMsg" class="alert alert-success rounded-3 py-2 px-3 d-flex align-items-center" role="alert">
+                  <i class="bi bi-check-circle me-2"></i>
+                  <span class="small">{{ successMsg }}</span>
+                </div>
                 
                 <div class="form-floating mb-3">
                   <input
-                    v-model="name"
+                    v-model="fullName"
                     type="text"
                     class="form-control bg-light border-0 shadow-none"
                     id="floatingInputName"
@@ -126,8 +164,9 @@ const handleSignup = () => {
 
 
                 <div class="d-grid mb-4">
-                  <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold shadow-sm login-btn py-3">
-                    Sign Up
+                  <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold shadow-sm login-btn py-3" :disabled="loading">
+                    <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    {{ loading ? 'Creating Account...' : 'Sign Up' }}
                   </button>
                 </div>
                 

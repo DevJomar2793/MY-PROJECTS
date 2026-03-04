@@ -1,23 +1,50 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import api from '../api/axios';
 
-const email = ref('');
-const submitted = ref(false);
+const router = useRouter();
+const route = useRoute();
+
+const token = ref('');
+const newPassword = ref('');
+const confirmPassword = ref('');
+const showPassword = ref(false);
 const loading = ref(false);
 const errorMsg = ref('');
+const successMsg = ref('');
 
-const handleReset = async () => {
+onMounted(() => {
+    token.value = route.query.token || '';
+    if (!token.value) {
+        errorMsg.value = 'Invalid or missing reset token.';
+    }
+});
+
+const handleResetPassword = async () => {
     errorMsg.value = '';
+    successMsg.value = '';
+
+    if (newPassword.value.length < 8) {
+        errorMsg.value = 'Password must be at least 8 characters';
+        return;
+    }
+    if (newPassword.value !== confirmPassword.value) {
+        errorMsg.value = 'Passwords do not match';
+        return;
+    }
+
     loading.value = true;
     try {
-        await api.post('/api/v1/forgot-password', {
-            email: email.value
+        await api.post('/api/v1/reset-password', {
+            token: token.value,
+            new_password: newPassword.value,
+            confirm_password: confirmPassword.value
         });
-        submitted.value = true;
+        successMsg.value = 'Password has been reset successfully! Redirecting to login...';
+        setTimeout(() => router.push('/login'), 2500);
     } catch (err) {
-        errorMsg.value = err.response?.data?.detail || 'Something went wrong. Please try again.';
+        errorMsg.value = err.response?.data?.detail || 'Failed to reset password. Please try again.';
     } finally {
         loading.value = false;
     }
@@ -38,7 +65,7 @@ const handleReset = async () => {
                     <i class="bi bi-diagram-3-fill fs-2 me-2"></i>
                     SCA Sitemap
                   </h3>
-                  <p class="lead fw-medium text-white-50">Don't worry, we'll help you get back into your account.</p>
+                  <p class="lead fw-medium text-white-50">Create a new secure password for your account.</p>
                </div>
                
                <div class="mt-auto">
@@ -49,11 +76,11 @@ const handleReset = async () => {
             <div class="bg-decoration position-absolute top-0 start-0 w-100 h-100"></div>
           </div>
 
-          <!-- Right Side Forgot Password Form -->
+          <!-- Right Side Reset Password Form -->
           <div class="col-md-7 col-12 bg-white">
             <div class="card-body p-4 p-sm-5 d-flex flex-column justify-content-center h-100 ps-xl-5 pe-xl-5">
               
-              <div v-if="!submitted">
+              <div v-if="!successMsg">
                 <div class="mb-5">
                   <div class="d-md-none text-primary mb-3 text-center">
                       <i class="bi bi-diagram-3-fill fs-1"></i>
@@ -62,35 +89,57 @@ const handleReset = async () => {
                   <router-link to="/login" class="text-decoration-none text-muted mb-4 d-inline-block fw-semibold" style="transition: color 0.2s;">
                     <i class="bi bi-arrow-left me-1"></i> Back to Login
                   </router-link>
-                  <h2 class="fw-bold text-dark mb-2 mt-2 fade-in-up">Forgot Password?</h2>
-                  <p class="text-muted fade-in-up delay-1">Enter the email address associated with your account and we'll send you a link to reset your password.</p>
+                  <h2 class="fw-bold text-dark mb-2 mt-2 fade-in-up">Reset Password</h2>
+                  <p class="text-muted fade-in-up delay-1">Enter your new password below.</p>
                 </div>
 
-                <form @submit.prevent="handleReset" class="fade-in-up delay-2">
+                <form @submit.prevent="handleResetPassword" class="fade-in-up delay-2">
 
-                  <!-- Error Alert -->
+                  <!-- Alerts -->
                   <div v-if="errorMsg" class="alert alert-danger alert-dismissible fade show rounded-3 py-2 px-3 d-flex align-items-center" role="alert">
                     <i class="bi bi-exclamation-circle me-2"></i>
                     <span class="small">{{ errorMsg }}</span>
                     <button type="button" class="btn-close btn-close-sm ms-auto" @click="errorMsg = ''" aria-label="Close" style="font-size: 0.65rem;"></button>
                   </div>
                   
-                  <div class="form-floating mb-4">
+                  <div class="form-floating mb-3">
                     <input
-                      v-model="email"
-                      type="email"
+                      v-model="newPassword"
+                      :type="showPassword ? 'text' : 'password'"
                       class="form-control bg-light border-0 shadow-none"
-                      id="floatingInputEmail"
-                      placeholder="name@example.com"
+                      id="floatingNewPassword"
+                      placeholder="New Password"
                       required
                     />
-                    <label for="floatingInputEmail" class="text-muted">Email address</label>
+                    <label for="floatingNewPassword" class="text-muted">New Password</label>
+                  </div>
+
+                  <div class="form-floating mb-3">
+                    <input
+                      v-model="confirmPassword"
+                      :type="showPassword ? 'text' : 'password'"
+                      class="form-control bg-light border-0 shadow-none"
+                      id="floatingConfirmPassword"
+                      placeholder="Confirm Password"
+                      required
+                    />
+                    <label for="floatingConfirmPassword" class="text-muted">Confirm Password</label>
+                  </div>
+
+                  <div class="d-flex justify-content-end mb-4 px-1">
+                    <button 
+                      type="button" 
+                      class="btn btn-sm btn-link text-decoration-none text-muted p-0"
+                      @click="showPassword = !showPassword"
+                    >
+                      <i :class="showPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'"></i> {{ showPassword ? 'Hide' : 'Show' }}
+                    </button>
                   </div>
 
                   <div class="d-grid mb-4">
-                    <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold shadow-sm login-btn py-3" :disabled="loading">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-3 fw-bold shadow-sm login-btn py-3" :disabled="loading || !token">
                       <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                      {{ loading ? 'Sending...' : 'Send Reset Link' }}
+                      {{ loading ? 'Resetting...' : 'Reset Password' }}
                     </button>
                   </div>
 
@@ -102,18 +151,12 @@ const handleReset = async () => {
                 <div class="mb-4 text-success">
                   <i class="bi bi-check-circle-fill" style="font-size: 4.5rem;"></i>
                 </div>
-                <h3 class="fw-bold text-dark">Check your email</h3>
-                <p class="text-muted mb-4">We've sent a password reset link to <br><strong>{{ email }}</strong></p>
+                <h3 class="fw-bold text-dark">Password Reset!</h3>
+                <p class="text-muted mb-4">Your password has been updated successfully.<br>Redirecting to login...</p>
                 
                 <router-link to="/login" class="btn btn-primary px-4 py-2 rounded-3 fw-medium">
-                  Return to Login
+                  Go to Login
                 </router-link>
-                
-                <div class="mt-4">
-                  <p class="small text-muted mb-0">Didn't receive the email? 
-                    <button @click="submitted = false" class="btn btn-link p-0 text-decoration-none fw-semibold shadow-none ms-1">Try another email</button>
-                  </p>
-                </div>
               </div>
 
             </div>
@@ -124,4 +167,3 @@ const handleReset = async () => {
     </div>
   </div>
 </template>
-
