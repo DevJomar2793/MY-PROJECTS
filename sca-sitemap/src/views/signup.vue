@@ -52,6 +52,9 @@ const handleSignup = () => {
                     <i class="bi bi-diagram-3-fill fs-1"></i>
                     <h3 class="fw-bold mt-2">SCA Sitemap</h3>
                 </div>
+                <router-link to="/login" class="text-decoration-none text-muted mb-4 d-inline-block fw-semibold" style="transition: color 0.2s;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Login
+                  </router-link>
                 <h2 class="fw-bold text-dark mb-2 fade-in-up">Create Account</h2>
                 <p class="text-muted fade-in-up delay-1">Please enter your details to sign up.</p>
               </div>

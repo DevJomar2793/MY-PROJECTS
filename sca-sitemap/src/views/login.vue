@@ -46,7 +46,9 @@ const handleLogin = () => {
           <!-- Right Side Login Form -->
           <div class="col-md-7 col-12 bg-white">
             <div class="card-body p-4 p-sm-5 d-flex flex-column justify-content-center h-100 ps-xl-5 pe-xl-5">
-              
+              <router-link to="/" class="text-decoration-none text-muted mb-4 d-inline-block fw-semibold" style="transition: color 0.2s;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to User Selection
+                  </router-link>
               <div class="mb-5">
                 <div class="d-md-none text-primary mb-3 text-center">
                     <i class="bi bi-diagram-3-fill fs-1"></i>
