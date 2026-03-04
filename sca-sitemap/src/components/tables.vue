@@ -44,7 +44,8 @@ const sortedPages = computed(() => {
         String(page.screen_number || "").toLowerCase().includes(q) ||
         String(page.file_label || "").toLowerCase().includes(q) ||
         String(page.screen_description || "").toLowerCase().includes(q) ||
-        formatDate(page.created_at).toLowerCase().includes(q)
+        formatDate(page.created_at).toLowerCase().includes(q) ||
+        formatDate(page.updated_at).toLowerCase().includes(q)
       );
     });
   }
@@ -209,9 +210,9 @@ function formatDate(dateStr) {
 const editAutoScreenLabel = computed(() => {
   const a = form.value.alpha?.trim() ?? "";
   const n = form.value.screen_number ?? "";
-  if (a && n !== "" && n !== null) return `${a}-0.${n}`;
+  if (a && n !== "" && n !== null) return `${a}-0${n}`;
   if (a) return a;
-  if (n !== "" && n !== null) return `0.${n}`;
+  if (n !== "" && n !== null) return `0${n}`;
   return "";
 });
 
@@ -261,6 +262,9 @@ const viewLinkIsUrl = computed(() => {
               <th class="sortable-th" @click="toggleSort('created_at')">
                 Created At <i class="bi" :class="sortIcon('created_at')"></i>
               </th>
+              <th class="sortable-th" @click="toggleSort('updated_at')">
+                Updated At <i class="bi" :class="sortIcon('updated_at')"></i>
+              </th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -284,6 +288,7 @@ const viewLinkIsUrl = computed(() => {
               <td>{{ page.screen_description }}</td>
               <td>{{ page.file_label }}</td>
               <td class="text-muted">{{ formatDate(page.created_at) }}</td>
+              <td class="text-muted">{{ page.updated_at && formatDate(page.updated_at) !== formatDate(page.created_at) ? formatDate(page.updated_at) : '—' }}</td>
               <td>
                 <div class="d-flex gap-1">
                   <button
@@ -569,10 +574,17 @@ const viewLinkIsUrl = computed(() => {
               </div>
             </div>
             <!-- Created At -->
-            <div class="col-12">
+            <div class="col-md-6">
               <div class="detail-field">
                 <span class="detail-label"><i class="bi bi-clock me-1"></i>Created At</span>
                 <span class="detail-value text-muted">{{ formatDate(viewPage.created_at) }}</span>
+              </div>
+            </div>
+            <!-- Updated At -->
+            <div class="col-md-6" v-if="viewPage.updated_at && formatDate(viewPage.updated_at) !== formatDate(viewPage.created_at)">
+              <div class="detail-field">
+                <span class="detail-label"><i class="bi bi-clock-history me-1"></i>Updated At</span>
+                <span class="detail-value text-muted">{{ formatDate(viewPage.updated_at) }}</span>
               </div>
             </div>
           </div>

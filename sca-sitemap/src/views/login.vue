@@ -97,7 +97,7 @@ const handleLogin = () => {
                       Remember for 30 days
                     </label>
                   </div>
-                  <a href="#" class="text-primary small text-decoration-none fw-semibold">Forgot Password?</a>
+                  <router-link to="/forgot-password" class="text-primary small text-decoration-none fw-semibold">Forgot Password?</router-link>
                 </div>
 
                 <div class="d-grid mb-4">
@@ -106,19 +106,19 @@ const handleLogin = () => {
                   </button>
                 </div>
 
-                <div class="position-relative mb-4 text-center mt-4">
+                <!-- <div class="position-relative mb-4 text-center mt-4">
                    <hr class="text-muted">
                    <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 small text-muted text-uppercase fw-semibold" style="letter-spacing: 0.5px;">Or continue with</span>
-                </div>
+                </div> -->
 
-                <div class="d-grid">
+                <!-- <div class="d-grid">
                     <button type="button" class="btn border-light-subtle btn-lg rounded-3 shadow-sm text-dark d-flex align-items-center justify-content-center bg-white google-btn py-2">
                         <i class="bi bi-google text-danger me-2"></i> <span class="fw-medium text-secondary">Sign in with Google</span>
                     </button>
-                </div>
+                </div> -->
                 
                 <div class="text-center mt-5">
-                  <p class="text-muted small mb-0">Don't have an account? <a href="#" class="text-primary fw-semibold text-decoration-none">Sign up</a></p>
+                  <p class="text-muted small mb-0">Don't have an account? <router-link to="/signup" class="text-primary fw-semibold text-decoration-none">Sign up</router-link></p>
                 </div>
 
               </form>

@@ -91,6 +91,7 @@ def update_screen(id: int, data: PageUpdate, db: Session = Depends(get_db)):
     screen.notes = data.notes
     screen.sitemap = data.sitemap
     screen.link = data.link
+    screen.updated_at = func.now()
 
     db.commit()
     # db.refresh(screen)

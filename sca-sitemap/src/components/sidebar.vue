@@ -17,7 +17,7 @@ const route = useRoute();
       <li class="nav-section">Main</li>
 
       <li class="nav-item">
-        <router-link to="/" class="nav-link">
+        <router-link to="/dashboard" class="nav-link">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
         </router-link>
@@ -82,12 +82,12 @@ const route = useRoute();
 
       <li class="nav-section">Analytics</li>
 
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a href="#" class="nav-link">
           <i class="bi bi-file-earmark-bar-graph"></i>
           <span>Report</span>
         </a>
-      </li>
+      </li> -->
     </ul>
 
     <!-- Footer -->

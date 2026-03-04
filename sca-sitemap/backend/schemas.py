@@ -27,6 +27,7 @@ class PageResponse(BaseModel):
     sitemap: Optional[str]
     link: Optional[str]
     created_at: Optional[datetime]
+    updated_at: Optional[datetime]
 
 class PageUpdate(BaseModel):
     alpha: str | None = None
