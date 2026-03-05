@@ -3,7 +3,7 @@ import { useRoute, useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
 import api from '../api/axios';
 
-const route = useRoute();
+// const route = useRoute();
 const router = useRouter();
 const fullname = ref("QA Account");
 
