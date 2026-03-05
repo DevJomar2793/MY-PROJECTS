@@ -13,7 +13,6 @@ from typing import List
 import models
 
 app = FastAPI()
-router = APIRouter()
 
 # CORS for Vue
 app.add_middleware(
@@ -43,16 +42,8 @@ def get_db():
         db.close()
 
 
-# Display username in Frontend
-@router.get("/api/v1/getusername")
-def get_username(id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == id).first()
 
-    return {
-        "fullname" : user.full_name
-    }
 
- 
 # Screen Creation
 @app.post("/api/v1/PageCreate")
 def create_page(page: PageCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

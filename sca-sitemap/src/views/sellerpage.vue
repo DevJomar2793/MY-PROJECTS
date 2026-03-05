@@ -7,7 +7,6 @@ import SearchBar from "../components/searchbar.vue";
 import Footer from "../components/footer.vue";
 import Swal from 'sweetalert2';
 import api from '../api/axios';
-import api from '../api/axios';
 
 import { ref, onMounted } from "vue";
 

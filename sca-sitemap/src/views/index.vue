@@ -42,7 +42,7 @@ const handleLogin = (type) => {
                                 <i class="bi bi-person-badge fs-1"></i>
                             </div>
                             <h3 class="card-title fw-bold mb-3">CST or Dev Staff</h3>
-                            <p class="card-text text-secondary mb-0">Log in to your account to view your dashboard.</p>
+                            <p class="card-text text-secondary mb-0">Click to view SCA Pages</p>
                         </div>
                     </div>
                 </div>

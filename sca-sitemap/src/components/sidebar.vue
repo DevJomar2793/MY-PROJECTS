@@ -1,15 +1,25 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
 import { ref, onMounted } from "vue";
+import api from '../api/axios';
 
 const route = useRoute();
-const router = useRouter()
-const fullname = ref("")
+const router = useRouter();
+const fullname = ref("QA Account");
 
 const isAuthenticated = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
   isAuthenticated.value = !!localStorage.getItem('access_token');
+  
+  if (isAuthenticated.value) {
+    try {
+      const response = await api.get('/api/v1/users/me');
+      fullname.value = response.data.full_name;
+    } catch (error) {
+      console.error("Failed to load user info:", error);
+    }
+  }
 });
 
 const handleLogout = () => {
@@ -31,7 +41,7 @@ const handleLogout = () => {
         <div class="bg-primary bg-opacity-25 rounded-circle d-inline-flex justify-content-center align-items-center mb-2" style="width: 48px; height: 48px;">
           <i class="bi bi-person-fill fs-3 text-primary"></i>
         </div>
-        <div class="text-white fw-semibold small">QA Account</div>
+        <div class="text-white fw-semibold small">{{ fullname }}</div>
         <div class="text-white-50" style="font-size: 0.75rem;">Quality Assurance</div>
       </div>
     </div>
