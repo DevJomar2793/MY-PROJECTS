@@ -5,13 +5,14 @@ const router = useRouter()
 
 const handleLogin = (type) => {
     if (type === 'qa') {
-        router.push('/login') // Replace with your actual route for QA
+        router.push('/login')
     } else {
-        router.push('/dashboard') // Replace with your actual route for User
+        // Clear token for unauthenticated staff
+        localStorage.removeItem('access_token');
+        router.push('/dashboard')
     }
 }
 </script>
-
 <template>
     <div class="landing-container d-flex justify-content-center align-items-center min-vh-100">
         <div class="overlay"></div>

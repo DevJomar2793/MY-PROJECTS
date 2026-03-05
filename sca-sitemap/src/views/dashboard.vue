@@ -6,29 +6,24 @@ import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
 import Footer from "../components/footer.vue";
 import Swal from "sweetalert2";
+import api from '../api/axios';
 
 import { ref, onMounted } from "vue";
+
+const isAuthenticated = ref(false);
+
+onMounted(() => {
+  isAuthenticated.value = !!localStorage.getItem('access_token');
+  getPages();
+});
 
 //Add Screen Endpoint
 async function addPage(data) {
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/v1/PageCreate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+    const res = await api.post("/api/v1/PageCreate", data);
 
     // Dismiss via native Bootstrap button click — properly resets modal state
     document.getElementById("addScreenModalClose")?.click();
-
-    if (!res.ok) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to add screen.",
-      });
-      return;
-    }
 
     await refreshAll();
 
@@ -43,7 +38,7 @@ async function addPage(data) {
     Swal.fire({
       icon: "error",
       title: "Error",
-      text: "An error occurred while adding the screen.",
+      text: error.response?.data?.detail || "An error occurred while adding the screen.",
     });
   }
 }
@@ -62,8 +57,6 @@ async function refreshAll() {
   await getPages();
   cardsRef.value?.refreshCounts();
 }
-
-onMounted(getPages)
 </script>
 <template>
   <SideBar />
@@ -76,7 +69,7 @@ onMounted(getPages)
             <h1>Dashboard</h1>
             <p>Welcome back! Here's an overview of your sitemap.</p>
           </div>
-          <AddScreenModal @submit="addPage" />
+          <AddScreenModal v-if="isAuthenticated" @submit="addPage" />
         </div>
       </div>
 

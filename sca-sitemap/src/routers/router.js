@@ -24,15 +24,15 @@ const routes = [
     {path: "/reset-password", name:"ResetPassword", component: ResetPassword},
 
     // Protected routes
-    {path: "/dashboard", name:"Dashboard", component: Dashboard, meta: { requiresAuth: true } },
-    {path: "/buyer", name:"Buyer", component: Buyer, meta: { requiresAuth: true }},
-    {path: "/seller", name:"Seller", component: Seller, meta: { requiresAuth: true }},
-    {path: "/appraisalboss", name:"AppraisalBoss", component: AppraisalBoss, meta: { requiresAuth: true }},
-    {path: "/admin", name:"Admin", component: Admin, meta: { requiresAuth: true }},
-    {path: "/mobileworkerapp", name:"MobileWorkerApp", component: MobileWorkerApp, meta: { requiresAuth: true }},
-    {path: "/marketplace", name:"Marketplace", component: Marketplace, meta: { requiresAuth: true }},
-    {path: "/readmodule", name:"ReadModule", component: ReadModule, meta: { requiresAuth: true }},
-    {path: "/controllermodule", name:"ControllerModule", component: ControllerModule, meta: { requiresAuth: true }},
+    {path: "/dashboard", name:"Dashboard", component: Dashboard},
+    {path: "/buyer", name:"Buyer", component: Buyer},
+    {path: "/seller", name:"Seller", component: Seller},
+    {path: "/appraisalboss", name:"AppraisalBoss", component: AppraisalBoss},
+    {path: "/admin", name:"Admin", component: Admin},
+    {path: "/mobileworkerapp", name:"MobileWorkerApp", component: MobileWorkerApp},
+    {path: "/marketplace", name:"Marketplace", component: Marketplace},
+    {path: "/readmodule", name:"ReadModule", component: ReadModule},
+    {path: "/controllermodule", name:"ControllerModule", component: ControllerModule},
     // {path: "/report", name:"Report", component: Report, meta: { requiresAuth: true }}
     
 ];
@@ -45,8 +45,10 @@ const router =  createRouter({
 // Navigation Guard
 router.beforeEach((to, from, next) => {
     const token = localStorage.getItem('access_token');
-    if (to.meta.requiresAuth && !token) {
-        next({ name: 'Login' });
+    
+    // Prevent logged-in QA from going back to login/signup/forgot-password/index
+    if (token && ['Login', 'Signup', 'ForgotPassword', 'Index'].includes(to.name)) {
+        next({ name: 'Dashboard' });
     } else {
         next();
     }

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi import FastAPI, Depends, HTTPException, Query, APIRouter
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import text, or_, func
 from sqlalchemy.orm import Session
@@ -13,6 +13,7 @@ from typing import List
 import models
 
 app = FastAPI()
+router = APIRouter()
 
 # CORS for Vue
 app.add_middleware(
@@ -41,10 +42,20 @@ def get_db():
     finally:
         db.close()
 
+
+# Display username in Frontend
+@router.get("/api/v1/getusername")
+def get_username(id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == id).first()
+
+    return {
+        "fullname" : user.full_name
+    }
+
  
 # Screen Creation
 @app.post("/api/v1/PageCreate")
-def create_page(page: PageCreate, db: Session = Depends(get_db)):
+def create_page(page: PageCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
 
     new_page = ScreenList(
             alpha=page.alpha,
@@ -76,7 +87,7 @@ def get_buyers_creen(db: Session = Depends(get_db)):
 
 # Update Screen
 @app.put("/api/v1/UpdateScreen/{id}")
-def update_screen(id: int, data: PageUpdate, db: Session = Depends(get_db)):
+def update_screen(id: int, data: PageUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     screen = db.query(ScreenList).filter(ScreenList.id == id).first()
 
 
@@ -147,7 +158,7 @@ def search_screen(q: str = Query(..., min_length=1), db: Session = Depends(get_d
 
 # Delete Screen
 @app.delete("/api/v1/DeleteScreen/{id}")
-def delete_screen(id: int, db: Session = Depends(get_db)):
+def delete_screen(id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     screen = db.query(ScreenList).filter(ScreenList.id == id).first()
     if not screen:
         raise HTTPException(status_code=404, detail="Screen not found")

@@ -6,42 +6,38 @@ import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
 import Footer from "../components/footer.vue";
 import Swal from 'sweetalert2';
+import api from '../api/axios';
 
 import { ref, onMounted } from "vue";
+
+const isAuthenticated = ref(false);
+
+onMounted(() => {
+  isAuthenticated.value = !!localStorage.getItem('access_token');
+  getPages();
+});
 
 //Add Screen Endpoint
 async function addPage(data) {
   try {
-    const res = await fetch("http://127.0.0.1:8000/api/v1/PageCreate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+    const res = await api.post("/api/v1/PageCreate", data);
+
+    const modalCloseBtn = document.querySelector('#addScreen .btn-close');
+    if (modalCloseBtn) modalCloseBtn.click();
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: 'Screen added successfully!',
+      timer: 1500,
+      showConfirmButton: false
     });
-
-    if (res.ok) {
-      const modalCloseBtn = document.querySelector('#addScreen .btn-close');
-      if (modalCloseBtn) modalCloseBtn.click();
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Screen added successfully!',
-        timer: 1500,
-        showConfirmButton: false
-      });
-      getPages();
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to add screen',
-      });
-    }
+    getPages();
   } catch (error) {
     Swal.fire({
       icon: 'error',
       title: 'Error',
-      text: 'An error occurred while adding screen',
+      text: error.response?.data?.detail || 'An error occurred while adding screen',
     });
   }
 }
@@ -54,8 +50,6 @@ async function getPages() {
   const res = await fetch("http://127.0.0.1:8000/api/v1/GetControllerModuleScreen");
   pages.value = await res.json();
 }
-
-onMounted(getPages);
 </script>
 <template>
   <SideBar />
@@ -68,7 +62,7 @@ onMounted(getPages);
             <h1>Controller Module Screens</h1>
             <p>Manage and review controller module screen entries.</p>
           </div>
-          <!-- <AddScreenModal @submit="addPage" /> -->
+          <AddScreenModal v-if="isAuthenticated" @submit="addPage" />
         </div>
       </div>
 

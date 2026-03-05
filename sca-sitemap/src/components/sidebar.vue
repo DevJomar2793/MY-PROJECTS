@@ -1,15 +1,39 @@
 <script setup>
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { ref, onMounted } from "vue";
 
 const route = useRoute();
+const router = useRouter()
+const fullname = ref("")
+
+const isAuthenticated = ref(false);
+
+onMounted(() => {
+  isAuthenticated.value = !!localStorage.getItem('access_token');
+});
+
+const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    router.push('/');
+};
 </script>
 
 <template>
   <div class="sidebar">
     <!-- Brand -->
-    <div class="sidebar-brand d-flex align-items-center gap-2">
-      <i class="bi bi-grid-1x2-fill fs-5"></i>
-      <h5 class="mb-0 text-white">SCA Sitemap</h5>
+    <div class="sidebar-brand d-flex flex-column align-items-center gap-2 py-4">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-grid-1x2-fill fs-5"></i>
+        <h5 class="mb-0 text-white">SCA Sitemap</h5>
+      </div>
+      <!-- Profile Info (QA Logged In) -->
+      <div v-if="isAuthenticated" class="mt-3 text-center">
+        <div class="bg-primary bg-opacity-25 rounded-circle d-inline-flex justify-content-center align-items-center mb-2" style="width: 48px; height: 48px;">
+          <i class="bi bi-person-fill fs-3 text-primary"></i>
+        </div>
+        <div class="text-white fw-semibold small">QA Account</div>
+        <div class="text-white-50" style="font-size: 0.75rem;">Quality Assurance</div>
+      </div>
     </div>
 
     <!-- Navigation -->
@@ -92,7 +116,14 @@ const route = useRoute();
 
     <!-- Footer -->
     <div class="sidebar-footer">
-      <small>SCA Sitemap v1.0</small>
+      <div v-if="isAuthenticated" class="mb-3 d-grid">
+         <button @click="handleLogout" class="btn btn-outline-light btn-sm w-100 d-flex justify-content-center align-items-center gap-2">
+           <i class="bi bi-box-arrow-left"></i> Logout
+         </button>
+      </div>
+      <div class="text-center">
+        <small class="text-white-50">SCA Sitemap v1.0</small>
+      </div>
     </div>
   </div>
 </template>

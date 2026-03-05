@@ -1,6 +1,12 @@
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import Swal from 'sweetalert2';
+
+const isAuthenticated = ref(false);
+
+onMounted(() => {
+  isAuthenticated.value = !!localStorage.getItem('access_token');
+});
 
 // props and emits
 const props = defineProps({
@@ -265,7 +271,7 @@ const viewLinkIsUrl = computed(() => {
               <th class="sortable-th" @click="toggleSort('updated_at')">
                 Updated At <i class="bi" :class="sortIcon('updated_at')"></i>
               </th>
-              <th>Actions</th>
+              <th v-if="isAuthenticated">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -289,7 +295,7 @@ const viewLinkIsUrl = computed(() => {
               <td>{{ page.file_label }}</td>
               <td class="text-muted">{{ formatDate(page.created_at) }}</td>
               <td class="text-muted">{{ page.updated_at && formatDate(page.updated_at) !== formatDate(page.created_at) ? formatDate(page.updated_at) : '—' }}</td>
-              <td>
+              <td v-if="isAuthenticated">
                 <div class="d-flex gap-1">
                   <button
                     @click="openEdit(page)"
