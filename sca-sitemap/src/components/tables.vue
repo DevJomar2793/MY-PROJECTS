@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import Swal from 'sweetalert2';
+import api from '../api/axios';
 
 const isAuthenticated = ref(false);
 
@@ -122,27 +123,11 @@ async function updatePage() {
   };
 
   try {
-    const res = await fetch(
-      `http://127.0.0.1:8000/api/v1/UpdateScreen/${selectedId.value}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      },
+    const res = await api.put(
+      `/api/v1/UpdateScreen/${selectedId.value}`,
+      payload
     );
 
-    if (!res.ok) {
-      console.error(await res.json());
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to update data',
-      });
-      return;
-    }
-    
     emit("updatePage");
 
     //close Modal
@@ -178,25 +163,15 @@ async function deletePage(id) {
 
   if (result.isConfirmed) {
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/v1/DeleteScreen/${id}`, {
-        method: "DELETE",
+      await api.delete(`/api/v1/DeleteScreen/${id}`);
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Data has been deleted.",
+        timer: 1500,
+        showConfirmButton: false,
       });
-      if (res.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Deleted!",
-          text: "Data has been deleted.",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-        emit("updatePage");
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to delete data",
-        });
-      }
+      emit("updatePage");
     } catch (error) {
       Swal.fire({
         icon: "error",

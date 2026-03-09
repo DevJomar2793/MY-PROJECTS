@@ -47,8 +47,8 @@ const pages = ref([]);
 const searchQuery = ref("");
 
 async function getPages() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/GetSellerScreen");
-  pages.value = await res.json();
+  const res = await api.get("/api/v1/GetSellerScreen");
+  pages.value = res.data;
 }
 </script>
 <template>
