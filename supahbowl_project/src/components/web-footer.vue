@@ -116,8 +116,8 @@
     <!-- Footer Bottom -->
     <div class="footer-bottom">
       <p class="mb-0">
-        &copy; 2026 <span>SupahBowl</span>. All rights reserved. Made with
-        <span>❤️</span> by the SupahBowl Team.
+        &copy; 2026 <span>DevJMR</span>. All rights reserved. Made with
+        <span>❤️</span> by the DevJMR.
       </p>
     </div>
   </footer>
