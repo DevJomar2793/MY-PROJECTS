@@ -6,19 +6,34 @@
     </div>
     <ul class="nav flex-column gap-2">
       <li class="nav-item mb-1">
-        <router-link to="/" class="nav-link" active-class="active" exact-active-class="active">
+        <router-link
+          to="/"
+          class="nav-link"
+          active-class="active"
+          exact-active-class="active"
+        >
           <i class="bi bi-grid-1x2-fill"></i> Dashboard
         </router-link>
       </li>
       <li class="nav-item mb-1">
-        <router-link to="/equipment" class="nav-link" active-class="active" exact-active-class="active">
+        <router-link
+          to="/equipment"
+          class="nav-link"
+          active-class="active"
+          exact-active-class="active"
+        >
           <i class="bi bi-laptop"></i> Equipment List
         </router-link>
       </li>
       <li class="nav-item mb-1">
-        <a class="nav-link" href="#"
-          ><i class="bi bi-person-circle"></i> Deployment</a
+        <router-link
+          to="/deployment"
+          class="nav-link"
+          active-class="active"
+          exact-active-class="active"
         >
+          <i class="bi bi-person-circle"></i> Deployment
+        </router-link>
       </li>
 
       <li class="nav-item mb-1">

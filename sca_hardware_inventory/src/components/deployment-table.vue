@@ -99,7 +99,7 @@ const filteredAndSortedHardware = computed(() => {
     <div
       class="card-header bg-white border-0 pt-4 pb-2 px-4 d-flex justify-content-between align-items-center"
     >
-      <h5 class="mb-0 fw-bold text-dark">Hardware Inventory List</h5>
+      <h5 class="mb-0 fw-bold text-dark">Deployment List</h5>
       <div
         class="d-flex align-items-center px-3 py-1"
         style="
@@ -135,7 +135,7 @@ const filteredAndSortedHardware = computed(() => {
                 class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
                 style="background-color: var(--secondary-color)"
               >
-                Hardware Type
+                Deployed To:
                 <i :class="getSortIcon('type')" style="font-size: 0.8rem"></i>
               </th>
               <th
@@ -143,7 +143,7 @@ const filteredAndSortedHardware = computed(() => {
                 class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
                 style="background-color: var(--secondary-color)"
               >
-                Manufacturer
+                Location
                 <i
                   :class="getSortIcon('manufacturer')"
                   style="font-size: 0.8rem"
@@ -154,7 +154,7 @@ const filteredAndSortedHardware = computed(() => {
                 class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
                 style="background-color: var(--secondary-color)"
               >
-                Model
+                QTY
                 <i :class="getSortIcon('model')" style="font-size: 0.8rem"></i>
               </th>
               <th
@@ -162,7 +162,18 @@ const filteredAndSortedHardware = computed(() => {
                 class="border-0 text-muted fw-semibold py-3 fs-6 rounded-end custom-sort-header"
                 style="background-color: var(--secondary-color)"
               >
-                Date Tested
+                History
+                <i
+                  :class="getSortIcon('dateTested')"
+                  style="font-size: 0.8rem"
+                ></i>
+              </th>
+              <th
+                @click="sortBy('dateTested')"
+                class="border-0 text-muted fw-semibold py-3 fs-6 rounded-end custom-sort-header"
+                style="background-color: var(--secondary-color)"
+              >
+                Received Date
                 <i
                   :class="getSortIcon('dateTested')"
                   style="font-size: 0.8rem"
