@@ -1,0 +1,103 @@
+:root {
+  --primary-color: #4361ee;
+  --primary-hover: #3a56d4;
+  --secondary-color: #f8f9fa;
+  --dark-bg: #12151c;
+  --sidebar-bg: #1e222d;
+  --text-main: #333333;
+  --text-muted: #8b95a5;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --hover-shadow: 0 15px 35px rgba(67, 97, 238, 0.15);
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: "Outfit", sans-serif;
+  background-color: #f4f7fe;
+  color: var(--text-main);
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Sidebar Styles */
+.sidebar {
+  min-height: 100vh;
+  background-color: var(--sidebar-bg);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+  transition: var(--transition-smooth);
+}
+.sidebar .nav-link {
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  margin-bottom: 0.4rem;
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sidebar .nav-link i {
+  font-size: 1.2rem;
+  transition: var(--transition-smooth);
+}
+.sidebar .nav-link:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.05);
+  transform: translateX(5px);
+}
+.sidebar .nav-link:hover i {
+  transform: scale(1.1);
+  color: var(--primary-color);
+}
+.sidebar .nav-link.active {
+  background: linear-gradient(135deg, var(--primary-color), #5f7bf8);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+}
+.sidebar .nav-link.active i {
+  color: #fff;
+}
+
+/* Card Hover Animations */
+.hover-lift {
+  transition: var(--transition-smooth);
+}
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--hover-shadow) !important;
+}
+
+/* Badge Enhancements */
+.badge-soft-success {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+  color: #198754 !important;
+}
+.badge-soft-warning {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+  color: #d39e00 !important;
+}
+.badge-soft-danger {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  color: #dc3545 !important;
+}
+
+/* Sort Style */
+.custom-sort-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+.custom-sort-header:hover {
+  background-color: #e9ecef !important;
+}
