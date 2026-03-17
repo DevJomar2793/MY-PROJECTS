@@ -664,13 +664,13 @@ const filteredAndSortedHardware = computed(() => {
                 >
                   <i class="bi bi-plus-lg me-2"></i>Save Hardware
                 </button>
-                <!-- <button
+                <button
                   v-else
                   type="submit"
                   class="btn btn-success rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
                 >
                   <i class="bi bi-check2-circle me-2"></i>Update Hardware
-                </button> -->
+                </button>
               </div>
             </div>
           </form>
