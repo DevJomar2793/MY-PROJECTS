@@ -9,6 +9,9 @@ from database import engine, get_db
 # Create all tables in the SQLite database
 models.Base.metadata.create_all(bind=engine)
 
+#Delete table hardware_items
+# models.HardwareItem.metadata.drop_all(bind=engine)
+
 app = FastAPI(title="SCA Hardware Inventory API", version="1.0.0")
 
 # Allow requests from Vue dev server
@@ -21,7 +24,7 @@ app.add_middleware(
 )
 
 
-# ---- Health Check ----
+# ---- Health Check ----        
 @app.get("/")
 def root():
     return {"message": "SCA Hardware Inventory API is running 🚀"}
@@ -31,12 +34,12 @@ def root():
 # Hardware Item Endpoints
 # ========================
 
-@app.get("/hardware", response_model=List[schemas.HardwareItemResponse])
+@app.get("/api/v1/hardware", response_model=List[schemas.HardwareItemResponse])
 def get_all_hardware(db: Session = Depends(get_db)):
     return db.query(models.HardwareItem).all()
 
 
-@app.get("/hardware/{item_id}", response_model=schemas.HardwareItemResponse)
+@app.get("/api/v1/hardware/{item_id}", response_model=schemas.HardwareItemResponse)
 def get_hardware(item_id: int, db: Session = Depends(get_db)):
     item = db.query(models.HardwareItem).filter(models.HardwareItem.id == item_id).first()
     if not item:
@@ -44,7 +47,7 @@ def get_hardware(item_id: int, db: Session = Depends(get_db)):
     return item
 
 
-@app.post("/hardware", response_model=schemas.HardwareItemResponse, status_code=201)
+@app.post("/api/v1/hardware", response_model=schemas.HardwareItemResponse, status_code=201)
 def create_hardware(item: schemas.HardwareItemCreate, db: Session = Depends(get_db)):
     db_item = models.HardwareItem(**item.model_dump())
     db.add(db_item)
@@ -53,7 +56,7 @@ def create_hardware(item: schemas.HardwareItemCreate, db: Session = Depends(get_
     return db_item
 
 
-@app.put("/hardware/{item_id}", response_model=schemas.HardwareItemResponse)
+@app.put("/api/v1/hardware/{item_id}", response_model=schemas.HardwareItemResponse)
 def update_hardware(item_id: int, item: schemas.HardwareItemCreate, db: Session = Depends(get_db)):
     db_item = db.query(models.HardwareItem).filter(models.HardwareItem.id == item_id).first()
     if not db_item:
@@ -65,7 +68,7 @@ def update_hardware(item_id: int, item: schemas.HardwareItemCreate, db: Session 
     return db_item
 
 
-@app.delete("/hardware/{item_id}", status_code=204)
+@app.delete("/api/v1/hardware/{item_id}", status_code=204)
 def delete_hardware(item_id: int, db: Session = Depends(get_db)):
     db_item = db.query(models.HardwareItem).filter(models.HardwareItem.id == item_id).first()
     if not db_item:
@@ -78,12 +81,12 @@ def delete_hardware(item_id: int, db: Session = Depends(get_db)):
 # Deployment Endpoints
 # ========================
 
-@app.get("/deployments", response_model=List[schemas.DeploymentResponse])
+@app.get("/api/v1/deployments", response_model=List[schemas.DeploymentResponse])
 def get_all_deployments(db: Session = Depends(get_db)):
     return db.query(models.Deployment).all()
 
 
-@app.get("/deployments/{dep_id}", response_model=schemas.DeploymentResponse)
+@app.get("/api/v1/deployments/{dep_id}", response_model=schemas.DeploymentResponse)
 def get_deployment(dep_id: int, db: Session = Depends(get_db)):
     dep = db.query(models.Deployment).filter(models.Deployment.id == dep_id).first()
     if not dep:
@@ -91,7 +94,7 @@ def get_deployment(dep_id: int, db: Session = Depends(get_db)):
     return dep
 
 
-@app.post("/deployments", response_model=schemas.DeploymentResponse, status_code=201)
+@app.post("/api/v1/deployments", response_model=schemas.DeploymentResponse, status_code=201)
 def create_deployment(dep: schemas.DeploymentCreate, db: Session = Depends(get_db)):
     db_dep = models.Deployment(**dep.model_dump())
     db.add(db_dep)
@@ -100,7 +103,7 @@ def create_deployment(dep: schemas.DeploymentCreate, db: Session = Depends(get_d
     return db_dep
 
 
-@app.put("/deployments/{dep_id}", response_model=schemas.DeploymentResponse)
+@app.put("/api/v1/deployments/{dep_id}", response_model=schemas.DeploymentResponse)
 def update_deployment(dep_id: int, dep: schemas.DeploymentCreate, db: Session = Depends(get_db)):
     db_dep = db.query(models.Deployment).filter(models.Deployment.id == dep_id).first()
     if not db_dep:
@@ -112,7 +115,7 @@ def update_deployment(dep_id: int, dep: schemas.DeploymentCreate, db: Session = 
     return db_dep
 
 
-@app.delete("/deployments/{dep_id}", status_code=204)
+@app.delete("/api/v1/deployments/{dep_id}", status_code=204)
 def delete_deployment(dep_id: int, db: Session = Depends(get_db)):
     db_dep = db.query(models.Deployment).filter(models.Deployment.id == dep_id).first()
     if not db_dep:

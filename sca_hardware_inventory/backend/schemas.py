@@ -8,6 +8,17 @@ class HardwareItemBase(BaseModel):
     hardware_type: str
     manufacturer: str
     model: str
+    qty: int
+    serial_number: str
+    warranty: str
+    screen_size: str
+    processor: str
+    processor_speed: str
+    operating_system: str
+    ram: str
+    storage_type: str
+    storage: str
+    date_added: Optional[str] = None
     date_tested: Optional[str] = None
     designation: Optional[str] = None
 
