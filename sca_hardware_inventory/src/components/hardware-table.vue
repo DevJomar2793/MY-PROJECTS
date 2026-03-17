@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import Swal from "sweetalert2";
 import api from "../api/axios";
 
@@ -11,6 +11,16 @@ const hardwareItems = ref([]);
 const loading = ref(false);
 const isEditing = ref(false);
 const currentId = ref(null);
+
+const hardwareTypes = [
+  { id: 1, label: "Laptop", code: "L" },
+  { id: 2, label: "Desktop", code: "D" },
+  { id: 3, label: "Monitor", code: "M" },
+  { id: 4, label: "Tablet", code: "T" },
+  { id: 5, label: "Printer", code: "P" },
+  { id: 6, label: "Keyboard", code: "K" },
+  { id: 7, label: "Mouse", code: "MOU" },
+];
 
 // Modal & Form State
 const showModal = ref(false);
@@ -31,6 +41,8 @@ const newHardware = ref({
   storageSize: "",
   dateTested: new Date().toISOString().split("T")[0],
 });
+
+// CKT generation is now handled in openModal to trigger instantly on "Add" click
 
 const fetchHardware = async () => {
   loading.value = true;
@@ -54,7 +66,8 @@ onMounted(() => {
 });
 
 const openModal = (item = null) => {
-  if (item) {
+  // Ensure we check if 'item' is a valid hardware object and not a PointerEvent from the click
+  if (item && item.id !== undefined && !(item instanceof Event)) {
     isEditing.value = true;
     currentId.value = item.id;
     newHardware.value = {
@@ -78,12 +91,15 @@ const openModal = (item = null) => {
     isEditing.value = false;
     currentId.value = null;
     resetForm();
-    // Generate a temporary CKT item number if empty
-    if (!newHardware.value.ckt_item_number) {
-      newHardware.value.ckt_item_number = `CKT-${Math.floor(
-        1000 + Math.random() * 9000,
-      )}`;
-    }
+
+    // Auto-generate CKT number instantly on click
+    const maxId =
+      hardwareItems.value.length > 0
+        ? Math.max(...hardwareItems.value.map((i) => Number(i.id) || 0))
+        : 0;
+    const nextId = maxId + 1;
+    const paddedId = String(nextId).padStart(4, "0");
+    newHardware.value.ckt_item_number = `CKT - ${paddedId}`;
   }
   showModal.value = true;
 };
@@ -255,7 +271,7 @@ const filteredAndSortedHardware = computed(() => {
         />
       </div>
       <button
-        @click="openModal"
+        @click="openModal()"
         class="btn btn-primary rounded-pill px-4 d-flex align-items-center gap-2 shadow-sm"
       >
         <i class="bi bi-plus-lg"></i>
@@ -424,17 +440,20 @@ const filteredAndSortedHardware = computed(() => {
                     />
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <label class="form-label fw-semibold text-muted small mb-1"
                     >Hardware Type</label
                   >
-                  <input
+                  <select
                     v-model="newHardware.hardware_type"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., Server, Workstation"
+                    class="form-select rounded-3 border-light-subtle shadow-none"
                     required
-                  />
+                  >
+                    <option value="" disabled>Select type</option>
+                    <option v-for="type in hardwareTypes" :value="type.label">
+                      {{ type.label }}
+                    </option>
+                  </select>
                 </div>
                 <div class="col-md-6">
                   <label class="form-label fw-semibold text-muted small mb-1"
