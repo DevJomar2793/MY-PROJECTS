@@ -1,7 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List
+import os
+import shutil
+import uuid
 
 import models, schemas
 from database import engine, get_db
@@ -9,7 +13,7 @@ from database import engine, get_db
 # Create all tables in the SQLite database
 models.Base.metadata.create_all(bind=engine)
 
-#Delete table hardware_items
+# Delete table hardware_items
 # models.HardwareItem.metadata.drop_all(bind=engine)
 
 app = FastAPI(title="SCA Hardware Inventory API", version="1.0.0")
@@ -23,11 +27,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Ensure uploads directory exists
+os.makedirs("uploads", exist_ok=True)
+# Mount the uploads folder
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 
 # ---- Health Check ----        
 @app.get("/")
 def root():
     return {"message": "SCA Hardware Inventory API is running 🚀"}
+
+# ========================
+# File Upload Endpoint
+# ========================
+
+@app.post("/api/v1/upload")
+async def upload_images(files: List[UploadFile] = File(...)):
+    uploaded_files = []
+    for file in files:
+        file_extension = os.path.splitext(file.filename)[1]
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_location = f"uploads/{unique_filename}"
+        
+        with open(file_location, "wb+") as file_object:
+            shutil.copyfileobj(file.file, file_object)
+            
+        # Return URL-like path to be stored by the frontend
+        uploaded_files.append(f"/uploads/{unique_filename}")
+        
+    return {"file_paths": uploaded_files}
 
 
 # ========================
@@ -49,7 +78,15 @@ def get_hardware(item_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/v1/hardware", response_model=schemas.HardwareItemResponse, status_code=201)
 def create_hardware(item: schemas.HardwareItemCreate, db: Session = Depends(get_db)):
-    db_item = models.HardwareItem(**item.model_dump())
+    # Extract images from payload
+    item_data = item.model_dump(exclude={"images"})
+    db_item = models.HardwareItem(**item_data)
+    
+    # Process images if they exist
+    if item.images:
+        for path in item.images:
+            db_item.images.append(models.HardwareImage(image_path=path))
+            
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -61,8 +98,17 @@ def update_hardware(item_id: int, item: schemas.HardwareItemCreate, db: Session 
     db_item = db.query(models.HardwareItem).filter(models.HardwareItem.id == item_id).first()
     if not db_item:
         raise HTTPException(status_code=404, detail="Hardware item not found")
-    for key, value in item.model_dump().items():
+        
+    # Update base fields
+    for key, value in item.model_dump(exclude={"images"}).items():
         setattr(db_item, key, value)
+        
+    # Re-associate images (simple approach: clear old and add new ones from payload)
+    db.query(models.HardwareImage).filter(models.HardwareImage.hardware_id == item_id).delete()
+    if item.images:
+        for path in item.images:
+            db_item.images.append(models.HardwareImage(image_path=path))
+            
     db.commit()
     db.refresh(db_item)
     return db_item

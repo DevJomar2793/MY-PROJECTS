@@ -1,5 +1,13 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+
+
+# ---- Image Schemas ----
+class HardwareImageResponse(BaseModel):
+    id: int
+    image_path: str
+
+    model_config = {"from_attributes": True}
 
 
 # ---- Hardware Schemas ----
@@ -19,28 +27,33 @@ class HardwareItemBase(BaseModel):
     storage_type: str
     storage: str
     date_added: Optional[str] = None
+    date_received: Optional[str] = None
+    delivered_by: Optional[str] = None
     date_tested: Optional[str] = None
     designation: Optional[str] = None
 
 
 class HardwareItemCreate(HardwareItemBase):
-    pass
+    # Optional list of image paths (URLs or filenames) chosen during creation
+    images: Optional[List[str]] = []
 
 
 class HardwareItemResponse(HardwareItemBase):
     id: int
+    images: List[HardwareImageResponse] = []
 
     model_config = {"from_attributes": True}
 
 
 # ---- Deployment Schemas ----
 class DeploymentBase(BaseModel):
-    ckt_item_number: str
+    emp_3_code: str
     deployed_to: str
     location: Optional[str] = None
-    quantity: Optional[int] = 1
-    history: Optional[str] = None
+    department: Optional[str] = None
+    contact_info: Optional[str] = None
     received_date: Optional[str] = None
+
 
 
 class DeploymentCreate(DeploymentBase):

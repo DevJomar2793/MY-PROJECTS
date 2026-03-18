@@ -20,10 +20,14 @@ const hardwareTypes = [
   { id: 5, label: "Printer", code: "P" },
   { id: 6, label: "Keyboard", code: "K" },
   { id: 7, label: "Mouse", code: "MOU" },
+  { id: 8, label: "Barcode Scanner", code: "BS" },
 ];
 
 // Modal & Form State
 const showModal = ref(false);
+const zoomedImage = ref(null);
+const selectedFiles = ref([]);
+const imagePreviews = ref([]);
 const newHardware = ref({
   ckt_item_number: "",
   hardware_type: "",
@@ -39,7 +43,10 @@ const newHardware = ref({
   ram: "",
   storageType: "",
   storageSize: "",
+  dateReceived: new Date().toISOString().split("T")[0],
+  deliveredBy: "",
   dateTested: new Date().toISOString().split("T")[0],
+  images: [],
 });
 
 // CKT generation is now handled in openModal to trigger instantly on "Add" click
@@ -51,11 +58,11 @@ const fetchHardware = async () => {
     hardwareItems.value = response.data;
   } catch (error) {
     console.error("Error fetching hardware:", error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "Failed to load hardware inventory.",
-    });
+    // Swal.fire({
+    //   icon: "error",
+    //   title: "Error",
+    //   text: "Failed to load hardware inventory.",
+    // });
   } finally {
     loading.value = false;
   }
@@ -85,8 +92,16 @@ const openModal = (item = null) => {
       ram: item.ram,
       storageType: item.storage_type,
       storageSize: item.storage,
+      dateReceived:
+        item.date_received || new Date().toISOString().split("T")[0],
+      deliveredBy: item.delivered_by || "",
       dateTested: item.date_tested,
+      images: item.images ? item.images.map((img) => img.image_path) : [],
     };
+    imagePreviews.value = item.images
+      ? item.images.map((img) => `http://localhost:8000${img.image_path}`)
+      : [];
+    selectedFiles.value = []; // Prevent re-uploading existing if they are just editing text
   } else {
     isEditing.value = false;
     currentId.value = null;
@@ -125,8 +140,60 @@ const resetForm = () => {
     ram: "",
     storageType: "",
     storageSize: "",
+    dateReceived: new Date().toISOString().split("T")[0],
+    deliveredBy: "",
     dateTested: new Date().toISOString().split("T")[0],
+    images: [],
   };
+  selectedFiles.value = [];
+  imagePreviews.value = [];
+};
+
+const handleFileUpload = (event) => {
+  const files = Array.from(event.target.files);
+  files.forEach((file) => {
+    selectedFiles.value.push(file);
+    imagePreviews.value.push(URL.createObjectURL(file));
+  });
+};
+
+const zoomImage = (src) => {
+  zoomedImage.value = src;
+};
+
+const closeZoom = () => {
+  zoomedImage.value = null;
+};
+
+const removeImage = async (index) => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You are about to remove this image.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc3545",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Yes, remove it!",
+  });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  // If it's a blob (newly added), revoke it
+  if (imagePreviews.value[index].startsWith("blob:")) {
+    URL.revokeObjectURL(imagePreviews.value[index]);
+  }
+  imagePreviews.value.splice(index, 1);
+
+  // If it's a new file, remove from selectedFiles
+  if (selectedFiles.value.length >= index + 1) {
+    selectedFiles.value.splice(index, 1);
+  }
+
+  if (newHardware.value.images && newHardware.value.images.length > index) {
+    newHardware.value.images.splice(index, 1);
+  }
 };
 
 const addHardware = async () => {
@@ -142,6 +209,30 @@ const addHardware = async () => {
       text: "Please fill in all required fields!",
     });
     return;
+  }
+
+  // Handle Image Upload First
+  let uploadedPaths = [...(newHardware.value.images || [])];
+  if (selectedFiles.value.length > 0) {
+    const formData = new FormData();
+    selectedFiles.value.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    try {
+      const uploadRes = await api.post("/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      uploadedPaths = [...uploadedPaths, ...uploadRes.data.file_paths];
+    } catch (uploadError) {
+      console.error("Image upload failed", uploadError);
+      Swal.fire({
+        icon: "error",
+        title: "Upload Error",
+        text: "Failed to upload images.",
+      });
+      return;
+    }
   }
 
   // Map frontend fields (camelCase) to backend fields (snake_case)
@@ -160,8 +251,11 @@ const addHardware = async () => {
     ram: newHardware.value.ram,
     storage_type: newHardware.value.storageType,
     storage: newHardware.value.storageSize,
+    date_received: newHardware.value.dateReceived,
+    delivered_by: newHardware.value.deliveredBy,
     date_tested: newHardware.value.dateTested,
     designation: "Available", // Default designation
+    images: uploadedPaths,
   };
 
   try {
@@ -374,327 +468,549 @@ const filteredAndSortedHardware = computed(() => {
   </div>
 
   <!-- Add Hardware Modal -->
-  <div v-if="showModal" class="modal-backdrop fade show"></div>
-  <div
-    class="modal fade"
-    :class="{ 'show d-block': showModal }"
-    tabindex="-1"
-    role="dialog"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-      <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-        <div class="modal-header border-0 pt-4 px-4 pb-3 bg-light">
-          <div class="d-flex align-items-center">
-            <div
-              class="rounded-circle bg-primary bg-opacity-10 p-2 me-3 d-flex align-items-center justify-content-center"
-              style="width: 48px; height: 48px"
-            >
-              <i class="bi bi-box-seam text-primary fs-4"></i>
-            </div>
-            <div>
-              <h5 class="modal-title fw-bold text-dark mb-0">
-                {{ isEditing ? "System Hardware Details" : "Add New Hardware" }}
-              </h5>
-              <p class="text-muted small mb-0">
-                Manage hardware inventory specifications
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            class="btn-close shadow-none"
-            @click="closeModal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body p-4 bg-white">
-          <form @submit.prevent="addHardware">
-            <!-- Section 1: General Information -->
-            <div class="mb-5">
+  <Transition name="modal-fade">
+    <div v-if="showModal" class="modal-backdrop show"></div>
+  </Transition>
+  <Transition name="modal-window">
+    <div
+      v-if="showModal"
+      class="modal d-block"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+          <div class="modal-header border-0 pt-4 px-4 pb-3 bg-light">
+            <div class="d-flex align-items-center">
               <div
-                class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                class="rounded-circle bg-primary bg-opacity-10 p-2 me-3 d-flex align-items-center justify-content-center"
+                style="width: 48px; height: 48px"
               >
-                <i class="bi bi-info-circle text-primary me-2 fs-5"></i>
-                <h6
-                  class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
-                >
-                  General Information
-                </h6>
+                <i class="bi bi-box-seam text-primary fs-4"></i>
               </div>
-              <div class="row g-4">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >CKT Item Number</label
+              <div>
+                <h5 class="modal-title fw-bold text-dark mb-0">
+                  {{
+                    isEditing ? "System Hardware Details" : "Add New Hardware"
+                  }}
+                </h5>
+                <p class="text-muted small mb-0">
+                  Manage hardware inventory specifications
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="btn-close shadow-none"
+              @click="closeModal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-4 bg-white">
+            <form @submit.prevent="addHardware">
+              <!-- Section 1: General Information -->
+              <div class="mb-5">
+                <div
+                  class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                >
+                  <i class="bi bi-info-circle text-primary me-2 fs-5"></i>
+                  <h6
+                    class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
                   >
-                  <div class="input-group">
-                    <span
-                      class="input-group-text bg-light border-light-subtle text-muted"
-                      >#</span
+                    General Information
+                  </h6>
+                </div>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >CKT Item Number</label
+                    >
+                    <div class="input-group">
+                      <span
+                        class="input-group-text bg-light border-light-subtle text-muted"
+                        >#</span
+                      >
+                      <input
+                        v-model="newHardware.ckt_item_number"
+                        type="text"
+                        class="form-control rounded-end-3 border-light-subtle shadow-none bg-light"
+                        required
+                        readonly
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Hardware Type</label
+                    >
+                    <select
+                      v-model="newHardware.hardware_type"
+                      class="form-select rounded-3 border-light-subtle shadow-none"
+                      required
+                    >
+                      <option value="" disabled>Select type</option>
+                      <option v-for="type in hardwareTypes" :value="type.label">
+                        {{ type.label }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Manufacturer</label
                     >
                     <input
-                      v-model="newHardware.ckt_item_number"
+                      v-model="newHardware.manufacturer"
                       type="text"
-                      class="form-control rounded-end-3 border-light-subtle shadow-none bg-light"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., Dell, HP, Apple"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Model</label
+                    >
+                    <input
+                      v-model="newHardware.model"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., Precision T3600"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Serial Number</label
+                    >
+                    <input
+                      v-model="newHardware.serialNumber"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="S/N or Service Tag"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Quantity</label
+                    >
+                    <input
+                      v-model="newHardware.qty"
+                      type="number"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      min="1"
                       required
                     />
                   </div>
                 </div>
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Hardware Type</label
+              </div>
+
+              <!-- Section 2: System Performance -->
+              <div class="mb-5">
+                <div
+                  class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                >
+                  <i class="bi bi-cpu text-primary me-2 fs-5"></i>
+                  <h6
+                    class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
                   >
-                  <select
-                    v-model="newHardware.hardware_type"
-                    class="form-select rounded-3 border-light-subtle shadow-none"
-                    required
-                  >
-                    <option value="" disabled>Select type</option>
-                    <option v-for="type in hardwareTypes" :value="type.label">
-                      {{ type.label }}
-                    </option>
-                  </select>
+                    System Performance
+                  </h6>
                 </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Manufacturer</label
-                  >
-                  <input
-                    v-model="newHardware.manufacturer"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., Dell, HP, Apple"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Model</label
-                  >
-                  <input
-                    v-model="newHardware.model"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., Precision T3600"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Serial Number</label
-                  >
-                  <input
-                    v-model="newHardware.serialNumber"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="S/N or Service Tag"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Quantity</label
-                  >
-                  <input
-                    v-model="newHardware.qty"
-                    type="number"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    min="1"
-                    required
-                  />
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Processor (CPU)</label
+                    >
+                    <input
+                      v-model="newHardware.processor"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., Intel Xeon E5-1620"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Clock Speed</label
+                    >
+                    <input
+                      v-model="newHardware.processorSpeed"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., 3.60GHz"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Operating System</label
+                    >
+                    <input
+                      v-model="newHardware.operatingSystem"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., Windows 10 Pro"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >RAM (Memory)</label
+                    >
+                    <input
+                      v-model="newHardware.ram"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., 16GB DDR4"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Section 2: System Performance -->
-            <div class="mb-5">
+              <!-- Section 3: Storage & Display -->
+              <div class="mb-5">
+                <div
+                  class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                >
+                  <i class="bi bi-hdd-network text-primary me-2 fs-5"></i>
+                  <h6
+                    class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
+                  >
+                    Storage & Display
+                  </h6>
+                </div>
+                <div class="row g-4">
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Storage Type</label
+                    >
+                    <select
+                      v-model="newHardware.storageType"
+                      class="form-select rounded-3 border-light-subtle shadow-none"
+                    >
+                      <option value="" disabled>Select type</option>
+                      <option value="SSD">SSD (Solid State Drive)</option>
+                      <option value="HDD">HDD (Hard Disk Drive)</option>
+                      <option value="NVMe">NVMe SSD</option>
+                      <option value="Hybrid">Hybrid</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Capacity</label
+                    >
+                    <input
+                      v-model="newHardware.storageSize"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., 512GB"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Screen Size</label
+                    >
+                    <input
+                      v-model="newHardware.screenSize"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., 24 inch"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 4: Support & Maintenance -->
+              <div class="mb-5 pb-2">
+                <div
+                  class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                >
+                  <i class="bi bi-shield-check text-primary me-2 fs-5"></i>
+                  <h6
+                    class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
+                  >
+                    Support & Maintenance
+                  </h6>
+                </div>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Warranty Period</label
+                    >
+                    <input
+                      v-model="newHardware.warranty"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., 1 Year, 3 Years"
+                      required
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Date Last Tested</label
+                    >
+                    <input
+                      v-model="newHardware.dateTested"
+                      type="date"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 5: Logistics & Delivery -->
+              <div class="mb-5 pb-2">
+                <div
+                  class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                >
+                  <i class="bi bi-truck text-primary me-2 fs-5"></i>
+                  <h6
+                    class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
+                  >
+                    Logistics & Delivery
+                  </h6>
+                </div>
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Date of Arrival / Received</label
+                    >
+                    <input
+                      v-model="newHardware.dateReceived"
+                      type="date"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                    />
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Delivered By</label
+                    >
+                    <input
+                      v-model="newHardware.deliveredBy"
+                      type="text"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., Courier Name, IT Staff"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 6: Media & Images -->
+              <div class="mb-5 pb-2">
+                <div
+                  class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                >
+                  <i class="bi bi-images text-primary me-2 fs-5"></i>
+                  <h6
+                    class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
+                  >
+                    Hardware Images
+                  </h6>
+                </div>
+                <div class="row g-4">
+                  <div class="col-12">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Upload Photos</label
+                    >
+                    <div class="position-relative text-center p-4 border border-2 border-dashed rounded-4 bg-light border-light-subtle mb-3 transition-opacity hover-upload-box">
+                        <i class="bi bi-cloud-arrow-up display-6 text-primary mb-2 opacity-75"></i>
+                        <h6 class="fw-semibold text-dark mb-1">Click or Drop images here</h6>
+                        <p class="text-muted small mb-0">JPEG, PNG, or WebP formats</p>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
+                          @change="handleFileUpload"
+                          style="cursor: pointer;"
+                        />
+                    </div>
+
+                    <!-- Image Previews -->
+                    <div
+                      v-if="imagePreviews.length > 0"
+                      class="d-flex gap-3 overflow-x-auto pb-2 mt-3 p-3 bg-white rounded-4 border border-light-subtle shadow-sm custom-scrollbar"
+                    >
+                      <div
+                        v-for="(preview, index) in imagePreviews"
+                        :key="index"
+                        class="position-relative flex-shrink-0 overflow-hidden rounded-4 shadow-sm border border-light preview-card cursor-pointer"
+                        style="width: 120px; height: 120px"
+                        @click="zoomImage(preview)"
+                      >
+                        <img
+                          :src="preview"
+                          class="w-100 h-100 object-fit-cover preview-img transition-transform"
+                        />
+                        <div class="position-absolute w-100 h-100 top-0 start-0 bg-dark bg-opacity-50 d-flex flex-column align-items-center justify-content-center preview-overlay px-2 text-center pointer-events-none">
+                           <i class="bi bi-zoom-in text-white fs-3"></i>
+                        </div>
+                        <!-- Delete Button -->
+                        <button
+                          type="button"
+                          @click.stop="removeImage(index)"
+                          class="btn btn-danger position-absolute rounded-circle shadow p-0 d-flex align-items-center justify-content-center remove-btn"
+                          style="
+                            top: 6px;
+                            right: 6px;
+                            width: 24px;
+                            height: 24px;
+                            z-index: 5;
+                            background: rgba(220, 53, 69, 0.95);
+                            border: 2px solid white;
+                          "
+                        >
+                          <i class="bi bi-x" style="font-size: 1.1rem; margin-top: 1px;"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div
-                class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                class="modal-footer border-0 px-0 pb-0 pt-4 bg-light bg-opacity-50 mx-n4 px-4 sticky-bottom"
               >
-                <i class="bi bi-cpu text-primary me-2 fs-5"></i>
-                <h6
-                  class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
-                >
-                  System Performance
-                </h6>
-              </div>
-              <div class="row g-4">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Processor (CPU)</label
+                <div class="d-flex w-100 gap-3">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary rounded-pill py-2.5 px-4 fw-bold shadow-none flex-grow-1"
+                    @click="closeModal"
                   >
-                  <input
-                    v-model="newHardware.processor"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., Intel Xeon E5-1620"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Clock Speed</label
+                    Cancel
+                  </button>
+                  <button
+                    v-if="!isEditing"
+                    type="submit"
+                    class="btn btn-primary rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
                   >
-                  <input
-                    v-model="newHardware.processorSpeed"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., 3.60GHz"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Operating System</label
+                    <i class="bi bi-plus-lg me-2"></i>Save Hardware
+                  </button>
+                  <button
+                    v-else
+                    type="submit"
+                    class="btn btn-success rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
                   >
-                  <input
-                    v-model="newHardware.operatingSystem"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., Windows 10 Pro"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >RAM (Memory)</label
-                  >
-                  <input
-                    v-model="newHardware.ram"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., 16GB DDR4"
-                    required
-                  />
+                    <i class="bi bi-check2-circle me-2"></i>Update Hardware
+                  </button>
                 </div>
               </div>
-            </div>
-
-            <!-- Section 3: Storage & Display -->
-            <div class="mb-5">
-              <div
-                class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
-              >
-                <i class="bi bi-hdd-network text-primary me-2 fs-5"></i>
-                <h6
-                  class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
-                >
-                  Storage & Display
-                </h6>
-              </div>
-              <div class="row g-4">
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Storage Type</label
-                  >
-                  <select
-                    v-model="newHardware.storageType"
-                    class="form-select rounded-3 border-light-subtle shadow-none"
-                    required
-                  >
-                    <option value="" disabled>Select type</option>
-                    <option value="SSD">SSD (Solid State Drive)</option>
-                    <option value="HDD">HDD (Hard Disk Drive)</option>
-                    <option value="NVMe">NVMe SSD</option>
-                    <option value="Hybrid">Hybrid</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Capacity</label
-                  >
-                  <input
-                    v-model="newHardware.storageSize"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., 512GB"
-                    required
-                  />
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Screen Size</label
-                  >
-                  <input
-                    v-model="newHardware.screenSize"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., 24 inch"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Section 4: Support & Maintenance -->
-            <div class="mb-5 pb-2">
-              <div
-                class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
-              >
-                <i class="bi bi-shield-check text-primary me-2 fs-5"></i>
-                <h6
-                  class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
-                >
-                  Support & Maintenance
-                </h6>
-              </div>
-              <div class="row g-4">
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Warranty Period</label
-                  >
-                  <input
-                    v-model="newHardware.warranty"
-                    type="text"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    placeholder="e.g., 1 Year, 3 Years"
-                    required
-                  />
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label fw-semibold text-muted small mb-1"
-                    >Date Last Tested</label
-                  >
-                  <input
-                    v-model="newHardware.dateTested"
-                    type="date"
-                    class="form-control rounded-3 border-light-subtle shadow-none"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div
-              class="modal-footer border-0 px-0 pb-0 pt-4 bg-light bg-opacity-50 mx-n4 px-4 sticky-bottom"
-            >
-              <div class="d-flex w-100 gap-3">
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary rounded-pill py-2.5 px-4 fw-bold shadow-none flex-grow-1"
-                  @click="closeModal"
-                >
-                  Cancel
-                </button>
-                <button
-                  v-if="!isEditing"
-                  type="submit"
-                  class="btn btn-primary rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
-                >
-                  <i class="bi bi-plus-lg me-2"></i>Save Hardware
-                </button>
-                <button
-                  v-else
-                  type="submit"
-                  class="btn btn-success rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
-                >
-                  <i class="bi bi-check2-circle me-2"></i>Update Hardware
-                </button>
-              </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </Transition>
+
+  <!-- Image Zoom Lightbox -->
+  <Transition name="modal-fade">
+    <div v-if="zoomedImage" class="modal-backdrop show" style="z-index: 1060;" @click="closeZoom"></div>
+  </Transition>
+  <Transition name="modal-window">
+    <div
+      v-if="zoomedImage"
+      class="modal d-block"
+      tabindex="-1"
+      style="z-index: 1070;"
+      @click.self="closeZoom"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width: 90vw;" @click.self="closeZoom">
+        <div class="modal-content bg-transparent border-0 shadow-none">
+          <div class="modal-body text-center p-0 position-relative">
+            <button
+              type="button"
+              class="btn-close btn-close-white position-absolute shadow-none bg-dark p-2 rounded-circle"
+              style="top: -20px; right: -20px; filter: invert(1) grayscale(100%) brightness(200%); opacity: 0.8;"
+              @click="closeZoom"
+              aria-label="Close"
+            ></button>
+            <img :src="zoomedImage" class="img-fluid rounded-4 shadow-lg object-fit-contain bg-dark" style="max-height: 85vh; width: auto; max-width: 100%; border: 2px solid rgba(255,255,255,0.1);" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </Transition>
 </template>
+
+<style scoped>
+/* Modal Fade for Backdrop */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+/* Modal Window Animation */
+.modal-window-enter-active,
+.modal-window-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-window-enter-active .modal-dialog {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal-window-leave-active .modal-dialog {
+  transition: transform 0.3s ease-in;
+}
+
+.modal-window-enter-from,
+.modal-window-leave-to {
+  opacity: 0;
+}
+.modal-window-enter-from .modal-dialog,
+.modal-window-leave-to .modal-dialog {
+  transform: translateY(-50px) scale(0.9);
+}
+
+/* Upload UI Styles */
+.border-dashed {
+  border-style: dashed !important;
+}
+.cursor-pointer {
+  cursor: pointer !important;
+}
+.hover-upload-box:hover {
+  background-color: var(--bs-secondary-bg) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+/* Preview Card Styles */
+.preview-img {
+  transition: transform 0.3s ease;
+}
+.preview-overlay {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.preview-card:hover .preview-overlay {
+  opacity: 1;
+}
+.preview-card:hover .preview-img {
+  transform: scale(1.1);
+}
+
+/* Custom Scrollbar for modern gallery */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--bs-light);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+</style>

@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy.orm import relationship
 from database import Base
 
 
@@ -21,17 +22,33 @@ class HardwareItem(Base):
     storage_type = Column(String)
     storage = Column(String)
     date_added = Column(String)
+    date_received = Column(String)
+    delivered_by = Column(String)
     date_tested = Column(String)
     designation = Column(String)
+
+    # Relationship to images
+    images = relationship("HardwareImage", back_populates="hardware", cascade="all, delete-orphan")
+
+
+class HardwareImage(Base):
+    __tablename__ = "hardware_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    hardware_id = Column(Integer, ForeignKey("hardware_items.id"))
+    image_path = Column(String)
+
+    hardware = relationship("HardwareItem", back_populates="images")
 
 
 class Deployment(Base):
     __tablename__ = "deployments"
 
     id = Column(Integer, primary_key=True, index=True)
-    ckt_item_number = Column(String, index=True)
+    emp_3_code = Column(String, index=True)
     deployed_to = Column(String)
     location = Column(String)
-    quantity = Column(Integer, default=1)
-    history = Column(String)
+    department = Column(String)
+    contact_info = Column(String)
     received_date = Column(String)
+
