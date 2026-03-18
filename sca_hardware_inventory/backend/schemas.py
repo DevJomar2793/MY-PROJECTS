@@ -31,6 +31,7 @@ class HardwareItemBase(BaseModel):
     delivered_by: Optional[str] = None
     date_tested: Optional[str] = None
     designation: Optional[str] = None
+    deployment_id: Optional[int] = None
 
 
 class HardwareItemCreate(HardwareItemBase):
@@ -57,10 +58,11 @@ class DeploymentBase(BaseModel):
 
 
 class DeploymentCreate(DeploymentBase):
-    pass
+    hardware_ids: Optional[List[int]] = []
 
 
 class DeploymentResponse(DeploymentBase):
     id: int
+    hardware_items: List[HardwareItemResponse] = []
 
     model_config = {"from_attributes": True}

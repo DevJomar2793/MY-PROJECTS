@@ -290,6 +290,40 @@ const addHardware = async () => {
   }
 };
 
+const deleteHardware = async () => {
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "This will permanently delete the hardware item and its uploaded images. You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#dc3545",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Yes, delete it!",
+  });
+
+  if (result.isConfirmed) {
+    try {
+      await api.delete(`/hardware/${currentId.value}`);
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "Hardware has been permanently deleted.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      closeModal();
+      fetchHardware(); // Refresh the list
+    } catch (error) {
+      console.error("Error deleting hardware:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Delete Failed",
+        text: error.response?.data?.detail || "Could not delete hardware data.",
+      });
+    }
+  }
+};
+
 const sortBy = (key) => {
   if (sortKey.value === key) {
     sortOrder.value = sortOrder.value * -1;
@@ -878,6 +912,14 @@ const filteredAndSortedHardware = computed(() => {
                 class="modal-footer border-0 px-0 pb-0 pt-4 bg-light bg-opacity-50 mx-n4 px-4 sticky-bottom"
               >
                 <div class="d-flex w-100 gap-3">
+                  <button
+                    v-if="isEditing"
+                    type="button"
+                    class="btn btn-outline-danger rounded-pill py-2.5 px-4 fw-bold shadow-none flex-grow-1"
+                    @click="deleteHardware"
+                  >
+                    <i class="bi bi-trash3 me-2"></i>Delete
+                  </button>
                   <button
                     type="button"
                     class="btn btn-outline-secondary rounded-pill py-2.5 px-4 fw-bold shadow-none flex-grow-1"

@@ -142,10 +142,20 @@ def get_deployment(dep_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/v1/deployments", response_model=schemas.DeploymentResponse, status_code=201)
 def create_deployment(dep: schemas.DeploymentCreate, db: Session = Depends(get_db)):
-    db_dep = models.Deployment(**dep.model_dump())
+    dep_data = dep.model_dump(exclude={"hardware_ids"})
+    db_dep = models.Deployment(**dep_data)
     db.add(db_dep)
     db.commit()
     db.refresh(db_dep)
+    
+    if dep.hardware_ids:
+        hardware_items = db.query(models.HardwareItem).filter(models.HardwareItem.id.in_(dep.hardware_ids)).all()
+        for hw in hardware_items:
+            hw.deployment_id = db_dep.id
+            hw.designation = "Deployed"
+        db.commit()
+        db.refresh(db_dep)
+        
     return db_dep
 
 
@@ -154,8 +164,24 @@ def update_deployment(dep_id: int, dep: schemas.DeploymentCreate, db: Session = 
     db_dep = db.query(models.Deployment).filter(models.Deployment.id == dep_id).first()
     if not db_dep:
         raise HTTPException(status_code=404, detail="Deployment not found")
-    for key, value in dep.model_dump().items():
+        
+    dep_data = dep.model_dump(exclude={"hardware_ids"})
+    for key, value in dep_data.items():
         setattr(db_dep, key, value)
+        
+    # Reset old hardware
+    old_hw = db.query(models.HardwareItem).filter(models.HardwareItem.deployment_id == dep_id).all()
+    for hw in old_hw:
+        hw.deployment_id = None
+        hw.designation = "Available"
+        
+    # Assign new hardware
+    if dep.hardware_ids:
+        new_hw = db.query(models.HardwareItem).filter(models.HardwareItem.id.in_(dep.hardware_ids)).all()
+        for hw in new_hw:
+            hw.deployment_id = dep_id
+            hw.designation = "Deployed"
+            
     db.commit()
     db.refresh(db_dep)
     return db_dep
@@ -166,5 +192,12 @@ def delete_deployment(dep_id: int, db: Session = Depends(get_db)):
     db_dep = db.query(models.Deployment).filter(models.Deployment.id == dep_id).first()
     if not db_dep:
         raise HTTPException(status_code=404, detail="Deployment not found")
+        
+    # Free existing hardware
+    old_hw = db.query(models.HardwareItem).filter(models.HardwareItem.deployment_id == dep_id).all()
+    for hw in old_hw:
+        hw.deployment_id = None
+        hw.designation = "Available"
+        
     db.delete(db_dep)
     db.commit()

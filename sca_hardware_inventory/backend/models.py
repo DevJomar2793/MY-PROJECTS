@@ -26,9 +26,11 @@ class HardwareItem(Base):
     delivered_by = Column(String)
     date_tested = Column(String)
     designation = Column(String)
+    deployment_id = Column(Integer, ForeignKey("deployments.id"), nullable=True)
 
-    # Relationship to images
+    # Relationships
     images = relationship("HardwareImage", back_populates="hardware", cascade="all, delete-orphan")
+    deployment = relationship("Deployment", back_populates="hardware_items")
 
 
 class HardwareImage(Base):
@@ -51,4 +53,7 @@ class Deployment(Base):
     department = Column(String)
     contact_info = Column(String)
     received_date = Column(String)
+    
+    # Relationship to hardware
+    hardware_items = relationship("HardwareItem", back_populates="deployment")
 
