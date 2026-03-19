@@ -29,19 +29,42 @@ const availableHardware = ref([]);
 const loadingHardware = ref(false);
 const selectedHardware = ref([]);
 const tagSearchQuery = ref("");
+const tagSortKey = ref("");
+const tagSortOrder = ref(1); // 1 for ascending, -1 for descending
 
 const filteredAvailableHardware = computed(() => {
-  if (!tagSearchQuery.value.trim()) return availableHardware.value;
-  const q = tagSearchQuery.value.toLowerCase().trim();
-  return availableHardware.value.filter((hw) => {
-    return (
-      (hw.ckt_item_number && hw.ckt_item_number.toLowerCase().includes(q)) ||
-      (hw.manufacturer && hw.manufacturer.toLowerCase().includes(q)) ||
-      (hw.model && hw.model.toLowerCase().includes(q)) ||
-      (hw.hardware_type && hw.hardware_type.toLowerCase().includes(q)) ||
-      (hw.serial_number && hw.serial_number.toLowerCase().includes(q))
-    );
-  });
+  let result = [...availableHardware.value];
+
+  // 1. Search Filtering
+  if (tagSearchQuery.value.trim()) {
+    const q = tagSearchQuery.value.toLowerCase().trim();
+    result = result.filter((hw) => {
+      return (
+        (hw.ckt_item_number && hw.ckt_item_number.toLowerCase().includes(q)) ||
+        (hw.manufacturer && hw.manufacturer.toLowerCase().includes(q)) ||
+        (hw.model && hw.model.toLowerCase().includes(q)) ||
+        (hw.hardware_type && hw.hardware_type.toLowerCase().includes(q)) ||
+        (hw.serial_number && hw.serial_number.toLowerCase().includes(q))
+      );
+    });
+  }
+
+  // 2. Sorting
+  if (tagSortKey.value) {
+    result.sort((a, b) => {
+      let aVal = a[tagSortKey.value] || "";
+      let bVal = b[tagSortKey.value] || "";
+
+      if (typeof aVal === "string") aVal = aVal.toLowerCase();
+      if (typeof bVal === "string") bVal = bVal.toLowerCase();
+
+      if (aVal < bVal) return -1 * tagSortOrder.value;
+      if (aVal > bVal) return 1 * tagSortOrder.value;
+      return 0;
+    });
+  }
+
+  return result;
 });
 
 const showHardwareDetailsModal = ref(false);
@@ -64,8 +87,8 @@ const openTagModal = async () => {
     const res = await api.get("/hardware");
     availableHardware.value = res.data.filter(
       (h) =>
-        h.designation === "Available" ||
-        (h.deployment_id === currentId.value && currentId.value !== null),
+        !h.deployment_id || 
+        (currentId.value !== null && h.deployment_id === currentId.value)
     );
   } catch (e) {
     console.error("Error fetching hardware:", e);
@@ -126,6 +149,23 @@ const getSortIcon = (key) => {
   if (sortKey.value !== key)
     return "bi bi-arrow-down-up text-black-50 ms-1 opacity-50";
   return sortOrder.value === 1
+    ? "bi bi-sort-alpha-down text-primary ms-1 fw-bold"
+    : "bi bi-sort-alpha-up text-primary ms-1 fw-bold";
+};
+
+const tagSortBy = (key) => {
+  if (tagSortKey.value === key) {
+    tagSortOrder.value = tagSortOrder.value * -1;
+  } else {
+    tagSortKey.value = key;
+    tagSortOrder.value = 1;
+  }
+};
+
+const getTagSortIcon = (key) => {
+  if (tagSortKey.value !== key)
+    return "bi bi-arrow-down-up text-black-50 ms-1 opacity-50";
+  return tagSortOrder.value === 1
     ? "bi bi-sort-alpha-down text-primary ms-1 fw-bold"
     : "bi bi-sort-alpha-up text-primary ms-1 fw-bold";
 };
@@ -734,8 +774,8 @@ const saveDeployment = async () => {
                   class="form-control form-control-sm border-0 bg-transparent p-0 shadow-none text-dark"
                   placeholder="Search by Item #, Model, S/N..."
                 />
-                <button 
-                  v-if="tagSearchQuery" 
+                <button
+                  v-if="tagSearchQuery"
                   @click="tagSearchQuery = ''"
                   class="btn btn-link p-0 text-muted ms-2 shadow-none"
                 >
@@ -763,16 +803,26 @@ const saveDeployment = async () => {
                 <thead>
                   <tr>
                     <th
-                      class="border-0 text-muted fw-semibold py-3 fs-6 rounded-start"
+                      @click="tagSortBy('ckt_item_number')"
+                      class="border-0 text-muted fw-semibold py-3 fs-6 rounded-start custom-sort-header"
                       style="background-color: var(--secondary-color)"
                     >
                       CKT Item #
+                      <i
+                        :class="getTagSortIcon('ckt_item_number')"
+                        style="font-size: 0.8rem"
+                      ></i>
                     </th>
                     <th
-                      class="border-0 text-muted fw-semibold py-3 fs-6"
+                      @click="tagSortBy('manufacturer')"
+                      class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
                       style="background-color: var(--secondary-color)"
                     >
                       Hardware
+                      <i
+                        :class="getTagSortIcon('manufacturer')"
+                        style="font-size: 0.8rem"
+                      ></i>
                     </th>
                     <th
                       class="border-0 text-muted fw-semibold py-3 fs-6 rounded-end text-center"
@@ -836,8 +886,12 @@ const saveDeployment = async () => {
               </table>
             </div>
 
-            <div 
-              v-if="!loadingHardware && filteredAvailableHardware.length === 0 && tagSearchQuery" 
+            <div
+              v-if="
+                !loadingHardware &&
+                filteredAvailableHardware.length === 0 &&
+                tagSearchQuery
+              "
               class="text-center py-5 text-muted"
             >
               <i class="bi bi-search d-block fs-3 mb-2 opacity-50"></i>
@@ -1051,72 +1105,3 @@ const saveDeployment = async () => {
     </div>
   </Transition>
 </template>
-
-<style scoped>
-/* Modal Fade for Backdrop */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-}
-
-/* Modal Window Animation */
-.modal-window-enter-active,
-.modal-window-leave-active {
-  transition: opacity 0.3s ease;
-}
-.modal-window-enter-active .modal-dialog {
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.modal-window-leave-active .modal-dialog {
-  transition: transform 0.3s ease-in;
-}
-
-.modal-window-enter-from,
-.modal-window-leave-to {
-  opacity: 0;
-}
-.modal-window-enter-from .modal-dialog,
-.modal-window-leave-to .modal-dialog {
-  transform: translateY(-50px) scale(0.9);
-}
-
-.cursor-pointer {
-  cursor: pointer !important;
-}
-
-.hover-lift {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
-}
-
-.hover-lift-row:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  z-index: 10;
-  position: relative;
-}
-
-/* Custom Scrollbar for inner modal */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
-.custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-}
-</style>

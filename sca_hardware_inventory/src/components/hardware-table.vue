@@ -23,6 +23,16 @@ const hardwareTypes = [
   { id: 8, label: "Barcode Scanner", code: "BS" },
 ];
 
+const designationOptions = [
+  { value: "ASSIGNED (STAFF)", description: "Being used by Team Member" },
+  { value: "ASSIGNED (COMPANY/STUDENT)", description: "Being used by Company/Student" },
+  { value: "SPARE", description: "Backup or Spare" },
+  { value: "RE-SELL (FOR SALE)", description: "For sale at regular price (good item)" },
+  { value: "FOR SALE (CHEAP)", description: "For sale at cheap price (not good item)" },
+  { value: "SCRAP", description: "Scrap" },
+  { value: "SOLD", description: "SOLD" }
+];
+
 // Modal & Form State
 const showModal = ref(false);
 const zoomedImage = ref(null);
@@ -46,6 +56,8 @@ const newHardware = ref({
   dateReceived: new Date().toISOString().split("T")[0],
   deliveredBy: "",
   dateTested: new Date().toISOString().split("T")[0],
+  designation: "",
+  deployment_id: null,
   images: [],
 });
 
@@ -96,6 +108,8 @@ const openModal = (item = null) => {
         item.date_received || new Date().toISOString().split("T")[0],
       deliveredBy: item.delivered_by || "",
       dateTested: item.date_tested,
+      designation: item.designation || "",
+      deployment_id: item.deployment_id,
       images: item.images ? item.images.map((img) => img.image_path) : [],
     };
     imagePreviews.value = item.images
@@ -143,6 +157,8 @@ const resetForm = () => {
     dateReceived: new Date().toISOString().split("T")[0],
     deliveredBy: "",
     dateTested: new Date().toISOString().split("T")[0],
+    designation: "",
+    deployment_id: null,
     images: [],
   };
   selectedFiles.value = [];
@@ -254,7 +270,8 @@ const addHardware = async () => {
     date_received: newHardware.value.dateReceived,
     delivered_by: newHardware.value.deliveredBy,
     date_tested: newHardware.value.dateTested,
-    designation: "Available", // Default designation
+    designation: newHardware.value.designation || "SPARE", // Use selected or default
+    deployment_id: newHardware.value.deployment_id,
     images: uploadedPaths,
   };
 
@@ -584,8 +601,23 @@ const filteredAndSortedHardware = computed(() => {
                       required
                     >
                       <option value="" disabled>Select type</option>
-                      <option v-for="type in hardwareTypes" :value="type.label">
+                      <option v-for="type in hardwareTypes" :key="type.id" :value="type.label">
                         {{ type.label }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Hardware Designation</label
+                    >
+                    <select
+                      v-model="newHardware.designation"
+                      class="form-select rounded-3 border-light-subtle shadow-none"
+                      required
+                    >
+                      <option value="" disabled>Select designation</option>
+                      <option v-for="opt in designationOptions" :key="opt.value" :value="opt.value">
+                        {{ opt.value }} ({{ opt.description }})
                       </option>
                     </select>
                   </div>

@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 import os
 import shutil
@@ -65,7 +65,7 @@ async def upload_images(files: List[UploadFile] = File(...)):
 
 @app.get("/api/v1/hardware", response_model=List[schemas.HardwareItemResponse])
 def get_all_hardware(db: Session = Depends(get_db)):
-    return db.query(models.HardwareItem).all()
+    return db.query(models.HardwareItem).options(joinedload(models.HardwareItem.deployment)).all()
 
 
 @app.get("/api/v1/hardware/{item_id}", response_model=schemas.HardwareItemResponse)
@@ -152,7 +152,6 @@ def create_deployment(dep: schemas.DeploymentCreate, db: Session = Depends(get_d
         hardware_items = db.query(models.HardwareItem).filter(models.HardwareItem.id.in_(dep.hardware_ids)).all()
         for hw in hardware_items:
             hw.deployment_id = db_dep.id
-            hw.designation = "Deployed"
         db.commit()
         db.refresh(db_dep)
         
@@ -173,14 +172,12 @@ def update_deployment(dep_id: int, dep: schemas.DeploymentCreate, db: Session = 
     old_hw = db.query(models.HardwareItem).filter(models.HardwareItem.deployment_id == dep_id).all()
     for hw in old_hw:
         hw.deployment_id = None
-        hw.designation = "Available"
         
     # Assign new hardware
     if dep.hardware_ids:
         new_hw = db.query(models.HardwareItem).filter(models.HardwareItem.id.in_(dep.hardware_ids)).all()
         for hw in new_hw:
             hw.deployment_id = dep_id
-            hw.designation = "Deployed"
             
     db.commit()
     db.refresh(db_dep)
@@ -197,7 +194,6 @@ def delete_deployment(dep_id: int, db: Session = Depends(get_db)):
     old_hw = db.query(models.HardwareItem).filter(models.HardwareItem.deployment_id == dep_id).all()
     for hw in old_hw:
         hw.deployment_id = None
-        hw.designation = "Available"
         
     db.delete(db_dep)
     db.commit()

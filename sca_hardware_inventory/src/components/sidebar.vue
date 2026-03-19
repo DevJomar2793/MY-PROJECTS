@@ -2,7 +2,7 @@
   <nav class="col-md-2 d-md-block sidebar p-4">
     <div class="d-flex align-items-center mb-5 mt-2">
       <i class="bi bi-box-seam text-primary fs-3 me-2"></i>
-      <h4 class="text-white mb-0 fw-bold">Inventory</h4>
+      <h4 class="text-white mb-0 fw-bold">CKT Hardware Inventory</h4>
     </div>
     <ul class="nav flex-column gap-2">
       <li class="nav-item mb-1">

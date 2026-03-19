@@ -10,6 +10,16 @@ class HardwareImageResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ---- Deployment Schemas ----
+class DeploymentBase(BaseModel):
+    emp_3_code: str
+    deployed_to: str
+    location: Optional[str] = None
+    department: Optional[str] = None
+    contact_info: Optional[str] = None
+    received_date: Optional[str] = None
+
+
 # ---- Hardware Schemas ----
 class HardwareItemBase(BaseModel):
     ckt_item_number: str
@@ -42,19 +52,9 @@ class HardwareItemCreate(HardwareItemBase):
 class HardwareItemResponse(HardwareItemBase):
     id: int
     images: List[HardwareImageResponse] = []
+    deployment: Optional[DeploymentBase] = None
 
     model_config = {"from_attributes": True}
-
-
-# ---- Deployment Schemas ----
-class DeploymentBase(BaseModel):
-    emp_3_code: str
-    deployed_to: str
-    location: Optional[str] = None
-    department: Optional[str] = None
-    contact_info: Optional[str] = None
-    received_date: Optional[str] = None
-
 
 
 class DeploymentCreate(DeploymentBase):

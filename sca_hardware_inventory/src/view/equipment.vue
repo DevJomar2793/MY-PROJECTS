@@ -2,6 +2,7 @@
 import Sidebar from "../components/sidebar.vue";
 import Navbar from "../components/navbar.vue";
 import HardwareTable from "../components/hardware-table.vue";
+import Footer from "../components/footer.vue";
 </script>
 <template>
   <div class="container-fluid">
@@ -11,6 +12,7 @@ import HardwareTable from "../components/hardware-table.vue";
         <Navbar />
         <!-- <Cards /> -->
         <HardwareTable />
+        <Footer />
       </main>
     </div>
   </div>

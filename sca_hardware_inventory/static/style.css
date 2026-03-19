@@ -163,3 +163,79 @@ body {
 .modal-window-leave-to .modal-dialog {
   transform: translateY(-50px) scale(0.9);
 }
+
+/* Modal Fade for Backdrop */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+/* Modal Window Animation */
+.modal-window-enter-active,
+.modal-window-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-window-enter-active .modal-dialog {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal-window-leave-active .modal-dialog {
+  transition: transform 0.3s ease-in;
+}
+
+.modal-window-enter-from,
+.modal-window-leave-to {
+  opacity: 0;
+}
+.modal-window-enter-from .modal-dialog,
+.modal-window-leave-to .modal-dialog {
+  transform: translateY(-50px) scale(0.9);
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.custom-sort-header {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.custom-sort-header:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.hover-lift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.hover-lift-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+  position: relative;
+}
+
+/* Custom Scrollbar for inner modal */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+}
