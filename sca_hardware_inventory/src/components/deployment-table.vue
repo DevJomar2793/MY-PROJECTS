@@ -381,7 +381,7 @@ const printReceipt = () => {
       <div class="signature-section">
         <div class="signature-block">
           ${sigHtml}
-          <div class="signature-line">Employee Signature over Printed Name / Date</div>
+          <div class="signature-line">Employee Signature / Date</div>
         </div>
         <div class="signature-block">
           <div class="signature-line" style="margin-top: 80px;">Issued By / Authorized Representative / Date</div>
@@ -1623,7 +1623,7 @@ const saveDeployment = async () => {
               <div class="row mt-3">
                 <div class="col-6 text-center">
                   <div class="border-top pt-2 mt-2 text-muted small">
-                    Employee Signature over Printed Name / Date
+                    Employee Signature / Date
                   </div>
                 </div>
                 <div class="col-6 text-center">
