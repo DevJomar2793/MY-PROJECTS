@@ -351,6 +351,31 @@ const printReceipt = () => {
       </table>
 
       <p style="font-size:12px;">By Signing this form, I Agree to the following:</p>
+      <ul>
+        <li>
+          I am responsible for the equipment or property issues related
+          to me.
+        </li>
+        <li>I will use it/them in the manner intended.</li>
+        <li>
+          I will be responsible for any damage done (excluding normal
+          wear and tear)
+        </li>
+        <li>
+          Upon separation from the Company, I will return the item(s)
+          issued to me in proper working order (excluding normal wear &
+          tear).
+        </li>
+        <li>
+          I will replace any items issued to me that are damaged or lost
+          at my expense.
+        </li>
+        <li>
+          I authorize a payroll deduction to cover the replacement cost
+          of any item issued to me that is not returned for whatever
+          reason or is not returned in good condition.
+        </li>
+      </ul>
       
 
       <div class="signature-section">
@@ -1514,16 +1539,27 @@ const saveDeployment = async () => {
               </p>
               <ul>
                 <li>
-                  I acknowledge receipt of the equipment listed above and agree
-                  to take proper care of it.
+                  I am responsible for the equipment or property issues related
+                  to me.
+                </li>
+                <li>I will use it/them in the manner intended.</li>
+                <li>
+                  I will be responsible for any damage done (excluding normal
+                  wear and tear)
                 </li>
                 <li>
-                  I understand that this equipment is the property of CKT and is
-                  issued for official use only.
+                  Upon separation from the Company, I will return the item(s)
+                  issued to me in proper working order (excluding normal wear &
+                  tear).
                 </li>
                 <li>
-                  I agree to return the equipment upon request or when my
-                  employment with CKT ends.
+                  I will replace any items issued to me that are damaged or lost
+                  at my expense.
+                </li>
+                <li>
+                  I authorize a payroll deduction to cover the replacement cost
+                  of any item issued to me that is not returned for whatever
+                  reason or is not returned in good condition.
                 </li>
               </ul>
 
