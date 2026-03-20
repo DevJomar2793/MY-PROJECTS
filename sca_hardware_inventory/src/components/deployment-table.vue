@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import api from "../api/axios";
 import Swal from "sweetalert2";
 
@@ -87,8 +87,8 @@ const openTagModal = async () => {
     const res = await api.get("/hardware");
     availableHardware.value = res.data.filter(
       (h) =>
-        !h.deployment_id || 
-        (currentId.value !== null && h.deployment_id === currentId.value)
+        !h.deployment_id ||
+        (currentId.value !== null && h.deployment_id === currentId.value),
     );
   } catch (e) {
     console.error("Error fetching hardware:", e);
@@ -168,6 +168,207 @@ const getTagSortIcon = (key) => {
   return tagSortOrder.value === 1
     ? "bi bi-sort-alpha-down text-primary ms-1 fw-bold"
     : "bi bi-sort-alpha-up text-primary ms-1 fw-bold";
+};
+
+// Acknowledgement Receipt Modal
+const showReceiptModal = ref(false);
+const signatureCanvas = ref(null);
+const isDrawing = ref(false);
+const signatureDataUrl = ref(null);
+const signedDate = ref(null);
+
+const openReceiptModal = () => {
+  signatureDataUrl.value = null;
+  signedDate.value = null;
+  showReceiptModal.value = true;
+  nextTick(() => initSignatureCanvas());
+};
+
+const closeReceiptModal = () => {
+  showReceiptModal.value = false;
+  signatureDataUrl.value = null;
+  signedDate.value = null;
+};
+
+const initSignatureCanvas = () => {
+  const canvas = signatureCanvas.value;
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 120;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#1a1a2e";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+};
+
+const getPos = (e, canvas) => {
+  const rect = canvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+};
+
+const startDraw = (e) => {
+  e.preventDefault();
+  isDrawing.value = true;
+  const canvas = signatureCanvas.value;
+  const ctx = canvas.getContext("2d");
+  const pos = getPos(e, canvas);
+  ctx.beginPath();
+  ctx.moveTo(pos.x, pos.y);
+};
+
+const draw = (e) => {
+  if (!isDrawing.value) return;
+  e.preventDefault();
+  const canvas = signatureCanvas.value;
+  const ctx = canvas.getContext("2d");
+  const pos = getPos(e, canvas);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.stroke();
+};
+
+const stopDraw = () => {
+  if (!isDrawing.value) return;
+  isDrawing.value = false;
+  const canvas = signatureCanvas.value;
+  signatureDataUrl.value = canvas.toDataURL("image/png");
+  signedDate.value = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const clearSignature = () => {
+  signatureDataUrl.value = null;
+  signedDate.value = null;
+  const canvas = signatureCanvas.value;
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+};
+
+const printReceipt = () => {
+  const printWindow = window.open("", "_blank");
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const hardwareRows = selectedHardware.value
+    .map(
+      (hw, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${hw.ckt_item_number}</td>
+      <td>${hw.hardware_type}</td>
+      <td>${hw.manufacturer} ${hw.model}</td>
+      <td>${hw.serial_number}</td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  const sigHtml = signatureDataUrl.value
+    ? `<img src="${signatureDataUrl.value}" style="height:70px; display:block; margin:0 auto 4px;" />
+       <div style="font-size:10px; color:#555;">Signed on: ${signedDate.value}</div>`
+    : ``;
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Acknowledgement Receipt - ${newDeployment.value.deployed_to}</title>
+      <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; padding: 40px; color: #333; }
+        h2 { text-align: center; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        h3 { text-align: center; font-size: 13px; color: #555; margin-top: 0; }
+        .header-section { text-align: center; margin-bottom: 30px; }
+        .info-grid { display: flex; gap: 40px; margin-bottom: 20px; }
+        .info-block { flex: 1; }
+        .info-block label { font-weight: bold; display: block; font-size: 10px; text-transform: uppercase; color: #777; }
+        .info-block span { display: block; font-size: 13px; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; margin-bottom: 30px; }
+        th { background: #f0f0f0; padding: 8px; text-align: left; font-size: 11px; border: 1px solid #ddd; }
+        td { padding: 7px 8px; border: 1px solid #ddd; font-size: 11px; }
+        .signature-section { display: flex; gap: 60px; margin-top: 30px; }
+        .signature-block { flex: 1; text-align: center; }
+        .signature-line { border-top: 1px solid #333; padding-top: 6px; font-size: 11px; color: #555; }
+        .footer-note { margin-top: 40px; font-size: 10px; color: #888; text-align: center; border-top: 1px solid #eee; padding-top: 12px; }
+        @media print { button { display: none; } }
+      </style>
+    </head>
+    <body>
+      <div class="header-section">
+        <h2>CKT Hardware Inventory System</h2>
+        <h3>HARDWARE ACKNOWLEDGEMENT RECEIPT</h3>
+        <p style="font-size:11px; color:#777;">Date: ${dateStr}</p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-block">
+          <label>Employee Name</label>
+          <span>${newDeployment.value.deployed_to || "—"}</span>
+          <label>3-Digit Code</label>
+          <span>${newDeployment.value.emp_3_code || "—"}</span>
+        </div>
+        <div class="info-block">
+          <label>Department</label>
+          <span>${newDeployment.value.department || "—"}</span>
+          <label>Location</label>
+          <span>${newDeployment.value.location || "—"}</span>
+        </div>
+        <div class="info-block">
+          <label>Contact Info</label>
+          <span>${newDeployment.value.contact_info || "—"}</span>
+          <label>Date Received</label>
+          <span>${newDeployment.value.received_date || "—"}</span>
+        </div>
+      </div>
+
+      <p style="margin-top:16px; font-size:12px;">The following hardware items have been received and are acknowledged by the employee named above:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>CKT Item #</th>
+            <th>Hardware Type</th>
+            <th>Manufacturer / Model</th>
+            <th>Serial Number</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${hardwareRows || "<tr><td colspan='5' style='text-align:center;'>No equipment tagged.</td></tr>"}
+        </tbody>
+      </table>
+
+      <p style="font-size:12px;">I acknowledge receipt of the above listed hardware items and agree to take responsibility for their proper care and use.</p>
+
+      <div class="signature-section">
+        <div class="signature-block">
+          ${sigHtml}
+          <div class="signature-line">Employee Signature over Printed Name / Date</div>
+        </div>
+        <div class="signature-block">
+          <div class="signature-line" style="margin-top: 80px;">Issued By / Authorized Representative / Date</div>
+        </div>
+      </div>
+
+      <div class="footer-note">CKT Hardware Inventory System &mdash; This is a system-generated document.</div>
+    </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.focus();
+  setTimeout(() => printWindow.print(), 400);
 };
 
 const filteredAndSortedDeployments = computed(() => {
@@ -519,6 +720,15 @@ const saveDeployment = async () => {
                     class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm d-flex align-items-center gap-2 transition-all fw-semibold hover-lift"
                   >
                     <i class="bi bi-tags-fill"></i> Tag Equipment
+                  </button>
+                  <button
+                    v-if="isEditing"
+                    type="button"
+                    @click="openReceiptModal"
+                    class="btn btn-sm btn-outline-success rounded-pill px-3 shadow-sm d-flex align-items-center gap-2 transition-all fw-semibold hover-lift"
+                  >
+                    <i class="bi bi-file-earmark-check-fill"></i>
+                    Acknowledgement Receipt
                   </button>
                 </div>
 
@@ -1098,6 +1308,297 @@ const saveDeployment = async () => {
               @click="closeHardwareDetails"
             >
               Close Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Transition>
+
+  <!-- Acknowledgement Receipt Modal -->
+  <Transition name="modal-fade">
+    <div
+      v-if="showReceiptModal"
+      class="modal-backdrop show"
+      style="z-index: 1080"
+      @click="closeReceiptModal"
+    ></div>
+  </Transition>
+  <Transition name="modal-window">
+    <div
+      v-if="showReceiptModal"
+      class="modal d-block"
+      tabindex="-1"
+      style="z-index: 1090"
+    >
+      <div
+        class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable shadow-lg"
+        style="max-width: 780px"
+      >
+        <div class="modal-content border-0 rounded-4 overflow-hidden">
+          <div
+            class="modal-header border-0 px-4 pt-4 pb-2 d-flex align-items-start"
+          >
+            <div>
+              <h5 class="fw-bold text-dark mb-1">
+                <i class="bi bi-file-earmark-check-fill text-success me-2"></i>
+                Acknowledgement Receipt Form
+              </h5>
+              <p class="text-muted small mb-0">
+                Hardware receipt for
+                <strong>{{ newDeployment.deployed_to || "employee" }}</strong>
+              </p>
+            </div>
+            <button
+              type="button"
+              class="btn-close ms-auto"
+              @click="closeReceiptModal"
+            ></button>
+          </div>
+
+          <div class="modal-body px-4 pb-2">
+            <!-- Receipt Preview -->
+            <div class="border rounded-4 p-4 bg-light bg-opacity-50">
+              <!-- Header -->
+              <div class="text-center mb-4">
+                <h6 class="fw-bold text-uppercase mb-0 fs-5">
+                  CKT Hardware Inventory System
+                </h6>
+                <p class="text-muted fw-semibold text-uppercase fs-7 mb-1">
+                  Hardware Acknowledgement Receipt
+                </p>
+                <p class="text-muted small mb-0">
+                  Date:
+                  {{
+                    new Date().toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  }}
+                </p>
+              </div>
+
+              <!-- Employee Info -->
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <div class="bg-white rounded-3 p-3 border">
+                    <div
+                      class="text-muted small fw-semibold text-uppercase mb-1"
+                      style="font-size: 10px"
+                    >
+                      Employee Name
+                    </div>
+                    <div class="fw-medium">
+                      {{ newDeployment.deployed_to || "—" }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="bg-white rounded-3 p-3 border">
+                    <div
+                      class="text-muted small fw-semibold text-uppercase mb-1"
+                      style="font-size: 10px"
+                    >
+                      3-Digit Code
+                    </div>
+                    <div class="fw-medium">
+                      {{ newDeployment.emp_3_code || "—" }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="bg-white rounded-3 p-3 border">
+                    <div
+                      class="text-muted small fw-semibold text-uppercase mb-1"
+                      style="font-size: 10px"
+                    >
+                      Department
+                    </div>
+                    <div class="fw-medium">
+                      {{ newDeployment.department || "—" }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="bg-white rounded-3 p-3 border">
+                    <div
+                      class="text-muted small fw-semibold text-uppercase mb-1"
+                      style="font-size: 10px"
+                    >
+                      Date Received
+                    </div>
+                    <div class="fw-medium">
+                      {{ newDeployment.received_date || "—" }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Equipment Table -->
+              <div
+                class="table-responsive border rounded-3 overflow-hidden mb-4"
+              >
+                <table class="table table-sm table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th
+                        class="py-2 ps-3 text-muted fw-semibold"
+                        style="font-size: 11px"
+                      >
+                        #
+                      </th>
+                      <th
+                        class="py-2 text-muted fw-semibold"
+                        style="font-size: 11px"
+                      >
+                        CKT Item #
+                      </th>
+                      <th
+                        class="py-2 text-muted fw-semibold"
+                        style="font-size: 11px"
+                      >
+                        Hardware Type
+                      </th>
+                      <th
+                        class="py-2 text-muted fw-semibold"
+                        style="font-size: 11px"
+                      >
+                        Manufacturer / Model
+                      </th>
+                      <th
+                        class="py-2 pe-3 text-muted fw-semibold"
+                        style="font-size: 11px"
+                      >
+                        Serial Number
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="selectedHardware.length === 0">
+                      <td
+                        colspan="5"
+                        class="py-4 text-center text-muted fst-italic"
+                      >
+                        No equipment tagged.
+                      </td>
+                    </tr>
+                    <tr v-for="(hw, i) in selectedHardware" :key="hw.id">
+                      <td class="ps-3 py-2 text-muted" style="font-size: 12px">
+                        {{ i + 1 }}
+                      </td>
+                      <td
+                        class="py-2 text-primary fw-semibold"
+                        style="font-size: 12px"
+                      >
+                        {{ hw.ckt_item_number }}
+                      </td>
+                      <td class="py-2" style="font-size: 12px">
+                        {{ hw.hardware_type }}
+                      </td>
+                      <td class="py-2" style="font-size: 12px">
+                        {{ hw.manufacturer }} {{ hw.model }}
+                      </td>
+                      <td class="py-2 pe-3 text-muted" style="font-size: 12px">
+                        {{ hw.serial_number }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Acknowledgement text -->
+              <p class="small text-muted fst-italic mb-4">
+                I acknowledge receipt of the above listed hardware items and
+                agree to take responsibility for their proper care and use.
+              </p>
+
+              <!-- Signature Pad -->
+              <div class="mb-3">
+                <div
+                  class="d-flex align-items-center justify-content-between mb-2"
+                >
+                  <label
+                    class="fw-semibold text-dark small d-flex align-items-center gap-2"
+                  >
+                    <i class="bi bi-pen text-primary"></i> Employee Signature
+                    <span
+                      v-if="signedDate"
+                      class="badge bg-success-subtle text-success border border-success-subtle rounded-pill ms-1"
+                      style="font-size: 10px"
+                    >
+                      <i class="bi bi-check-circle-fill me-1"></i>Signed on
+                      {{ signedDate }}
+                    </span>
+                  </label>
+                  <button
+                    type="button"
+                    @click="clearSignature"
+                    class="btn btn-sm btn-outline-danger rounded-pill px-3 py-0"
+                    style="font-size: 11px"
+                  >
+                    <i class="bi bi-eraser-fill me-1"></i> Clear
+                  </button>
+                </div>
+                <canvas
+                  ref="signatureCanvas"
+                  class="w-100 rounded-3 border"
+                  :class="
+                    signatureDataUrl
+                      ? 'border-success'
+                      : 'border-secondary border-opacity-25'
+                  "
+                  style="
+                    cursor: crosshair;
+                    touch-action: none;
+                    height: 150px;
+                    background: white;
+                  "
+                  @mousedown="startDraw"
+                  @mousemove="draw"
+                  @mouseup="stopDraw"
+                  @mouseleave="stopDraw"
+                  @touchstart="startDraw"
+                  @touchmove="draw"
+                  @touchend="stopDraw"
+                ></canvas>
+                <p class="text-muted mt-1" style="font-size: 11px">
+                  <i class="bi bi-info-circle me-1"></i>Draw your signature
+                  using mouse or touch. The signed date will be recorded
+                  automatically.
+                </p>
+              </div>
+
+              <!-- Authorized Rep Line -->
+              <div class="row mt-3">
+                <div class="col-6 text-center">
+                  <div class="border-top pt-2 mt-2 text-muted small">
+                    Employee Signature over Printed Name / Date
+                  </div>
+                </div>
+                <div class="col-6 text-center">
+                  <div class="border-top pt-2 mt-5 text-muted small">
+                    Issued By / Authorized Representative / Date
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer border-0 px-4 pt-2 pb-4">
+            <button
+              type="button"
+              class="btn btn-outline-secondary rounded-pill px-4 fw-bold"
+              @click="closeReceiptModal"
+            >
+              Close
+            </button>
+            <button
+              type="button"
+              class="btn btn-success rounded-pill px-4 fw-bold ms-2 shadow-sm"
+              @click="printReceipt"
+            >
+              <i class="bi bi-printer-fill me-2"></i> Print / Save as PDF
             </button>
           </div>
         </div>
