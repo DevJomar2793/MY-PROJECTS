@@ -350,7 +350,8 @@ const printReceipt = () => {
         </tbody>
       </table>
 
-      <p style="font-size:12px;">I acknowledge receipt of the above listed hardware items and agree to take responsibility for their proper care and use.</p>
+      <p style="font-size:12px;">By Signing this form, I Agree to the following:</p>
+      
 
       <div class="signature-section">
         <div class="signature-block">
@@ -1509,9 +1510,22 @@ const saveDeployment = async () => {
 
               <!-- Acknowledgement text -->
               <p class="small text-muted fst-italic mb-4">
-                I acknowledge receipt of the above listed hardware items and
-                agree to take responsibility for their proper care and use.
+                By signing this form, I agree to the following.
               </p>
+              <ul>
+                <li>
+                  I acknowledge receipt of the equipment listed above and agree
+                  to take proper care of it.
+                </li>
+                <li>
+                  I understand that this equipment is the property of CKT and is
+                  issued for official use only.
+                </li>
+                <li>
+                  I agree to return the equipment upon request or when my
+                  employment with CKT ends.
+                </li>
+              </ul>
 
               <!-- Signature Pad -->
               <div class="mb-3">

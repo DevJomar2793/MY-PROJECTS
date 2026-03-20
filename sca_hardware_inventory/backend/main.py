@@ -1,11 +1,14 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session, joinedload
-from typing import List
+from typing import List, Optional
 import os
 import shutil
 import uuid
+import hashlib
+import secrets
+import base64
 
 import models, schemas
 from database import engine, get_db
@@ -197,3 +200,170 @@ def delete_deployment(dep_id: int, db: Session = Depends(get_db)):
         
     db.delete(db_dep)
     db.commit()
+
+
+# ========================
+# Reports Endpoint
+# ========================
+
+@app.get("/api/v1/reports/summary")
+def get_reports_summary(db: Session = Depends(get_db)):
+    all_hardware = db.query(models.HardwareItem).options(joinedload(models.HardwareItem.deployment)).all()
+    all_deployments = db.query(models.Deployment).options(joinedload(models.Deployment.hardware_items)).all()
+
+    total_items = len(all_hardware)
+    total_deployed = len([h for h in all_hardware if h.deployment_id is not None])
+    total_undeployed = total_items - total_deployed
+    total_deployments = len(all_deployments)
+
+    # Designation breakdown
+    designation_counts = {}
+    for hw in all_hardware:
+        d = hw.designation or "Unset"
+        designation_counts[d] = designation_counts.get(d, 0) + 1
+
+    # Hardware type breakdown
+    type_counts = {}
+    for hw in all_hardware:
+        t = hw.hardware_type or "Unknown"
+        type_counts[t] = type_counts.get(t, 0) + 1
+
+    # Department breakdown
+    dept_counts = {}
+    for dep in all_deployments:
+        dept = dep.department or "Unknown"
+        dept_counts[dept] = dept_counts.get(dept, 0) + len(dep.hardware_items)
+
+    # Per-employee summary
+    employee_list = []
+    for dep in all_deployments:
+        employee_list.append({
+            "id": dep.id,
+            "emp_3_code": dep.emp_3_code,
+            "deployed_to": dep.deployed_to,
+            "department": dep.department,
+            "location": dep.location,
+            "contact_info": dep.contact_info,
+            "received_date": dep.received_date,
+            "hardware_count": len(dep.hardware_items),
+            "hardware_items": [
+                {
+                    "ckt_item_number": hw.ckt_item_number,
+                    "hardware_type": hw.hardware_type,
+                    "manufacturer": hw.manufacturer,
+                    "model": hw.model,
+                    "serial_number": hw.serial_number,
+                    "designation": hw.designation,
+                }
+                for hw in dep.hardware_items
+            ]
+        })
+
+    return {
+        "total_items": total_items,
+        "total_deployed": total_deployed,
+        "total_undeployed": total_undeployed,
+        "total_deployments": total_deployments,
+        "designation_breakdown": designation_counts,
+        "type_breakdown": type_counts,
+        "department_breakdown": dept_counts,
+        "employee_list": employee_list,
+    }
+
+
+# ========================
+# Auth Endpoints
+# ========================
+
+# In-memory token store: {token: user_id}
+_active_tokens: dict = {}
+
+# In-memory reset tokens: {token: email}
+_reset_tokens: dict = {}
+
+
+def _hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def _make_token(user_id: int) -> str:
+    raw = secrets.token_bytes(32)
+    token = base64.urlsafe_b64encode(raw).decode()
+    _active_tokens[token] = user_id
+    return token
+
+
+def _get_user_from_token(authorization: Optional[str], db: Session):
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    token = authorization.split(" ", 1)[1]
+    user_id = _active_tokens.get(token)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
+
+@app.post("/api/v1/auth/register", response_model=schemas.UserResponse, status_code=201)
+def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    if db.query(models.User).filter(models.User.username == user.username).first():
+        raise HTTPException(status_code=400, detail="Username already taken")
+    if db.query(models.User).filter(models.User.email == user.email).first():
+        raise HTTPException(status_code=400, detail="Email already registered")
+    db_user = models.User(
+        username=user.username,
+        email=user.email,
+        hashed_password=_hash_password(user.password),
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+@app.post("/api/v1/auth/login", response_model=schemas.Token)
+def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
+    db_user = db.query(models.User).filter(models.User.username == credentials.username).first()
+    if not db_user or db_user.hashed_password != _hash_password(credentials.password):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    token = _make_token(db_user.id)
+    return {"access_token": token, "token_type": "bearer", "user": db_user}
+
+
+@app.get("/api/v1/auth/me", response_model=schemas.UserResponse)
+def get_me(authorization: Optional[str] = Header(default=None), db: Session = Depends(get_db)):
+    return _get_user_from_token(authorization, db)
+
+
+@app.post("/api/v1/auth/logout")
+def logout(authorization: Optional[str] = Header(default=None)):
+    if authorization and authorization.startswith("Bearer "):
+        token = authorization.split(" ", 1)[1]
+        _active_tokens.pop(token, None)
+    return {"message": "Logged out"}
+
+
+@app.post("/api/v1/auth/forgot-password")
+def forgot_password(body: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.email == body.email).first()
+    # Always return success to avoid email enumeration
+    if user:
+        token = secrets.token_urlsafe(32)
+        _reset_tokens[token] = body.email
+    return {"message": "If an account with that email exists, a reset link has been sent."}
+
+
+@app.post("/api/v1/auth/reset-password")
+def reset_password(body: schemas.ResetPasswordRequest, db: Session = Depends(get_db)):
+    email = _reset_tokens.get(body.token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.hashed_password = _hash_password(body.new_password)
+    db.commit()
+    _reset_tokens.pop(body.token, None)
+    return {"message": "Password reset successful"}

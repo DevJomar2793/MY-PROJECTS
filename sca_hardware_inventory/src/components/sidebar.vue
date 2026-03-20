@@ -37,9 +37,14 @@
       </li>
 
       <li class="nav-item mb-1">
-        <a class="nav-link" href="#"
-          ><i class="bi bi-bar-chart-fill"></i> Reports</a
+        <router-link
+          to="/reports"
+          class="nav-link"
+          active-class="active"
+          exact-active-class="active"
         >
+          <i class="bi bi-bar-chart-fill"></i> Reports
+        </router-link>
       </li>
       <li class="nav-item mb-1">
         <a class="nav-link" href="#"

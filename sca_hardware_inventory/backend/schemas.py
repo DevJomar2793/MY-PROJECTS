@@ -66,3 +66,39 @@ class DeploymentResponse(DeploymentBase):
     hardware_items: List[HardwareItemResponse] = []
 
     model_config = {"from_attributes": True}
+
+
+# ---- Auth Schemas ----
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    password: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    email: str
+    is_active: bool
+
+    model_config = {"from_attributes": True}
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
