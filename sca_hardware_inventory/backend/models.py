@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Boolean, Float
 from sqlalchemy.orm import relationship
 from database import Base
 
@@ -26,6 +26,9 @@ class HardwareItem(Base):
     delivered_by = Column(String)
     date_tested = Column(String)
     designation = Column(String)
+    price_php = Column(Float, nullable=True)
+    price_usd = Column(Float, nullable=True)
+    notes = Column(String, nullable=True)
     deployment_id = Column(Integer, ForeignKey("deployments.id"), nullable=True)
 
     # Relationships

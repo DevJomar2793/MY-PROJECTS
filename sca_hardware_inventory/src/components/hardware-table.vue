@@ -59,9 +59,45 @@ const newHardware = ref({
   designation: "",
   deployment_id: null,
   images: [],
+  price_usd: "",
+  price_php: "",
+  notes: "",
 });
 
 // CKT generation is now handled in openModal to trigger instantly on "Add" click
+
+// Exchange rate
+const exchangeRate = ref(null);
+const rateLastUpdated = ref("");
+const rateLoading = ref(false);
+
+const fetchExchangeRate = async () => {
+  rateLoading.value = true;
+  try {
+    const res = await fetch("https://open.er-api.com/v6/latest/USD");
+    const data = await res.json();
+    exchangeRate.value = data.rates?.PHP ?? null;
+    if (data.time_last_update_utc) {
+      rateLastUpdated.value = new Date(data.time_last_update_utc).toLocaleDateString("en-PH", {
+        year: "numeric", month: "short", day: "numeric",
+      });
+    }
+  } catch {
+    exchangeRate.value = null;
+  } finally {
+    rateLoading.value = false;
+  }
+};
+
+// Auto-convert USD → PHP when USD input changes
+watch(
+  () => newHardware.value.price_usd,
+  (val) => {
+    if (exchangeRate.value && val !== "" && val !== null) {
+      newHardware.value.price_php = (parseFloat(val) * exchangeRate.value).toFixed(2);
+    }
+  }
+);
 
 const fetchHardware = async () => {
   loading.value = true;
@@ -82,6 +118,7 @@ const fetchHardware = async () => {
 
 onMounted(() => {
   fetchHardware();
+  fetchExchangeRate();
 });
 
 const openModal = (item = null) => {
@@ -111,6 +148,9 @@ const openModal = (item = null) => {
       designation: item.designation || "",
       deployment_id: item.deployment_id,
       images: item.images ? item.images.map((img) => img.image_path) : [],
+      price_usd: item.price_usd ?? "",
+      price_php: item.price_php ?? "",
+      notes: item.notes ?? "",
     };
     imagePreviews.value = item.images
       ? item.images.map((img) => `http://localhost:8000${img.image_path}`)
@@ -160,6 +200,9 @@ const resetForm = () => {
     designation: "",
     deployment_id: null,
     images: [],
+    price_usd: "",
+    price_php: "",
+    notes: "",
   };
   selectedFiles.value = [];
   imagePreviews.value = [];
@@ -273,6 +316,9 @@ const addHardware = async () => {
     designation: newHardware.value.designation || "SPARE", // Use selected or default
     deployment_id: newHardware.value.deployment_id,
     images: uploadedPaths,
+    price_usd: newHardware.value.price_usd !== "" ? parseFloat(newHardware.value.price_usd) : null,
+    price_php: newHardware.value.price_php !== "" ? parseFloat(newHardware.value.price_php) : null,
+    notes: newHardware.value.notes || null,
   };
 
   try {
@@ -867,7 +913,89 @@ const filteredAndSortedHardware = computed(() => {
                 </div>
               </div>
 
-              <!-- Section 6: Media & Images -->
+              <!-- Section 6: Pricing & Notes -->
+              <div class="mb-5 pb-2">
+                <div class="d-flex align-items-center mb-4 pb-2 border-bottom border-light">
+                  <i class="bi bi-currency-exchange text-primary me-2 fs-5"></i>
+                  <h6 class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7">
+                    Pricing &amp; Notes
+                  </h6>
+                </div>
+
+                <!-- Exchange Rate Banner -->
+                <div class="mb-4">
+                  <div
+                    class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border"
+                    :class="exchangeRate ? 'bg-success bg-opacity-10 border-success border-opacity-25' : 'bg-light border-light-subtle'"
+                  >
+                    <span v-if="rateLoading" class="spinner-border spinner-border-sm text-success" role="status"></span>
+                    <i v-else-if="exchangeRate" class="bi bi-graph-up-arrow text-success"></i>
+                    <i v-else class="bi bi-wifi-off text-muted"></i>
+                    <span v-if="rateLoading" class="text-muted small">Fetching today's rate…</span>
+                    <span v-else-if="exchangeRate" class="small fw-semibold text-success">
+                      1 USD = <strong>₱{{ exchangeRate.toFixed(4) }}</strong>
+                      <span v-if="rateLastUpdated" class="fw-normal text-muted ms-2">· Updated {{ rateLastUpdated }}</span>
+                    </span>
+                    <span v-else class="text-muted small">Exchange rate unavailable — enter PHP manually</span>
+                  </div>
+                </div>
+
+                <div class="row g-4">
+                  <!-- USD Price -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1">Price (USD $)</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-light-subtle text-muted fw-bold">$</span>
+                      <input
+                        v-model="newHardware.price_usd"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="form-control rounded-end-3 border-light-subtle shadow-none"
+                        placeholder="e.g., 499.99"
+                      />
+                    </div>
+                    <div v-if="exchangeRate && newHardware.price_usd" class="text-muted small mt-1 ms-1">
+                      <i class="bi bi-arrow-right-short"></i> Auto-converts to PHP below
+                    </div>
+                  </div>
+
+                  <!-- PHP Price -->
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-muted small mb-1">
+                      Price (PHP ₱)
+                      <span v-if="exchangeRate && newHardware.price_usd" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ms-1 fw-normal rounded-pill px-2" style="font-size: 0.65rem;">auto-filled</span>
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-light-subtle text-muted fw-bold">₱</span>
+                      <input
+                        v-model="newHardware.price_php"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        class="form-control rounded-end-3 border-light-subtle shadow-none"
+                        placeholder="e.g., 28,500.00"
+                      />
+                    </div>
+                    <div class="text-muted small mt-1 ms-1">You can also type this value directly.</div>
+                  </div>
+
+                  <!-- Notes -->
+                  <div class="col-12">
+                    <label class="form-label fw-semibold text-muted small mb-1">Notes</label>
+                    <textarea
+                      v-model="newHardware.notes"
+                      rows="3"
+                      class="form-control rounded-3 border-light-subtle shadow-none"
+                      placeholder="e.g., Purchased from Vendor X. Has a scratch on the bottom. Needs OS reinstall."
+                      style="resize: vertical; min-height: 80px;"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 7: Media & Images -->
+
               <div class="mb-5 pb-2">
                 <div
                   class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"

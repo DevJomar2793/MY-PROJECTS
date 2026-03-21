@@ -16,6 +16,24 @@ from database import engine, get_db
 # Create all tables in the SQLite database
 models.Base.metadata.create_all(bind=engine)
 
+# ---- Startup Migration: add new columns if they don't exist ----
+def _run_migrations():
+    from sqlalchemy import inspect, text
+    inspector = inspect(engine)
+    existing_cols = {col["name"] for col in inspector.get_columns("hardware_items")}
+    migrations = [
+        ("price_php", "ALTER TABLE hardware_items ADD COLUMN price_php REAL"),
+        ("price_usd", "ALTER TABLE hardware_items ADD COLUMN price_usd REAL"),
+        ("notes",     "ALTER TABLE hardware_items ADD COLUMN notes TEXT"),
+    ]
+    with engine.connect() as conn:
+        for col_name, sql in migrations:
+            if col_name not in existing_cols:
+                conn.execute(text(sql))
+        conn.commit()
+
+_run_migrations()
+
 # Delete table hardware_items
 # models.HardwareItem.metadata.drop_all(bind=engine)
 

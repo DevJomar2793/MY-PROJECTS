@@ -41,6 +41,9 @@ class HardwareItemBase(BaseModel):
     delivered_by: Optional[str] = None
     date_tested: Optional[str] = None
     designation: Optional[str] = None
+    price_php: Optional[float] = None
+    price_usd: Optional[float] = None
+    notes: Optional[str] = None
     deployment_id: Optional[int] = None
 
 
