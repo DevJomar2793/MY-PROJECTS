@@ -7,7 +7,7 @@
     <ul class="nav flex-column gap-2">
       <li class="nav-item mb-1">
         <router-link
-          to="/"
+          to="/dashboard"
           class="nav-link"
           active-class="active"
           exact-active-class="active"

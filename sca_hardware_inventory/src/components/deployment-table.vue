@@ -21,7 +21,7 @@ const newDeployment = ref({
   department: "",
   contact_info: "",
   received_date: new Date().toISOString().split("T")[0],
-  hardware_ids: [],
+  tagged_hardware: [],
 });
 
 const showTagModal = ref(false);
@@ -29,6 +29,7 @@ const availableHardware = ref([]);
 const loadingHardware = ref(false);
 const selectedHardware = ref([]);
 const tagSearchQuery = ref("");
+const tagIssuedDate = ref(new Date().toISOString().split("T")[0]);
 const tagSortKey = ref("");
 const tagSortOrder = ref(1); // 1 for ascending, -1 for descending
 
@@ -103,15 +104,20 @@ const closeTagModal = () => {
 };
 
 const toggleHardwareTag = (hw) => {
-  const index = newDeployment.value.hardware_ids.indexOf(hw.id);
+  const index = newDeployment.value.tagged_hardware.findIndex(
+    (h) => h.id === hw.id,
+  );
   if (index > -1) {
-    newDeployment.value.hardware_ids.splice(index, 1);
+    newDeployment.value.tagged_hardware.splice(index, 1);
     selectedHardware.value = selectedHardware.value.filter(
       (s) => s.id !== hw.id,
     );
   } else {
-    newDeployment.value.hardware_ids.push(hw.id);
-    selectedHardware.value.push(hw);
+    newDeployment.value.tagged_hardware.push({
+      id: hw.id,
+      issued_date: tagIssuedDate.value,
+    });
+    selectedHardware.value.push({ ...hw, issued_date: tagIssuedDate.value });
   }
 };
 
@@ -267,10 +273,10 @@ const printReceipt = () => {
       (hw, i) => `
     <tr>
       <td>${i + 1}</td>
-      <td>${hw.ckt_item_number}</td>
-      <td>${hw.hardware_type}</td>
-      <td>${hw.manufacturer} ${hw.model}</td>
-      <td>${hw.serial_number}</td>
+      <td>${hw.hardware_type || "-"}</td>
+      <td>${hw.qty ?? "-"}</td>
+      <td>${hw.issued_date || "-"}</td>
+      <td>${hw.price_usd ?? "-"}</td>
     </tr>
   `,
     )
@@ -339,10 +345,10 @@ const printReceipt = () => {
         <thead>
           <tr>
             <th>#</th>
-            <th>CKT Item #</th>
             <th>Hardware Type</th>
-            <th>Manufacturer / Model</th>
-            <th>Serial Number</th>
+            <th>Quantity</th>
+            <th>Issued Date</th>
+            <th>Initial Value</th>
           </tr>
         </thead>
         <tbody>
@@ -376,9 +382,9 @@ const printReceipt = () => {
           reason or is not returned in good condition.
         </li>
       </ul>
-      
 
-      <div class="signature-section">
+
+      <div class="signature-section" style="margin-top: 16px;">
         <div class="signature-block">
           ${sigHtml}
           <div class="signature-line">Employee Signature / Date</div>
@@ -442,8 +448,11 @@ const openModal = (item = null) => {
       department: item.department,
       contact_info: item.contact_info || "",
       received_date: item.received_date,
-      hardware_ids: item.hardware_items
-        ? item.hardware_items.map((h) => h.id)
+      tagged_hardware: item.hardware_items
+        ? item.hardware_items.map((h) => ({
+            id: h.id,
+            issued_date: h.issued_date,
+          }))
         : [],
     };
     selectedHardware.value = item.hardware_items
@@ -470,7 +479,7 @@ const resetForm = () => {
     department: "",
     contact_info: "",
     received_date: new Date().toISOString().split("T")[0],
-    hardware_ids: [],
+    tagged_hardware: [],
   };
   selectedHardware.value = [];
 };
@@ -492,7 +501,7 @@ const saveDeployment = async () => {
     department: newDeployment.value.department,
     contact_info: newDeployment.value.contact_info,
     received_date: newDeployment.value.received_date,
-    hardware_ids: newDeployment.value.hardware_ids,
+    tagged_hardware: newDeployment.value.tagged_hardware,
   };
 
   try {
@@ -878,6 +887,9 @@ const saveDeployment = async () => {
                         <th class="border-0 text-muted fw-semibold py-2 fs-7">
                           Equipment Details
                         </th>
+                        <th class="border-0 text-muted fw-semibold py-2 fs-7">
+                          Issued Date
+                        </th>
                         <th
                           class="border-0 text-muted fw-semibold py-2 fs-7 text-center pe-3"
                         >
@@ -907,6 +919,13 @@ const saveDeployment = async () => {
                             {{ hw.hardware_type }} &bull; S/N:
                             {{ hw.serial_number }}
                           </div>
+                        </td>
+                        <td class="py-2">
+                          <span
+                            class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1"
+                          >
+                            {{ hw.issued_date || "—" }}
+                          </span>
                         </td>
                         <td class="py-2 text-center pe-3" @click.stop>
                           <button
@@ -998,6 +1017,18 @@ const saveDeployment = async () => {
             class="modal-body p-4 bg-white custom-scrollbar"
             style="max-height: 50vh"
           >
+            <!-- Add Issued Date picker -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold text-muted small mb-1"
+                >Issued Date (Applies to newly tagged hardware)</label
+              >
+              <input
+                v-model="tagIssuedDate"
+                type="date"
+                class="form-control rounded-3 border-light-subtle shadow-none bg-light"
+              />
+            </div>
+
             <!-- Search Hardware -->
             <div class="mb-4">
               <div
@@ -1075,7 +1106,9 @@ const saveDeployment = async () => {
                     class="cursor-pointer transition-all hover-lift-row"
                     :class="{
                       'table-primary bg-primary bg-opacity-10':
-                        newDeployment.hardware_ids.includes(hw.id),
+                        newDeployment.tagged_hardware.some(
+                          (h) => h.id === hw.id,
+                        ),
                     }"
                     @click="openHardwareDetails(hw)"
                   >
@@ -1096,7 +1129,9 @@ const saveDeployment = async () => {
                         type="button"
                         class="btn btn-sm rounded-pill fw-bold pt-1 pb-1 px-3 shadow-none transition-all"
                         :class="
-                          newDeployment.hardware_ids.includes(hw.id)
+                          newDeployment.tagged_hardware.some(
+                            (h) => h.id === hw.id,
+                          )
                             ? 'btn-primary'
                             : 'btn-outline-primary'
                         "
@@ -1105,13 +1140,17 @@ const saveDeployment = async () => {
                         <i
                           class="bi"
                           :class="
-                            newDeployment.hardware_ids.includes(hw.id)
+                            newDeployment.tagged_hardware.some(
+                              (h) => h.id === hw.id,
+                            )
                               ? 'bi-check2'
                               : 'bi-plus-lg'
                           "
                         ></i>
                         {{
-                          newDeployment.hardware_ids.includes(hw.id)
+                          newDeployment.tagged_hardware.some(
+                            (h) => h.id === hw.id,
+                          )
                             ? "Tagged"
                             : "Tag"
                         }}
@@ -1478,25 +1517,25 @@ const saveDeployment = async () => {
                         class="py-2 text-muted fw-semibold"
                         style="font-size: 11px"
                       >
-                        CKT Item #
-                      </th>
-                      <th
-                        class="py-2 text-muted fw-semibold"
-                        style="font-size: 11px"
-                      >
                         Hardware Type
                       </th>
                       <th
                         class="py-2 text-muted fw-semibold"
                         style="font-size: 11px"
                       >
-                        Manufacturer / Model
+                        QTY
+                      </th>
+                      <th
+                        class="py-2 text-muted fw-semibold"
+                        style="font-size: 11px"
+                      >
+                        Issued Date
                       </th>
                       <th
                         class="py-2 pe-3 text-muted fw-semibold"
                         style="font-size: 11px"
                       >
-                        Serial Number
+                        Initial Value
                       </th>
                     </tr>
                   </thead>
@@ -1517,16 +1556,16 @@ const saveDeployment = async () => {
                         class="py-2 text-primary fw-semibold"
                         style="font-size: 12px"
                       >
-                        {{ hw.ckt_item_number }}
+                        {{ hw.hardware_type || "-" }}
                       </td>
                       <td class="py-2" style="font-size: 12px">
-                        {{ hw.hardware_type }}
+                        {{ hw.qty ?? "-" }}
                       </td>
                       <td class="py-2" style="font-size: 12px">
-                        {{ hw.manufacturer }} {{ hw.model }}
+                        {{ hw.issued_date || "-" }}
                       </td>
                       <td class="py-2 pe-3 text-muted" style="font-size: 12px">
-                        {{ hw.serial_number }}
+                        {{ hw.price_usd ?? "-" }}
                       </td>
                     </tr>
                   </tbody>
@@ -1627,7 +1666,7 @@ const saveDeployment = async () => {
                   </div>
                 </div>
                 <div class="col-6 text-center">
-                  <div class="border-top pt-2 mt-5 text-muted small">
+                  <div class="border-top pt-2 mt-2 text-muted small">
                     Issued By / Authorized Representative / Date
                   </div>
                 </div>
@@ -1656,3 +1695,28 @@ const saveDeployment = async () => {
     </div>
   </Transition>
 </template>
+
+<style scoped>
+.table-responsive {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.custom-sort-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+.custom-sort-header:hover {
+  background-color: var(--bs-primary) !important;
+  color: white !important;
+}
+.custom-sort-header:hover i {
+  color: white !important;
+  opacity: 1 !important;
+}
+</style>

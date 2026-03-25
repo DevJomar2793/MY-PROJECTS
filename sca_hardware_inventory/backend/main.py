@@ -25,11 +25,16 @@ def _run_migrations():
         ("price_php", "ALTER TABLE hardware_items ADD COLUMN price_php REAL"),
         ("price_usd", "ALTER TABLE hardware_items ADD COLUMN price_usd REAL"),
         ("notes",     "ALTER TABLE hardware_items ADD COLUMN notes TEXT"),
+        ("issued_date", "ALTER TABLE hardware_items ADD COLUMN issued_date TEXT"),
     ]
     with engine.connect() as conn:
         for col_name, sql in migrations:
             if col_name not in existing_cols:
                 conn.execute(text(sql))
+        # User table migrations
+        user_cols = {col["name"] for col in inspector.get_columns("users")}
+        if "full_name" not in user_cols:
+            conn.execute(text("ALTER TABLE users ADD COLUMN full_name TEXT"))
         conn.commit()
 
 _run_migrations()
@@ -163,13 +168,21 @@ def get_deployment(dep_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/v1/deployments", response_model=schemas.DeploymentResponse, status_code=201)
 def create_deployment(dep: schemas.DeploymentCreate, db: Session = Depends(get_db)):
-    dep_data = dep.model_dump(exclude={"hardware_ids"})
+    dep_data = dep.model_dump(exclude={"hardware_ids", "tagged_hardware"})
     db_dep = models.Deployment(**dep_data)
     db.add(db_dep)
     db.commit()
     db.refresh(db_dep)
     
-    if dep.hardware_ids:
+    if dep.tagged_hardware:
+        for tag in dep.tagged_hardware:
+            hw = db.query(models.HardwareItem).filter(models.HardwareItem.id == tag.id).first()
+            if hw:
+                hw.deployment_id = db_dep.id
+                hw.issued_date = tag.issued_date
+        db.commit()
+        db.refresh(db_dep)
+    elif dep.hardware_ids:
         hardware_items = db.query(models.HardwareItem).filter(models.HardwareItem.id.in_(dep.hardware_ids)).all()
         for hw in hardware_items:
             hw.deployment_id = db_dep.id
@@ -185,7 +198,7 @@ def update_deployment(dep_id: int, dep: schemas.DeploymentCreate, db: Session = 
     if not db_dep:
         raise HTTPException(status_code=404, detail="Deployment not found")
         
-    dep_data = dep.model_dump(exclude={"hardware_ids"})
+    dep_data = dep.model_dump(exclude={"hardware_ids", "tagged_hardware"})
     for key, value in dep_data.items():
         setattr(db_dep, key, value)
         
@@ -193,9 +206,16 @@ def update_deployment(dep_id: int, dep: schemas.DeploymentCreate, db: Session = 
     old_hw = db.query(models.HardwareItem).filter(models.HardwareItem.deployment_id == dep_id).all()
     for hw in old_hw:
         hw.deployment_id = None
+        hw.issued_date = None
         
     # Assign new hardware
-    if dep.hardware_ids:
+    if dep.tagged_hardware:
+        for tag in dep.tagged_hardware:
+            hw = db.query(models.HardwareItem).filter(models.HardwareItem.id == tag.id).first()
+            if hw:
+                hw.deployment_id = dep_id
+                hw.issued_date = tag.issued_date
+    elif dep.hardware_ids:
         new_hw = db.query(models.HardwareItem).filter(models.HardwareItem.id.in_(dep.hardware_ids)).all()
         for hw in new_hw:
             hw.deployment_id = dep_id
@@ -215,9 +235,28 @@ def delete_deployment(dep_id: int, db: Session = Depends(get_db)):
     old_hw = db.query(models.HardwareItem).filter(models.HardwareItem.deployment_id == dep_id).all()
     for hw in old_hw:
         hw.deployment_id = None
+        hw.issued_date = None
         
     db.delete(db_dep)
     db.commit()
+
+
+# ========================
+# Employee Endpoints
+# ========================
+
+@app.get("/api/v1/employee/deployments", response_model=List[schemas.DeploymentResponse])
+def get_employee_deployments(
+    authorization: Optional[str] = Header(default=None),
+    db: Session = Depends(get_db)
+):
+    user = _get_user_from_token(authorization, db)
+    # Match deployments where deployed_to equals the employee's full_name (primary), or fallback to username/email
+    conditions = (models.Deployment.deployed_to == user.username)
+    if user.full_name:
+        conditions = conditions | (models.Deployment.deployed_to == user.full_name)
+    conditions = conditions | (models.Deployment.emp_3_code == user.username) | (models.Deployment.contact_info == user.email)
+    return db.query(models.Deployment).options(joinedload(models.Deployment.hardware_items)).filter(conditions).all()
 
 
 # ========================
@@ -272,6 +311,7 @@ def get_reports_summary(db: Session = Depends(get_db)):
                     "model": hw.model,
                     "serial_number": hw.serial_number,
                     "designation": hw.designation,
+                    "issued_date": hw.issued_date,
                 }
                 for hw in dep.hardware_items
             ]
@@ -332,6 +372,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Email already registered")
     db_user = models.User(
         username=user.username,
+        full_name=user.full_name,
         email=user.email,
         hashed_password=_hash_password(user.password),
     )

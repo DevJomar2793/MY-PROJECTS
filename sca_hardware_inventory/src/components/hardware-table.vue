@@ -21,16 +21,26 @@ const hardwareTypes = [
   { id: 6, label: "Keyboard", code: "K" },
   { id: 7, label: "Mouse", code: "MOU" },
   { id: 8, label: "Barcode Scanner", code: "BS" },
+  { id: 9, label: "External HardDrive", code: "EHD" },
 ];
 
 const designationOptions = [
   { value: "ASSIGNED (STAFF)", description: "Being used by Team Member" },
-  { value: "ASSIGNED (COMPANY/STUDENT)", description: "Being used by Company/Student" },
+  {
+    value: "ASSIGNED (COMPANY/STUDENT)",
+    description: "Being used by Company/Student",
+  },
   { value: "SPARE", description: "Backup or Spare" },
-  { value: "RE-SELL (FOR SALE)", description: "For sale at regular price (good item)" },
-  { value: "FOR SALE (CHEAP)", description: "For sale at cheap price (not good item)" },
+  {
+    value: "RE-SELL (FOR SALE)",
+    description: "For sale at regular price (good item)",
+  },
+  {
+    value: "FOR SALE (CHEAP)",
+    description: "For sale at cheap price (not good item)",
+  },
   { value: "SCRAP", description: "Scrap" },
-  { value: "SOLD", description: "SOLD" }
+  { value: "SOLD", description: "SOLD" },
 ];
 
 // Modal & Form State
@@ -78,8 +88,12 @@ const fetchExchangeRate = async () => {
     const data = await res.json();
     exchangeRate.value = data.rates?.PHP ?? null;
     if (data.time_last_update_utc) {
-      rateLastUpdated.value = new Date(data.time_last_update_utc).toLocaleDateString("en-PH", {
-        year: "numeric", month: "short", day: "numeric",
+      rateLastUpdated.value = new Date(
+        data.time_last_update_utc,
+      ).toLocaleDateString("en-PH", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
     }
   } catch {
@@ -94,9 +108,11 @@ watch(
   () => newHardware.value.price_usd,
   (val) => {
     if (exchangeRate.value && val !== "" && val !== null) {
-      newHardware.value.price_php = (parseFloat(val) * exchangeRate.value).toFixed(2);
+      newHardware.value.price_php = (
+        parseFloat(val) * exchangeRate.value
+      ).toFixed(2);
     }
-  }
+  },
 );
 
 const fetchHardware = async () => {
@@ -316,8 +332,14 @@ const addHardware = async () => {
     designation: newHardware.value.designation || "SPARE", // Use selected or default
     deployment_id: newHardware.value.deployment_id,
     images: uploadedPaths,
-    price_usd: newHardware.value.price_usd !== "" ? parseFloat(newHardware.value.price_usd) : null,
-    price_php: newHardware.value.price_php !== "" ? parseFloat(newHardware.value.price_php) : null,
+    price_usd:
+      newHardware.value.price_usd !== ""
+        ? parseFloat(newHardware.value.price_usd)
+        : null,
+    price_php:
+      newHardware.value.price_php !== ""
+        ? parseFloat(newHardware.value.price_php)
+        : null,
     notes: newHardware.value.notes || null,
   };
 
@@ -647,7 +669,11 @@ const filteredAndSortedHardware = computed(() => {
                       required
                     >
                       <option value="" disabled>Select type</option>
-                      <option v-for="type in hardwareTypes" :key="type.id" :value="type.label">
+                      <option
+                        v-for="type in hardwareTypes"
+                        :key="type.id"
+                        :value="type.label"
+                      >
                         {{ type.label }}
                       </option>
                     </select>
@@ -662,7 +688,11 @@ const filteredAndSortedHardware = computed(() => {
                       required
                     >
                       <option value="" disabled>Select designation</option>
-                      <option v-for="opt in designationOptions" :key="opt.value" :value="opt.value">
+                      <option
+                        v-for="opt in designationOptions"
+                        :key="opt.value"
+                        :value="opt.value"
+                      >
                         {{ opt.value }} ({{ opt.description }})
                       </option>
                     </select>
@@ -915,9 +945,13 @@ const filteredAndSortedHardware = computed(() => {
 
               <!-- Section 6: Pricing & Notes -->
               <div class="mb-5 pb-2">
-                <div class="d-flex align-items-center mb-4 pb-2 border-bottom border-light">
+                <div
+                  class="d-flex align-items-center mb-4 pb-2 border-bottom border-light"
+                >
                   <i class="bi bi-currency-exchange text-primary me-2 fs-5"></i>
-                  <h6 class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7">
+                  <h6
+                    class="mb-0 fw-bold text-secondary text-uppercase tracking-wider fs-7"
+                  >
                     Pricing &amp; Notes
                   </h6>
                 </div>
@@ -926,26 +960,53 @@ const filteredAndSortedHardware = computed(() => {
                 <div class="mb-4">
                   <div
                     class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-3 border"
-                    :class="exchangeRate ? 'bg-success bg-opacity-10 border-success border-opacity-25' : 'bg-light border-light-subtle'"
+                    :class="
+                      exchangeRate
+                        ? 'bg-success bg-opacity-10 border-success border-opacity-25'
+                        : 'bg-light border-light-subtle'
+                    "
                   >
-                    <span v-if="rateLoading" class="spinner-border spinner-border-sm text-success" role="status"></span>
-                    <i v-else-if="exchangeRate" class="bi bi-graph-up-arrow text-success"></i>
+                    <span
+                      v-if="rateLoading"
+                      class="spinner-border spinner-border-sm text-success"
+                      role="status"
+                    ></span>
+                    <i
+                      v-else-if="exchangeRate"
+                      class="bi bi-graph-up-arrow text-success"
+                    ></i>
                     <i v-else class="bi bi-wifi-off text-muted"></i>
-                    <span v-if="rateLoading" class="text-muted small">Fetching today's rate…</span>
-                    <span v-else-if="exchangeRate" class="small fw-semibold text-success">
+                    <span v-if="rateLoading" class="text-muted small"
+                      >Fetching today's rate…</span
+                    >
+                    <span
+                      v-else-if="exchangeRate"
+                      class="small fw-semibold text-success"
+                    >
                       1 USD = <strong>₱{{ exchangeRate.toFixed(4) }}</strong>
-                      <span v-if="rateLastUpdated" class="fw-normal text-muted ms-2">· Updated {{ rateLastUpdated }}</span>
+                      <span
+                        v-if="rateLastUpdated"
+                        class="fw-normal text-muted ms-2"
+                        >· Updated {{ rateLastUpdated }}</span
+                      >
                     </span>
-                    <span v-else class="text-muted small">Exchange rate unavailable — enter PHP manually</span>
+                    <span v-else class="text-muted small"
+                      >Exchange rate unavailable — enter PHP manually</span
+                    >
                   </div>
                 </div>
 
                 <div class="row g-4">
                   <!-- USD Price -->
                   <div class="col-md-6">
-                    <label class="form-label fw-semibold text-muted small mb-1">Price (USD $)</label>
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Price (USD $)</label
+                    >
                     <div class="input-group">
-                      <span class="input-group-text bg-light border-light-subtle text-muted fw-bold">$</span>
+                      <span
+                        class="input-group-text bg-light border-light-subtle text-muted fw-bold"
+                        >$</span
+                      >
                       <input
                         v-model="newHardware.price_usd"
                         type="number"
@@ -955,8 +1016,12 @@ const filteredAndSortedHardware = computed(() => {
                         placeholder="e.g., 499.99"
                       />
                     </div>
-                    <div v-if="exchangeRate && newHardware.price_usd" class="text-muted small mt-1 ms-1">
-                      <i class="bi bi-arrow-right-short"></i> Auto-converts to PHP below
+                    <div
+                      v-if="exchangeRate && newHardware.price_usd"
+                      class="text-muted small mt-1 ms-1"
+                    >
+                      <i class="bi bi-arrow-right-short"></i> Auto-converts to
+                      PHP below
                     </div>
                   </div>
 
@@ -964,10 +1029,18 @@ const filteredAndSortedHardware = computed(() => {
                   <div class="col-md-6">
                     <label class="form-label fw-semibold text-muted small mb-1">
                       Price (PHP ₱)
-                      <span v-if="exchangeRate && newHardware.price_usd" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ms-1 fw-normal rounded-pill px-2" style="font-size: 0.65rem;">auto-filled</span>
+                      <span
+                        v-if="exchangeRate && newHardware.price_usd"
+                        class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 ms-1 fw-normal rounded-pill px-2"
+                        style="font-size: 0.65rem"
+                        >auto-filled</span
+                      >
                     </label>
                     <div class="input-group">
-                      <span class="input-group-text bg-light border-light-subtle text-muted fw-bold">₱</span>
+                      <span
+                        class="input-group-text bg-light border-light-subtle text-muted fw-bold"
+                        >₱</span
+                      >
                       <input
                         v-model="newHardware.price_php"
                         type="number"
@@ -977,18 +1050,22 @@ const filteredAndSortedHardware = computed(() => {
                         placeholder="e.g., 28,500.00"
                       />
                     </div>
-                    <div class="text-muted small mt-1 ms-1">You can also type this value directly.</div>
+                    <div class="text-muted small mt-1 ms-1">
+                      You can also type this value directly.
+                    </div>
                   </div>
 
                   <!-- Notes -->
                   <div class="col-12">
-                    <label class="form-label fw-semibold text-muted small mb-1">Notes</label>
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Notes</label
+                    >
                     <textarea
                       v-model="newHardware.notes"
                       rows="3"
                       class="form-control rounded-3 border-light-subtle shadow-none"
                       placeholder="e.g., Purchased from Vendor X. Has a scratch on the bottom. Needs OS reinstall."
-                      style="resize: vertical; min-height: 80px;"
+                      style="resize: vertical; min-height: 80px"
                     ></textarea>
                   </div>
                 </div>
@@ -1012,18 +1089,26 @@ const filteredAndSortedHardware = computed(() => {
                     <label class="form-label fw-semibold text-muted small mb-1"
                       >Upload Photos</label
                     >
-                    <div class="position-relative text-center p-4 border border-2 border-dashed rounded-4 bg-light border-light-subtle mb-3 transition-opacity hover-upload-box">
-                        <i class="bi bi-cloud-arrow-up display-6 text-primary mb-2 opacity-75"></i>
-                        <h6 class="fw-semibold text-dark mb-1">Click or Drop images here</h6>
-                        <p class="text-muted small mb-0">JPEG, PNG, or WebP formats</p>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
-                          @change="handleFileUpload"
-                          style="cursor: pointer;"
-                        />
+                    <div
+                      class="position-relative text-center p-4 border border-2 border-dashed rounded-4 bg-light border-light-subtle mb-3 transition-opacity hover-upload-box"
+                    >
+                      <i
+                        class="bi bi-cloud-arrow-up display-6 text-primary mb-2 opacity-75"
+                      ></i>
+                      <h6 class="fw-semibold text-dark mb-1">
+                        Click or Drop images here
+                      </h6>
+                      <p class="text-muted small mb-0">
+                        JPEG, PNG, or WebP formats
+                      </p>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        class="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
+                        @change="handleFileUpload"
+                        style="cursor: pointer"
+                      />
                     </div>
 
                     <!-- Image Previews -->
@@ -1042,8 +1127,10 @@ const filteredAndSortedHardware = computed(() => {
                           :src="preview"
                           class="w-100 h-100 object-fit-cover preview-img transition-transform"
                         />
-                        <div class="position-absolute w-100 h-100 top-0 start-0 bg-dark bg-opacity-50 d-flex flex-column align-items-center justify-content-center preview-overlay px-2 text-center pointer-events-none">
-                           <i class="bi bi-zoom-in text-white fs-3"></i>
+                        <div
+                          class="position-absolute w-100 h-100 top-0 start-0 bg-dark bg-opacity-50 d-flex flex-column align-items-center justify-content-center preview-overlay px-2 text-center pointer-events-none"
+                        >
+                          <i class="bi bi-zoom-in text-white fs-3"></i>
                         </div>
                         <!-- Delete Button -->
                         <button
@@ -1060,7 +1147,10 @@ const filteredAndSortedHardware = computed(() => {
                             border: 2px solid white;
                           "
                         >
-                          <i class="bi bi-x" style="font-size: 1.1rem; margin-top: 1px;"></i>
+                          <i
+                            class="bi bi-x"
+                            style="font-size: 1.1rem; margin-top: 1px"
+                          ></i>
                         </button>
                       </div>
                     </div>
@@ -1112,27 +1202,50 @@ const filteredAndSortedHardware = computed(() => {
 
   <!-- Image Zoom Lightbox -->
   <Transition name="modal-fade">
-    <div v-if="zoomedImage" class="modal-backdrop show" style="z-index: 1060;" @click="closeZoom"></div>
+    <div
+      v-if="zoomedImage"
+      class="modal-backdrop show"
+      style="z-index: 1060"
+      @click="closeZoom"
+    ></div>
   </Transition>
   <Transition name="modal-window">
     <div
       v-if="zoomedImage"
       class="modal d-block"
       tabindex="-1"
-      style="z-index: 1070;"
+      style="z-index: 1070"
       @click.self="closeZoom"
     >
-      <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width: 90vw;" @click.self="closeZoom">
+      <div
+        class="modal-dialog modal-dialog-centered modal-xl"
+        style="max-width: 90vw"
+        @click.self="closeZoom"
+      >
         <div class="modal-content bg-transparent border-0 shadow-none">
           <div class="modal-body text-center p-0 position-relative">
             <button
               type="button"
               class="btn-close btn-close-white position-absolute shadow-none bg-dark p-2 rounded-circle"
-              style="top: -20px; right: -20px; filter: invert(1) grayscale(100%) brightness(200%); opacity: 0.8;"
+              style="
+                top: -20px;
+                right: -20px;
+                filter: invert(1) grayscale(100%) brightness(200%);
+                opacity: 0.8;
+              "
               @click="closeZoom"
               aria-label="Close"
             ></button>
-            <img :src="zoomedImage" class="img-fluid rounded-4 shadow-lg object-fit-contain bg-dark" style="max-height: 85vh; width: auto; max-width: 100%; border: 2px solid rgba(255,255,255,0.1);" />
+            <img
+              :src="zoomedImage"
+              class="img-fluid rounded-4 shadow-lg object-fit-contain bg-dark"
+              style="
+                max-height: 85vh;
+                width: auto;
+                max-width: 100%;
+                border: 2px solid rgba(255, 255, 255, 0.1);
+              "
+            />
           </div>
         </div>
       </div>
@@ -1141,6 +1254,28 @@ const filteredAndSortedHardware = computed(() => {
 </template>
 
 <style scoped>
+.table-responsive {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.custom-sort-header {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+.custom-sort-header:hover {
+  background-color: var(--bs-primary) !important;
+  color: white !important;
+}
+.custom-sort-header:hover i {
+  color: white !important;
+  opacity: 1 !important;
+}
 /* Modal Fade for Backdrop */
 .modal-fade-enter-active,
 .modal-fade-leave-active {

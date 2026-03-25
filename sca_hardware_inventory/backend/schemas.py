@@ -44,6 +44,7 @@ class HardwareItemBase(BaseModel):
     price_php: Optional[float] = None
     price_usd: Optional[float] = None
     notes: Optional[str] = None
+    issued_date: Optional[str] = None
     deployment_id: Optional[int] = None
 
 
@@ -60,8 +61,14 @@ class HardwareItemResponse(HardwareItemBase):
     model_config = {"from_attributes": True}
 
 
+class TaggedHardware(BaseModel):
+    id: int
+    issued_date: Optional[str] = None
+
+
 class DeploymentCreate(DeploymentBase):
     hardware_ids: Optional[List[int]] = []
+    tagged_hardware: Optional[List[TaggedHardware]] = []
 
 
 class DeploymentResponse(DeploymentBase):
@@ -74,6 +81,7 @@ class DeploymentResponse(DeploymentBase):
 # ---- Auth Schemas ----
 class UserCreate(BaseModel):
     username: str
+    full_name: Optional[str] = None
     email: str
     password: str
 
@@ -81,6 +89,7 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id: int
     username: str
+    full_name: Optional[str] = None
     email: str
     is_active: bool
 

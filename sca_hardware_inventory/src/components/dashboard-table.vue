@@ -237,12 +237,26 @@ const filteredAndSortedHardware = computed(() => {
 </template>
 
 <style scoped>
+.table-responsive {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
 .custom-sort-header {
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s ease;
 }
 .custom-sort-header:hover {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+  background-color: var(--bs-primary) !important;
+  color: white !important;
+}
+.custom-sort-header:hover i {
+  color: white !important;
+  opacity: 1 !important;
 }
 </style>
