@@ -1,11 +1,25 @@
-import { MoreHorizontal, Trash2, ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
+import {
+  MoreHorizontal,
+  Trash2,
+  ArrowUpDown,
+  ChevronUp,
+  ChevronDown,
+} from "lucide-react";
 import { useState, useMemo } from "react";
 import type { Screen } from "../page";
 import EditButton from "./editbutton";
 import DeleteButton from "./deletebutton";
 import Link from "next/link";
 
-export default function Table({ data, onEdit, onDelete }: { data: Screen[]; onEdit: (id: number, updatedItem: any) => void; onDelete: (id: number) => void }) {
+export default function Table({
+  data,
+  onEdit,
+  onDelete,
+}: {
+  data: Screen[];
+  onEdit: (id: number, updatedItem: any) => void;
+  onDelete: (id: number) => void;
+}) {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Screen;
     direction: "asc" | "desc";
@@ -41,7 +55,9 @@ export default function Table({ data, onEdit, onDelete }: { data: Screen[]; onEd
 
   const getSortIcon = (columnKey: keyof Screen) => {
     if (sortConfig?.key !== columnKey) {
-      return <ArrowUpDown className="w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />;
+      return (
+        <ArrowUpDown className="w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+      );
     }
     return sortConfig.direction === "asc" ? (
       <ChevronUp className="w-4 h-4 text-slate-700" />
@@ -56,36 +72,36 @@ export default function Table({ data, onEdit, onDelete }: { data: Screen[]; onEd
         <table className="w-full text-left whitespace-nowrap">
           <thead>
             <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-medium text-xs uppercase tracking-wider">
-              <th 
+              <th
                 className="px-6 py-4 cursor-pointer hover:bg-slate-100 transition-colors group"
-                onClick={() => requestSort('id')}
+                onClick={() => requestSort("id")}
               >
                 <div className="flex items-center gap-2">
-                  # {getSortIcon('id')}
+                  # {getSortIcon("id")}
                 </div>
               </th>
-              <th 
+              <th
                 className="px-6 py-4 cursor-pointer hover:bg-slate-100 transition-colors group"
-                onClick={() => requestSort('screen_label')}
+                onClick={() => requestSort("screen_label")}
               >
                 <div className="flex items-center gap-2">
-                  Screen Label {getSortIcon('screen_label')}
+                  Screen Label {getSortIcon("screen_label")}
                 </div>
               </th>
-              <th 
+              <th
                 className="px-6 py-4 cursor-pointer hover:bg-slate-100 transition-colors group"
-                onClick={() => requestSort('file_label')}
+                onClick={() => requestSort("file_label")}
               >
                 <div className="flex items-center gap-2">
-                  File Label {getSortIcon('file_label')}
+                  File Label {getSortIcon("file_label")}
                 </div>
               </th>
-              <th 
+              <th
                 className="px-6 py-4 cursor-pointer hover:bg-slate-100 transition-colors group text-right"
-                onClick={() => requestSort('status')}
+                onClick={() => requestSort("status")}
               >
                 <div className="flex items-center justify-end gap-2">
-                  Status {getSortIcon('status')}
+                  Status {getSortIcon("status")}
                 </div>
               </th>
               <th className="px-6 py-4 text-right">Actions</th>
@@ -99,8 +115,8 @@ export default function Table({ data, onEdit, onDelete }: { data: Screen[]; onEd
               >
                 <td className="px-6 py-4 text-slate-500">{item.id}</td>
                 <td className="px-6 py-4 font-medium text-slate-800">
-                  <Link 
-                    href={`/screens/${item.id}`}
+                  <Link
+                    href={`/dashboard/${item.id}`}
                     className="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
                   >
                     {item.screen_label}
