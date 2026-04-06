@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body className="bg-slate-50 text-slate-900 antialiased font-sans">
         <div className="flex h-screen w-full overflow-hidden">
           <SideNavBar />
