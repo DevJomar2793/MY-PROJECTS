@@ -1,28 +1,42 @@
 "use client";
 
 import { useState } from "react";
+import { Edit } from "lucide-react";
 import Swal from "sweetalert2";
+import type { Screen } from "../page";
 
 const ALPHA_OPTIONS = ["A", "B", "S", "AB", "MWA", "M", "CM", "RM"];
 const STATUS_OPTIONS = ["Active", "Inactive", "Pending"];
 
-export default function AddButton({ onAdd }: any) {
+export default function EditButton({
+  item,
+  onEdit,
+}: {
+  item: Screen;
+  onEdit: (id: number, data: any) => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const [alpha, setAlpha] = useState("");
-  const [screenType, setScreenType] = useState("");
-  const [screenNumber, setScreenNumber] = useState<number | "">("");
-  const [screenDescription, setScreenDescription] = useState("");
+  const [alpha, setAlpha] = useState(item.alpha || "");
+  const [screenType, setScreenType] = useState(
+    item.Screen_type?.toString() || "",
+  );
+  const [screenNumber, setScreenNumber] = useState<number | "">(
+    item.screen_number || "",
+  );
+  const [screenDescription, setScreenDescription] = useState(
+    item.screen_description || "",
+  );
   const fileLabel = [alpha, screenNumber, screenDescription]
     .filter(Boolean)
     .join("-");
   const screenLabel = [alpha, screenNumber].filter(Boolean).join("-");
-  const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState("");
-  const [sitemap, setSitemap] = useState("");
+  const [notes, setNotes] = useState(item.notes || "");
+  const [status, setStatus] = useState(item.status || "");
+  const [sitemap, setSitemap] = useState(item.sitemap || "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd({
+    onEdit(item.id, {
       alpha,
       screenType,
       screenNumber,
@@ -34,18 +48,11 @@ export default function AddButton({ onAdd }: any) {
       sitemap,
     });
 
-    // Reset Form
-    setAlpha("");
-    setScreenType("");
-    setScreenNumber("");
-    setScreenDescription("");
-    setNotes("");
-    setStatus("");
-    setSitemap("");
+    setIsOpen(false);
 
     Swal.fire({
       title: "Success!",
-      text: "Screen has been added successfully",
+      text: "Screen has been updated successfully",
       icon: "success",
       confirmButtonColor: "#3b82f6",
       timer: 3000,
@@ -55,16 +62,16 @@ export default function AddButton({ onAdd }: any) {
     });
   };
 
-  console.log();
-
   return (
     <>
       {/* Open Modal */}
       <button
-        className="text-sm font-medium bg-blue-500 text-white px-4 py-2 rounded-xl transition-colors"
+        type="button"
+        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+        title="Edit"
         onClick={() => setIsOpen(true)}
       >
-        + Add Button
+        <Edit className="w-4 h-4" />
       </button>
       {/* Modal Overlay */}
       <div
@@ -84,7 +91,7 @@ export default function AddButton({ onAdd }: any) {
         >
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
-              Add Product
+              Edit Product
             </h2>
             <button
               onClick={() => setIsOpen(false)}
@@ -267,7 +274,7 @@ export default function AddButton({ onAdd }: any) {
                 type="submit"
                 className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 shadow-sm shadow-blue-500/30 transition-all focus:ring-2 focus:ring-blue-500/50 outline-none flex items-center gap-2"
               >
-                Save Product
+                Save Changes
               </button>
             </div>
           </form>

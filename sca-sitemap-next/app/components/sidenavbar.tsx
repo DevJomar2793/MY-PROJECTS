@@ -44,7 +44,7 @@ export default function SideNavBar() {
         <div className="bg-indigo-600 p-1.5 rounded-lg mr-3 shadow-lg shadow-indigo-500/30">
           <Package2 className="w-5 h-5 text-white" />
         </div>
-        SCA<span className="text-indigo-400 font-light">Stock</span>
+        SCA<span className="text-indigo-400 font-light">Sitemap</span>
       </div>
 
       <div className="flex-1 overflow-y-auto py-6 px-4 space-y-8">

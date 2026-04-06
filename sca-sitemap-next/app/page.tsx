@@ -113,7 +113,34 @@ export default function Dashboard() {
       item.status.toLowerCase().includes(query.toLowerCase()),
   );
 
-  //Add Data tp allData
+  //Handle the update page/screen
+  const handleEdit = (id: number, updatedItem: any) => {
+    setData((prevData) =>
+      prevData.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              alpha: updatedItem.alpha,
+              Screen_type: updatedItem.screenType,
+              screen_number: Number(updatedItem.screenNumber),
+              screen_description: updatedItem.screenDescription,
+              file_label: updatedItem.fileLabel,
+              screen_label: updatedItem.screenLabel,
+              notes: updatedItem.notes,
+              status: updatedItem.status,
+              sitemap: updatedItem.sitemap,
+            }
+          : item,
+      ),
+    );
+  };
+
+  //Handle the delete page/screen
+  const handleDelete = (id: number) => {
+    setData((prevData) => prevData.filter((item) => item.id !== id));
+  };
+
+  //handle the Add Data to allData
   const handleAdd = (newData: any) => {
     const formattedData: Screen = {
       id: data.length > 0 ? Math.max(...data.map((d) => d.id)) + 1 : 1,
@@ -158,7 +185,11 @@ export default function Dashboard() {
             </button> */}
             <AddButton onAdd={handleAdd} />
           </div>
-          <Table data={filteredData} />
+          <Table
+            data={filteredData}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
         </div>
       </div>
     </div>

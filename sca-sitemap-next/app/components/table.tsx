@@ -1,8 +1,11 @@
-import { MoreHorizontal, Edit, Trash2, ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
+import { MoreHorizontal, Trash2, ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
 import { useState, useMemo } from "react";
 import type { Screen } from "../page";
+import EditButton from "./editbutton";
+import DeleteButton from "./deletebutton";
+import Link from "next/link";
 
-export default function Table({ data }: { data: Screen[] }) {
+export default function Table({ data, onEdit, onDelete }: { data: Screen[]; onEdit: (id: number, updatedItem: any) => void; onDelete: (id: number) => void }) {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Screen;
     direction: "asc" | "desc";
@@ -96,7 +99,12 @@ export default function Table({ data }: { data: Screen[] }) {
               >
                 <td className="px-6 py-4 text-slate-500">{item.id}</td>
                 <td className="px-6 py-4 font-medium text-slate-800">
-                  {item.screen_label}
+                  <Link 
+                    href={`/screens/${item.id}`}
+                    className="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
+                  >
+                    {item.screen_label}
+                  </Link>
                 </td>
                 <td className="px-6 py-4 text-slate-500">{item.file_label}</td>
                 <td className="px-6 py-4 text-right">
@@ -106,18 +114,8 @@ export default function Table({ data }: { data: Screen[] }) {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-1">
-                    <button
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <EditButton item={item} onEdit={onEdit} />
+                    <DeleteButton item={item} onDelete={onDelete} />
                     {/* <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-lg transition-colors" title="More">
                       <MoreHorizontal className="w-4 h-4" />
                     </button> */}
