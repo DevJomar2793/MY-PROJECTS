@@ -5,7 +5,7 @@ import BellNotif from "./components/bellnotif";
 import SearchFilter from "./components/search";
 import AddButton from "./components/addbutton";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export type Screen = {
   id: number;
@@ -86,6 +86,25 @@ const allData: Screen[] = [
 export default function Dashboard() {
   const [data, setData] = useState<Screen[]>(allData);
   const [query, setQuery] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    const savedData = localStorage.getItem("dashboardScreensData");
+    if (savedData) {
+      try {
+        setData(JSON.parse(savedData));
+      } catch (error) {
+        console.error("Error parsing local storage data:", error);
+      }
+    }
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      localStorage.setItem("dashboardScreensData", JSON.stringify(data));
+    }
+  }, [data, isMounted]);
 
   const filteredData = data.filter(
     (item) =>
@@ -120,7 +139,7 @@ export default function Dashboard() {
         <div className="flex items-center gap-6">
           <SearchFilter query={query} setQuery={setQuery} />
           <BellNotif />
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-medium text-sm shadow-md cursor-pointer border-2 border-white">
+          <div className="w-8 h-8 rounded-full bg-linear-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white font-medium text-sm shadow-md cursor-pointer border-2 border-white">
             JC
           </div>
         </div>

@@ -2,14 +2,19 @@
 
 import { useState } from "react";
 
+const ALPHA_OPTIONS = ["A", "B", "S", "AB", "MWA", "M", "CM", "RM"];
+const STATUS_OPTIONS = ["Active", "Inactive", "Pending"];
+
 export default function AddButton({ onAdd }: any) {
   const [isOpen, setIsOpen] = useState(false);
   const [alpha, setAlpha] = useState("");
   const [screenType, setScreenType] = useState("");
-  const [screenNumber, setScreenNumber] = useState(0);
+  const [screenNumber, setScreenNumber] = useState<number | "">("");
   const [screenDescription, setScreenDescription] = useState("");
-  const [fileLabel, setFileLabel] = useState("");
-  const [screenLabel, setScreenLabel] = useState("");
+  const fileLabel = [alpha, screenNumber, screenDescription]
+    .filter(Boolean)
+    .join("-");
+  const screenLabel = [alpha, screenNumber].filter(Boolean).join("-");
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("");
   const [sitemap, setSitemap] = useState("");
@@ -33,10 +38,8 @@ export default function AddButton({ onAdd }: any) {
     // Reset Form
     setAlpha("");
     setScreenType("");
-    setScreenNumber(0);
+    setScreenNumber("");
     setScreenDescription("");
-    setFileLabel("");
-    setScreenLabel("");
     setNotes("");
     setStatus("");
     setSitemap("");
@@ -101,13 +104,20 @@ export default function AddButton({ onAdd }: any) {
                 <label className="text-sm font-semibold text-slate-700">
                   Alpha
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. A"
+                <select
                   value={alpha}
                   onChange={(e) => setAlpha(e.target.value)}
-                  className="w-full border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 p-3 rounded-xl transition-all placeholder:text-slate-400 hover:border-slate-300"
-                />
+                  className="w-full border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 p-3 rounded-xl transition-all text-slate-700 hover:border-slate-300 bg-white"
+                >
+                  <option value="" disabled>
+                    Select Alpha
+                  </option>
+                  {ALPHA_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Screen Type */}
@@ -132,8 +142,13 @@ export default function AddButton({ onAdd }: any) {
                 <input
                   type="number"
                   placeholder="e.g. 100"
+                  min={1}
                   value={screenNumber}
-                  onChange={(e) => setScreenNumber(Number(e.target.value))}
+                  onChange={(e) =>
+                    setScreenNumber(
+                      e.target.value === "" ? "" : Number(e.target.value),
+                    )
+                  }
                   className="w-full border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 p-3 rounded-xl transition-all placeholder:text-slate-400 hover:border-slate-300"
                 />
               </div>
@@ -159,10 +174,10 @@ export default function AddButton({ onAdd }: any) {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. dashboard.tsx"
+                  placeholder="e.g. A-100-Dashboard"
                   value={fileLabel}
-                  onChange={(e) => setFileLabel(e.target.value)}
-                  className="w-full border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 p-3 rounded-xl transition-all placeholder:text-slate-400 hover:border-slate-300"
+                  className="w-full border border-slate-200 bg-slate-50 text-slate-500 outline-none p-3 rounded-xl cursor-not-allowed transition-all placeholder:text-slate-400"
+                  readOnly
                 />
               </div>
 
@@ -173,10 +188,10 @@ export default function AddButton({ onAdd }: any) {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Main Dashboard"
+                  placeholder="e.g. A-100"
                   value={screenLabel}
-                  onChange={(e) => setScreenLabel(e.target.value)}
-                  className="w-full border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 p-3 rounded-xl transition-all placeholder:text-slate-400 hover:border-slate-300"
+                  className="w-full border border-slate-200 bg-slate-50 text-slate-500 outline-none p-3 rounded-xl cursor-not-allowed transition-all placeholder:text-slate-400"
+                  readOnly
                 />
               </div>
 
@@ -199,13 +214,20 @@ export default function AddButton({ onAdd }: any) {
                 <label className="text-sm font-semibold text-slate-700">
                   Status
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. In Progress"
+                <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 p-3 rounded-xl transition-all placeholder:text-slate-400 hover:border-slate-300"
-                />
+                  className="w-full border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 p-3 rounded-xl transition-all placeholder:text-slate-400 hover:border-slate-300 bg-white"
+                >
+                  <option value="" disabled>
+                    Select Status
+                  </option>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Sitemap */}
