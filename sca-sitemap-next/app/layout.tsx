@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SideNavBar from "./components/sidenavbar";
 import "./globals.css";
+import { DatabaseProvider } from "./context/database";
 
 export const metadata: Metadata = {
   title: "Inventory Dashboard",
@@ -15,12 +16,14 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body className="bg-slate-50 text-slate-900 antialiased font-sans">
-        <div className="flex h-screen w-full overflow-hidden">
-          <SideNavBar />
-          <main className="flex-1 overflow-y-auto">
-            {children}
-          </main>
-        </div>
+        <DatabaseProvider>
+          <div className="flex h-screen w-full overflow-hidden">
+            <SideNavBar />
+            <main className="flex-1 overflow-y-auto">
+              {children}
+            </main>
+          </div>
+        </DatabaseProvider>
       </body>
     </html>
   );

@@ -3,28 +3,15 @@
 import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Monitor, FileText, Activity, Hash, Tag, AlignLeft, ShieldAlert } from "lucide-react";
-import type { Screen } from "../../page";
+import { useDatabase } from "../../context/database";
 
 export default function ScreenDetail({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
   const id = Number(unwrappedParams.id);
   
-  const [screenData, setScreenData] = useState<Screen | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-    const savedData = localStorage.getItem("dashboardScreensData");
-    if (savedData) {
-      try {
-        const parsedData: Screen[] = JSON.parse(savedData);
-        const item = parsedData.find((s) => s.id === id);
-        if (item) setScreenData(item);
-      } catch (error) {
-        console.error("Error parsing local storage data:", error);
-      }
-    }
-  }, [id]);
+  const { data, isMounted } = useDatabase();
+  
+  const screenData = data?.find((s) => s.id === id) || null;
 
   if (!isMounted) return null; // Avoid hydration mismatch
 
