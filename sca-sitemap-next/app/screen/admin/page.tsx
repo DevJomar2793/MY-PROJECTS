@@ -1,9 +1,7 @@
 "use client";
 
 import Table from "@/app/components/table";
-import type { Screen } from "@/app/context/database";
 import { useDatabase } from "@/app/context/database";
-import { useState } from "react";
 
 export default function AdminPage() {
   const { data, handleEdit, handleDelete, isMounted } = useDatabase();
@@ -11,6 +9,8 @@ export default function AdminPage() {
   if (!isMounted) {
     return null;
   }
+
+  const filtered = data.filter((s) => s.alpha === "A");
 
   return (
     <>
@@ -36,7 +36,11 @@ export default function AdminPage() {
                   + Add Button
                 </button> */}
             </div>
-            <Table data={data} onEdit={handleEdit} onDelete={handleDelete} />
+            <Table
+              data={filtered}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           </div>
         </div>
       </div>

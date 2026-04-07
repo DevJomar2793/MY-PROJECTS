@@ -116,7 +116,7 @@ export default function Table({
                 <td className="px-6 py-4 text-slate-500">{item.id}</td>
                 <td className="px-6 py-4 font-medium text-slate-800">
                   <Link
-                    href={`/dashboard/${item.id}`}
+                    href={`/screens/${item.id}`}
                     className="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
                   >
                     {item.screen_label}
