@@ -3,7 +3,7 @@
 import Table from "@/app/components/table";
 import { useDatabase } from "@/app/context/database";
 
-export default function AdminPage() {
+export default function SellerPage() {
   const { data, handleEdit, handleDelete, isMounted } = useDatabase();
 
   if (!isMounted) {

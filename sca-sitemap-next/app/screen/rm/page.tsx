@@ -3,14 +3,14 @@
 import Table from "@/app/components/table";
 import { useDatabase } from "@/app/context/database";
 
-export default function BuyerPage() {
+export default function RMPage() {
   const { data, handleEdit, handleDelete, isMounted } = useDatabase();
 
   if (!isMounted) {
     return null;
   }
 
-  const filtered = data.filter((s) => s.alpha === "B");
+  const filtered = data.filter((s) => s.alpha === "RM");
 
   return (
     <>
@@ -31,7 +31,9 @@ export default function BuyerPage() {
           {/* Data Table Section */}
           <div className="mx-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-slate-800">Buyer Page</h2>
+              <h2 className="text-lg font-bold text-slate-800">
+                Read Module Page
+              </h2>
               {/* <button className="text-sm font-medium bg-blue-500 text-white px-4 py-2 rounded-xl transition-colors">
                   + Add Button
                 </button> */}

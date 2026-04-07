@@ -29,9 +29,33 @@ const subMenuItem = [
   },
   {
     id: 3,
-    name: "admin",
+    name: "Admin",
     icon: Settings,
     href: "/screen/admin",
+  },
+  {
+    id: 4,
+    name: "MWA",
+    icon: Settings,
+    href: "/screen/mwa",
+  },
+  {
+    id: 5,
+    name: "RM",
+    icon: Settings,
+    href: "/screen/rm",
+  },
+  {
+    id: 6,
+    name: "CM",
+    icon: Settings,
+    href: "/screen/cm",
+  },
+  {
+    id: 7,
+    name: "Marketplace",
+    icon: Settings,
+    href: "/screen/marketplace",
   },
 ];
 
@@ -79,7 +103,7 @@ export default function SideNavBar() {
               <div
                 className={`overflow-hidden transition-all duration-300 ease-in-out ${
                   isDropdownOpen
-                    ? "max-h-48 mt-1 opacity-100"
+                    ? "max-h-96 mt-1 opacity-100"
                     : "max-h-0 opacity-0"
                 }`}
               >
