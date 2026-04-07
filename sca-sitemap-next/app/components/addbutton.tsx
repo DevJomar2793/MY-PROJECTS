@@ -12,13 +12,23 @@ export default function AddButton({ onAdd }: any) {
   const [screenType, setScreenType] = useState("");
   const [screenNumber, setScreenNumber] = useState<number | "">("");
   const [screenDescription, setScreenDescription] = useState("");
-  const fileLabel = [alpha, screenNumber, screenDescription]
+  const formattedScreenNumber =
+    screenNumber !== "" ? String(screenNumber).padStart(2, "0") : "";
+  const fileLabel = [alpha, formattedScreenNumber, screenDescription]
     .filter(Boolean)
     .join("-");
-  const screenLabel = [alpha, screenNumber].filter(Boolean).join("-");
+  const screenLabel = [alpha, formattedScreenNumber].filter(Boolean).join("-");
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("");
   const [sitemap, setSitemap] = useState("");
+
+  //Sitemap Text Area bullet format
+  const handleKeydown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      setSitemap(sitemap + "\n- ");
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,8 +220,7 @@ export default function AddButton({ onAdd }: any) {
                 <label className="text-sm font-semibold text-slate-700">
                   Notes
                 </label>
-                <input
-                  type="text"
+                <textarea
                   placeholder="Any additional notes..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}

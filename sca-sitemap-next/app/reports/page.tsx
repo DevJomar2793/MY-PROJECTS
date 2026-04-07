@@ -58,7 +58,7 @@ export default function ReportsPage() {
       <div className="flex justify-end p-8">
         <ExportButton />
       </div>
-      <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
+      <div className="p-2 space-y-8 max-w-7xl mx-auto w-full">
         {/* Top Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Total Screens Card */}

@@ -4,6 +4,8 @@ import {
   ArrowUpDown,
   ChevronUp,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import type { Screen } from "../page";
@@ -24,6 +26,9 @@ export default function Table({
     key: keyof Screen;
     direction: "asc" | "desc";
   } | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   const sortedData = useMemo(() => {
     let sortableItems = [...data];
@@ -66,12 +71,20 @@ export default function Table({
     );
   };
 
+  const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
+  const validCurrentPage = Math.min(Math.max(1, currentPage), Math.max(1, totalPages));
+  
+  const paginatedData = useMemo(() => {
+    const startIndex = (validCurrentPage - 1) * ITEMS_PER_PAGE;
+    return sortedData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [sortedData, validCurrentPage]);
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-auto max-h-[600px]">
         <table className="w-full text-left whitespace-nowrap">
-          <thead>
-            <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-medium text-xs uppercase tracking-wider">
+          <thead className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_0_0_#e2e8f0]">
+            <tr className="text-slate-500 font-medium text-xs uppercase tracking-wider">
               <th
                 className="px-6 py-4 cursor-pointer hover:bg-slate-100 transition-colors group"
                 onClick={() => requestSort("id")}
@@ -108,7 +121,7 @@ export default function Table({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {sortedData.map((item) => (
+            {paginatedData.map((item) => (
               <tr
                 key={item.id}
                 className="hover:bg-slate-50 transition-colors group"
@@ -141,6 +154,37 @@ export default function Table({
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination Footer */}
+      <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/50">
+        <div className="text-sm text-slate-500">
+          Showing <span className="font-medium text-slate-900">{sortedData.length === 0 ? 0 : (validCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
+          <span className="font-medium text-slate-900">{Math.min(validCurrentPage * ITEMS_PER_PAGE, sortedData.length)}</span> of{" "}
+          <span className="font-medium text-slate-900">{sortedData.length}</span> results
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={validCurrentPage === 1}
+            className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          
+          <span className="text-sm font-medium text-slate-700 px-4">
+            Page {validCurrentPage} of {totalPages === 0 ? 1 : totalPages}
+          </span>
+
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={validCurrentPage === totalPages || totalPages === 0}
+            className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

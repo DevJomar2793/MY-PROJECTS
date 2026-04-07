@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 export type Screen = {
   id: number;
@@ -15,68 +21,7 @@ export type Screen = {
   sitemap: string;
 };
 
-const defaultData: Screen[] = [
-  {
-    id: 1,
-    alpha: "A",
-    Screen_type: 1,
-    screen_number: 1,
-    screen_description: "Screen 1",
-    file_label: "A-01-LOGIN",
-    screen_label: "A-01",
-    notes: "Notes 1",
-    status: "ACTIVE",
-    sitemap: "Sitemap 1",
-  },
-  {
-    id: 2,
-    alpha: "B",
-    Screen_type: 1,
-    screen_number: 1,
-    screen_description: "Screen 1",
-    file_label: "B-01-LOGIN",
-    screen_label: "B-01",
-    notes: "Notes 1",
-    status: "ACTIVE",
-    sitemap: "Sitemap 1",
-  },
-  {
-    id: 3,
-    alpha: "S",
-    Screen_type: 1,
-    screen_number: 1,
-    screen_description: "Screen 1",
-    file_label: "S-01-LOGIN",
-    screen_label: "S-01",
-    notes: "Notes 1",
-    status: "ACTIVE",
-    sitemap: "Sitemap 1",
-  },
-  {
-    id: 4,
-    alpha: "AB",
-    Screen_type: 1,
-    screen_number: 1,
-    screen_description: "Screen 1",
-    file_label: "AB-01-LOGIN",
-    screen_label: "AB-01",
-    notes: "Notes 1",
-    status: "ACTIVE",
-    sitemap: "Sitemap 1",
-  },
-  {
-    id: 5,
-    alpha: "W ",
-    Screen_type: 1,
-    screen_number: 1,
-    screen_description: "Dashboard",
-    file_label: "W-01-DASHBOARD",
-    screen_label: "W-01",
-    notes: "Notes 1",
-    status: "PENDING",
-    sitemap: "Sitemap 1",
-  },
-];
+const defaultData: Screen[] = [];
 
 type DatabaseContextType = {
   data: Screen[];
@@ -86,7 +31,9 @@ type DatabaseContextType = {
   isMounted: boolean;
 };
 
-const DatabaseContext = createContext<DatabaseContextType | undefined>(undefined);
+const DatabaseContext = createContext<DatabaseContextType | undefined>(
+  undefined,
+);
 
 export function DatabaseProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<Screen[]>(defaultData);
@@ -152,7 +99,9 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <DatabaseContext.Provider value={{ data, handleAdd, handleEdit, handleDelete, isMounted }}>
+    <DatabaseContext.Provider
+      value={{ data, handleAdd, handleEdit, handleDelete, isMounted }}
+    >
       {children}
     </DatabaseContext.Provider>
   );

@@ -199,7 +199,7 @@ function InfoItem({
         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1.5">
           {label}
         </p>
-        <p className="text-[15px] font-medium text-slate-800 leading-tight">
+        <p className="text-[15px] font-medium text-slate-800 leading-tight whitespace-pre-wrap">
           {value}
         </p>
       </div>
