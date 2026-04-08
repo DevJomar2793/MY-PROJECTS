@@ -86,6 +86,17 @@ def get_admin_screens(
 
     return db.query(model.ScreenModel).filter(model.ScreenModel.alpha == "A").all()
 
+@app.get(
+    "/api/v1/screen/seller", response_model=List[schema.ScreenResponse],
+    tags=["Screens"],
+    summary="List of Seller Screens",
+)
+def get_seller_screens(
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)):
+
+    return db.query(model.ScreenModel).filter(model.ScreenModel.alpha == "S").all()
+
 
 
 @app.get(

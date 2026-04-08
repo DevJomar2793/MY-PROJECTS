@@ -97,6 +97,29 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
     fetchScreens();
   }, []);
 
+  // ── Load all Seller screens from API on mount ───────────────────────────────────
+  useEffect(() => {
+    const fetchScreens = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`${API_BASE}/api/v1/screen/seller`, {
+          headers: authHeaders(),
+        });
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        const json: Screen[] = await res.json();
+        setData(json);
+      } catch (err) {
+        console.error("Error fetching screens:", err);
+        setError("Could not connect to the API. Is the backend running?");
+      } finally {
+        setIsLoading(false);
+        setIsMounted(true);
+      }
+    };
+
+    fetchScreens();
+  }, []);
+
   // ── Create ────────────────────────────────────────────────────────────────
   const handleAdd = async (newData: any) => {
     const payload = {
