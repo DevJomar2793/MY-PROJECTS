@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import SideNavBar from "./components/sidenavbar";
-import Footer from "./components/footer";
 import "./globals.css";
 import { DatabaseProvider } from "./context/database";
+import { AuthProvider } from "./context/auth";
+import ProtectedLayout from "./components/protectedlayout";
 
 export const metadata: Metadata = {
   title: "Inventory Dashboard",
@@ -17,17 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body className="bg-slate-50 text-slate-900 antialiased font-sans">
-        <DatabaseProvider>
-          <div className="flex h-screen w-full overflow-hidden">
-            <SideNavBar />
-            <main className="flex-1 overflow-y-auto flex flex-col">
-              <div className="grow">
-                {children}
-              </div>
-              <Footer />
-            </main>
-          </div>
-        </DatabaseProvider>
+        <AuthProvider>
+          <DatabaseProvider>
+            <ProtectedLayout>{children}</ProtectedLayout>
+          </DatabaseProvider>
+        </AuthProvider>
       </body>
     </html>
   );

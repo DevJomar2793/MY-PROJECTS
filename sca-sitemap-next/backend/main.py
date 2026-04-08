@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List
 
 import model
 import schema
 from database import engine, get_db
+from auth import Token, TokenData, get_current_user, login_for_access_token
 
 # ---------------------------------------------------------------------------
 # Create all tables on startup (idempotent – safe to run multiple times)
@@ -47,6 +49,15 @@ def health_check():
     return {"status": "ok", "message": "SCA Sitemap API is running 🚀"}
 
 
+# ── Auth ──────────────────────────────────────────────────────────────────────
+
+
+@app.post("/auth/login", response_model=Token, tags=["Auth"], summary="Login")
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """Exchange username + password for a JWT access token."""
+    return login_for_access_token(form_data)
+
+
 # ── Screens ──────────────────────────────────────────────────────────────────
 
 
@@ -56,7 +67,10 @@ def health_check():
     tags=["Screens"],
     summary="List all screens",
 )
-def get_screens(db: Session = Depends(get_db)):
+def get_screens(
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
     """Return every screen in the database, ordered by id."""
     return db.query(model.ScreenModel).order_by(model.ScreenModel.id).all()
 
@@ -67,7 +81,7 @@ def get_screens(db: Session = Depends(get_db)):
     tags=["Screens"],
     summary="Get a single screen",
 )
-def get_screen(screen_id: int, db: Session = Depends(get_db)):
+def get_screen(screen_id: int, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
     """Return the screen with the given id, or 404 if not found."""
     screen = (
         db.query(model.ScreenModel)
@@ -89,7 +103,7 @@ def get_screen(screen_id: int, db: Session = Depends(get_db)):
     tags=["Screens"],
     summary="Create a new screen",
 )
-def create_screen(payload: schema.ScreenCreate, db: Session = Depends(get_db)):
+def create_screen(payload: schema.ScreenCreate, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
     """Add a new screen record to the database."""
     new_screen = model.ScreenModel(**payload.model_dump())
     db.add(new_screen)
@@ -108,6 +122,7 @@ def update_screen(
     screen_id: int,
     payload: schema.ScreenUpdate,
     db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
 ):
     """
     Partially update the screen with the given id.
@@ -139,7 +154,7 @@ def update_screen(
     tags=["Screens"],
     summary="Delete a screen",
 )
-def delete_screen(screen_id: int, db: Session = Depends(get_db)):
+def delete_screen(screen_id: int, db: Session = Depends(get_db), current_user: TokenData = Depends(get_current_user)):
     """Permanently delete the screen with the given id."""
     screen = (
         db.query(model.ScreenModel)

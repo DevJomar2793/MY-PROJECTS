@@ -22,6 +22,14 @@ export type Screen = {
 };
 
 const API_BASE = "http://localhost:8000";
+const TOKEN_KEY = "sca_auth_token";
+
+function authHeaders(): Record<string, string> {
+  const token = localStorage.getItem(TOKEN_KEY);
+  return token
+    ? { "Content-Type": "application/json", Authorization: `Bearer ${token}` }
+    : { "Content-Type": "application/json" };
+}
 
 type DatabaseContextType = {
   data: Screen[];
@@ -48,7 +56,9 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
     const fetchScreens = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch(`${API_BASE}/screens`);
+        const res = await fetch(`${API_BASE}/screens`, {
+          headers: authHeaders(),
+        });
         if (!res.ok) throw new Error(`Server responded ${res.status}`);
         const json: Screen[] = await res.json();
         setData(json);
@@ -80,7 +90,7 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
 
     const res = await fetch(`${API_BASE}/screens`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify(payload),
     });
 
@@ -105,7 +115,7 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
 
     const res = await fetch(`${API_BASE}/screens/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify(payload),
     });
 
@@ -118,6 +128,7 @@ export function DatabaseProvider({ children }: { children: ReactNode }) {
   const handleDelete = async (id: number) => {
     const res = await fetch(`${API_BASE}/screens/${id}`, {
       method: "DELETE",
+      headers: authHeaders(),
     });
 
     if (!res.ok) throw new Error("Failed to delete screen");
@@ -148,3 +159,4 @@ export function useDatabase() {
   }
   return context;
 }
+

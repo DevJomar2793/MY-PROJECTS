@@ -11,8 +11,8 @@ import {
   Package2,
   ChevronDown,
 } from "lucide-react";
-
 import Link from "next/link";
+import { useAuth } from "../context/auth";
 
 const subMenuItem = [
   {
@@ -61,6 +61,7 @@ const subMenuItem = [
 
 export default function SideNavBar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { logout } = useAuth();
 
   return (
     <aside className="w-72 bg-slate-950 text-slate-300 flex flex-col border-r border-slate-800 shadow-xl z-20">
@@ -144,13 +145,13 @@ export default function SideNavBar() {
             <Settings className="w-5 h-5 text-slate-400 group-hover:text-slate-300" />
             Settings
           </a>
-          <a
-            href="#"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-500/10 hover:text-rose-400 transition-all group text-slate-400"
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-500/10 hover:text-rose-400 transition-all group text-slate-400"
           >
             <LogOut className="w-5 h-5 group-hover:text-rose-400" />
             Sign Out
-          </a>
+          </button>
         </nav>
       </div>
     </aside>
