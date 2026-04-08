@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 const ALPHA_OPTIONS = ["A", "B", "S", "AB", "MWA", "M", "CM", "RM"];
 const STATUS_OPTIONS = ["Active", "Inactive", "Pending"];
 
-export default function AddButton({ onAdd }: any) {
+export default function AddButton({ onAdd }: { onAdd: (data: any) => Promise<void> }) {
   const [isOpen, setIsOpen] = useState(false);
   const [alpha, setAlpha] = useState("");
   const [screenType, setScreenType] = useState("");
@@ -30,39 +30,48 @@ export default function AddButton({ onAdd }: any) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd({
-      alpha,
-      screenType,
-      screenNumber,
-      screenDescription,
-      fileLabel,
-      screenLabel,
-      notes,
-      status,
-      sitemap,
-    });
+    try {
+      await onAdd({
+        alpha,
+        screenType,
+        screenNumber,
+        screenDescription,
+        fileLabel,
+        screenLabel,
+        notes,
+        status,
+        sitemap,
+      });
 
-    // Reset Form
-    setAlpha("");
-    setScreenType("");
-    setScreenNumber("");
-    setScreenDescription("");
-    setNotes("");
-    setStatus("");
-    setSitemap("");
+      // Reset Form
+      setAlpha("");
+      setScreenType("");
+      setScreenNumber("");
+      setScreenDescription("");
+      setNotes("");
+      setStatus("");
+      setSitemap("");
 
-    Swal.fire({
-      title: "Success!",
-      text: "Screen has been added successfully",
-      icon: "success",
-      confirmButtonColor: "#3b82f6",
-      timer: 3000,
-      timerProgressBar: true,
-    }).then(() => {
-      setIsOpen(false);
-    });
+      Swal.fire({
+        title: "Success!",
+        text: "Screen has been added successfully",
+        icon: "success",
+        confirmButtonColor: "#3b82f6",
+        timer: 3000,
+        timerProgressBar: true,
+      }).then(() => {
+        setIsOpen(false);
+      });
+    } catch {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to add screen. Is the backend running?",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
+    }
   };
 
   console.log();

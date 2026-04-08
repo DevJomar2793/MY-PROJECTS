@@ -21,14 +21,16 @@ export type Screen = {
   sitemap: string;
 };
 
-const defaultData: Screen[] = [];
+const API_BASE = "http://localhost:8000";
 
 type DatabaseContextType = {
   data: Screen[];
-  handleAdd: (newData: any) => void;
-  handleEdit: (id: number, updatedItem: any) => void;
-  handleDelete: (id: number) => void;
+  handleAdd: (newData: any) => Promise<void>;
+  handleEdit: (id: number, updatedItem: any) => Promise<void>;
+  handleDelete: (id: number) => Promise<void>;
   isMounted: boolean;
+  isLoading: boolean;
+  error: string | null;
 };
 
 const DatabaseContext = createContext<DatabaseContextType | undefined>(
@@ -36,71 +38,103 @@ const DatabaseContext = createContext<DatabaseContextType | undefined>(
 );
 
 export function DatabaseProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<Screen[]>(defaultData);
+  const [data, setData] = useState<Screen[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // ── Load all screens from API on mount ───────────────────────────────────
   useEffect(() => {
-    const savedData = localStorage.getItem("dashboardScreensData");
-    if (savedData) {
+    const fetchScreens = async () => {
       try {
-        setData(JSON.parse(savedData));
-      } catch (error) {
-        console.error("Error parsing local storage data:", error);
+        setIsLoading(true);
+        const res = await fetch(`${API_BASE}/screens`);
+        if (!res.ok) throw new Error(`Server responded ${res.status}`);
+        const json: Screen[] = await res.json();
+        setData(json);
+      } catch (err) {
+        console.error("Error fetching screens:", err);
+        setError("Could not connect to the API. Is the backend running?");
+      } finally {
+        setIsLoading(false);
+        setIsMounted(true);
       }
-    }
-    setIsMounted(true);
+    };
+
+    fetchScreens();
   }, []);
 
-  useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem("dashboardScreensData", JSON.stringify(data));
-    }
-  }, [data, isMounted]);
-
-  const handleEdit = (id: number, updatedItem: any) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              alpha: updatedItem.alpha,
-              Screen_type: updatedItem.screenType,
-              screen_number: Number(updatedItem.screenNumber),
-              screen_description: updatedItem.screenDescription,
-              file_label: updatedItem.fileLabel,
-              screen_label: updatedItem.screenLabel,
-              notes: updatedItem.notes,
-              status: updatedItem.status,
-              sitemap: updatedItem.sitemap,
-            }
-          : item,
-      ),
-    );
-  };
-
-  const handleDelete = (id: number) => {
-    setData((prevData) => prevData.filter((item) => item.id !== id));
-  };
-
-  const handleAdd = (newData: any) => {
-    const formattedData: Screen = {
-      id: data.length > 0 ? Math.max(...data.map((d) => d.id)) + 1 : 1,
+  // ── Create ────────────────────────────────────────────────────────────────
+  const handleAdd = async (newData: any) => {
+    const payload = {
       alpha: newData.alpha,
-      Screen_type: newData.screenType,
+      Screen_type: Number(newData.screenType) || 0,
       screen_number: Number(newData.screenNumber),
       screen_description: newData.screenDescription,
       file_label: newData.fileLabel,
       screen_label: newData.screenLabel,
-      notes: newData.notes,
+      notes: newData.notes ?? "",
       status: newData.status,
-      sitemap: newData.sitemap,
+      sitemap: newData.sitemap ?? "",
     };
-    setData([...data, formattedData]);
+
+    const res = await fetch(`${API_BASE}/screens`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Failed to create screen");
+    const created: Screen = await res.json();
+    setData((prev) => [...prev, created]);
+  };
+
+  // ── Update ────────────────────────────────────────────────────────────────
+  const handleEdit = async (id: number, updatedItem: any) => {
+    const payload = {
+      alpha: updatedItem.alpha,
+      Screen_type: Number(updatedItem.screenType) || 0,
+      screen_number: Number(updatedItem.screenNumber),
+      screen_description: updatedItem.screenDescription,
+      file_label: updatedItem.fileLabel,
+      screen_label: updatedItem.screenLabel,
+      notes: updatedItem.notes ?? "",
+      status: updatedItem.status,
+      sitemap: updatedItem.sitemap ?? "",
+    };
+
+    const res = await fetch(`${API_BASE}/screens/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error("Failed to update screen");
+    const updated: Screen = await res.json();
+    setData((prev) => prev.map((item) => (item.id === id ? updated : item)));
+  };
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+  const handleDelete = async (id: number) => {
+    const res = await fetch(`${API_BASE}/screens/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) throw new Error("Failed to delete screen");
+    setData((prev) => prev.filter((item) => item.id !== id));
   };
 
   return (
     <DatabaseContext.Provider
-      value={{ data, handleAdd, handleEdit, handleDelete, isMounted }}
+      value={{
+        data,
+        handleAdd,
+        handleEdit,
+        handleDelete,
+        isMounted,
+        isLoading,
+        error,
+      }}
     >
       {children}
     </DatabaseContext.Provider>

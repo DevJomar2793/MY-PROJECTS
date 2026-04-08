@@ -13,7 +13,7 @@ export default function EditButton({
   onEdit,
 }: {
   item: Screen;
-  onEdit: (id: number, data: any) => void;
+  onEdit: (id: number, data: any) => Promise<void>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [alpha, setAlpha] = useState(item.alpha || "");
@@ -26,40 +26,49 @@ export default function EditButton({
   const [screenDescription, setScreenDescription] = useState(
     item.screen_description || "",
   );
-  const fileLabel = [alpha, screenNumber, screenDescription]
+  const formattedScreenNumber =
+    screenNumber !== "" ? String(screenNumber).padStart(2, "0") : "";
+  const fileLabel = [alpha, formattedScreenNumber, screenDescription]
     .filter(Boolean)
     .join("-");
-  const screenLabel = [alpha, screenNumber].filter(Boolean).join("-");
+  const screenLabel = [alpha, formattedScreenNumber].filter(Boolean).join("-");
   const [notes, setNotes] = useState(item.notes || "");
   const [status, setStatus] = useState(item.status || "");
   const [sitemap, setSitemap] = useState(item.sitemap || "");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onEdit(item.id, {
-      alpha,
-      screenType,
-      screenNumber,
-      screenDescription,
-      fileLabel,
-      screenLabel,
-      notes,
-      status,
-      sitemap,
-    });
+    try {
+      await onEdit(item.id, {
+        alpha,
+        screenType,
+        screenNumber,
+        screenDescription,
+        fileLabel,
+        screenLabel,
+        notes,
+        status,
+        sitemap,
+      });
 
-    setIsOpen(false);
-
-    Swal.fire({
-      title: "Success!",
-      text: "Screen has been updated successfully",
-      icon: "success",
-      confirmButtonColor: "#3b82f6",
-      timer: 3000,
-      timerProgressBar: true,
-    }).then(() => {
       setIsOpen(false);
-    });
+
+      Swal.fire({
+        title: "Success!",
+        text: "Screen has been updated successfully",
+        icon: "success",
+        confirmButtonColor: "#3b82f6",
+        timer: 3000,
+        timerProgressBar: true,
+      });
+    } catch {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update screen. Is the backend running?",
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
+    }
   };
 
   return (

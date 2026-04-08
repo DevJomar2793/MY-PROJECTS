@@ -9,7 +9,7 @@ export default function DeleteButton({
   onDelete,
 }: {
   item: Screen;
-  onDelete: (id: number) => void;
+  onDelete: (id: number) => Promise<void>;
 }) {
   const handleDelete = () => {
     Swal.fire({
@@ -21,17 +21,26 @@ export default function DeleteButton({
       cancelButtonColor: "#e2e8f0",
       cancelButtonText: "<span style='color: #475569'>Cancel</span>",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        onDelete(item.id);
-        Swal.fire({
-          title: "Deleted!",
-          text: "Screen has been deleted successfully.",
-          icon: "success",
-          confirmButtonColor: "#3b82f6",
-          timer: 3000,
-          timerProgressBar: true,
-        });
+        try {
+          await onDelete(item.id);
+          Swal.fire({
+            title: "Deleted!",
+            text: "Screen has been deleted successfully.",
+            icon: "success",
+            confirmButtonColor: "#3b82f6",
+            timer: 3000,
+            timerProgressBar: true,
+          });
+        } catch {
+          Swal.fire({
+            title: "Error!",
+            text: "Failed to delete screen. Is the backend running?",
+            icon: "error",
+            confirmButtonColor: "#ef4444",
+          });
+        }
       }
     });
   };

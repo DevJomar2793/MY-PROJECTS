@@ -19,8 +19,8 @@ export default function Table({
   onDelete,
 }: {
   data: Screen[];
-  onEdit: (id: number, updatedItem: any) => void;
-  onDelete: (id: number) => void;
+  onEdit: (id: number, updatedItem: any) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
 }) {
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Screen;

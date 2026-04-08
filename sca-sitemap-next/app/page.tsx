@@ -5,20 +5,31 @@ import BellNotif from "./components/bellnotif";
 import SearchFilter from "./components/search";
 import AddButton from "./components/addbutton";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export type { Screen } from "./context/database";
 import { useDatabase } from "./context/database";
 
 export default function Dashboard() {
-  const { data, handleAdd, handleEdit, handleDelete, isMounted } = useDatabase();
+  const { data, handleAdd, handleEdit, handleDelete, isLoading, error } =
+    useDatabase();
   const [query, setQuery] = useState("");
 
-  if (!isMounted) {
-    return null; // Or a loading spinner
+  // ── Loading ──────────────────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-500 text-sm font-medium">
+            Connecting to API…
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  // Search Feature
+  // ── Search ───────────────────────────────────────────────────────────────
   const filteredData = data.filter(
     (item) =>
       item.screen_label.toLowerCase().includes(query.toLowerCase()) ||
@@ -41,17 +52,35 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Main Content Pane */}
+      {/* Main Content */}
       <div className="p-8 space-y-8 max-w-7xl mx-auto w-full">
+        {/* API Error Banner */}
+        {error && (
+          <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-700 rounded-xl px-5 py-4 text-sm font-medium">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              />
+            </svg>
+            {error}
+          </div>
+        )}
+
         {/* Data Table Section */}
         <div className="mx-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-slate-800">
               Recent Inventory Updates
             </h2>
-            {/* <button className="text-sm font-medium bg-blue-500 text-white px-4 py-2 rounded-xl transition-colors">
-              + Add Button
-            </button> */}
             <AddButton onAdd={handleAdd} />
           </div>
           <Table
