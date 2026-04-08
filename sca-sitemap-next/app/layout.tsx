@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import SideNavBar from "./components/sidenavbar";
+import Footer from "./components/footer";
 import "./globals.css";
 import { DatabaseProvider } from "./context/database";
 
@@ -19,8 +20,11 @@ export default function RootLayout({
         <DatabaseProvider>
           <div className="flex h-screen w-full overflow-hidden">
             <SideNavBar />
-            <main className="flex-1 overflow-y-auto">
-              {children}
+            <main className="flex-1 overflow-y-auto flex flex-col">
+              <div className="grow">
+                {children}
+              </div>
+              <Footer />
             </main>
           </div>
         </DatabaseProvider>

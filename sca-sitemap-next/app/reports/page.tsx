@@ -55,8 +55,8 @@ export default function ReportsPage() {
         </div>
       </header>
 
-      <div className="flex justify-end p-8">
-        <ExportButton />
+      <div className="flex justify-end px-8 pt-8 max-w-7xl mx-auto w-full">
+        <ExportButton data={data} />
       </div>
       <div className="p-2 space-y-8 max-w-7xl mx-auto w-full">
         {/* Top Summary Cards */}
