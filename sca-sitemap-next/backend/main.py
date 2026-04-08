@@ -1,3 +1,4 @@
+# from backend import schema
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
@@ -73,6 +74,18 @@ def get_screens(
 ):
     """Return every screen in the database, ordered by id."""
     return db.query(model.ScreenModel).order_by(model.ScreenModel.id).all()
+
+@app.get(
+    "/api/v1/screen/admin", response_model=List[schema.ScreenResponse],
+    tags=["Screens"],
+    summary="List of Admin Screens",
+)
+def get_admin_screens(
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user)):
+
+    return db.query(model.ScreenModel).filter(model.ScreenModel.alpha == "A").all()
+
 
 
 @app.get(

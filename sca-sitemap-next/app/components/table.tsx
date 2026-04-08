@@ -72,8 +72,11 @@ export default function Table({
   };
 
   const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
-  const validCurrentPage = Math.min(Math.max(1, currentPage), Math.max(1, totalPages));
-  
+  const validCurrentPage = Math.min(
+    Math.max(1, currentPage),
+    Math.max(1, totalPages),
+  );
+
   const paginatedData = useMemo(() => {
     const startIndex = (validCurrentPage - 1) * ITEMS_PER_PAGE;
     return sortedData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -159,26 +162,38 @@ export default function Table({
       {/* Pagination Footer */}
       <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50/50">
         <div className="text-sm text-slate-500">
-          Showing <span className="font-medium text-slate-900">{sortedData.length === 0 ? 0 : (validCurrentPage - 1) * ITEMS_PER_PAGE + 1}</span> to{" "}
-          <span className="font-medium text-slate-900">{Math.min(validCurrentPage * ITEMS_PER_PAGE, sortedData.length)}</span> of{" "}
-          <span className="font-medium text-slate-900">{sortedData.length}</span> results
+          Showing{" "}
+          <span className="font-medium text-slate-900">
+            {sortedData.length === 0
+              ? 0
+              : (validCurrentPage - 1) * ITEMS_PER_PAGE + 1}
+          </span>{" "}
+          to{" "}
+          <span className="font-medium text-slate-900">
+            {Math.min(validCurrentPage * ITEMS_PER_PAGE, sortedData.length)}
+          </span>{" "}
+          of{" "}
+          <span className="font-medium text-slate-900">
+            {sortedData.length}
+          </span>{" "}
+          results
         </div>
-        
+
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={validCurrentPage === 1}
             className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          
+
           <span className="text-sm font-medium text-slate-700 px-4">
             Page {validCurrentPage} of {totalPages === 0 ? 1 : totalPages}
           </span>
 
           <button
-            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={validCurrentPage === totalPages || totalPages === 0}
             className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >

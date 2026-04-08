@@ -27,7 +27,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-indigo-50/40 to-purple-50/30 flex items-center justify-center p-4">
-
       {/* Decorative background blobs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl" />
@@ -35,10 +34,8 @@ export default function LoginPage() {
       </div>
 
       <div className="relative w-full max-w-md">
-
         {/* Card */}
         <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-3xl shadow-xl shadow-slate-200/50 p-8">
-
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="bg-indigo-600 p-3 rounded-2xl shadow-lg shadow-indigo-500/30 mb-4">
@@ -47,7 +44,9 @@ export default function LoginPage() {
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
               SCA<span className="text-indigo-500 font-light">Sitemap</span>
             </h1>
-            <p className="text-slate-400 text-sm mt-1">Sign in to your account</p>
+            <p className="text-slate-400 text-sm mt-1">
+              Sign in to your account
+            </p>
           </div>
 
           {/* Error banner */}
@@ -134,11 +133,6 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Divider hint */}
-          <p className="text-center text-xs text-slate-400 mt-6">
-            © {new Date().getFullYear()} SCA Sitemap · All rights reserved
-          </p>
         </div>
       </div>
     </div>

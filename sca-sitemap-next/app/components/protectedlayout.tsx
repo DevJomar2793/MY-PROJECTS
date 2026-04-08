@@ -6,7 +6,11 @@ import { useAuth } from "../context/auth";
 import SideNavBar from "./sidenavbar";
 import Footer from "./footer";
 
-export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
+export default function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { isLoggedIn } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -15,10 +19,14 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     if (!isLoggedIn && pathname !== "/login") {
       router.replace("/login");
     }
+    // Redirect logged in users away from login page
+    if (isLoggedIn && pathname === "/login") {
+      router.replace("/");
+    }
   }, [isLoggedIn, pathname, router]);
 
-  // Show the plain children (login page) without the dashboard shell
-  if (!isLoggedIn) return <>{children}</>;
+  // Handle loading state or specific routes where navbar should be hidden
+  if (!isLoggedIn || pathname === "/login") return <>{children}</>;
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
