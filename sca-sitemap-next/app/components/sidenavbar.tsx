@@ -12,7 +12,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
-import { useAuth } from "../context/auth";
+import { useAuth } from "@/app/context/auth";
 
 const subMenuItem = [
   {

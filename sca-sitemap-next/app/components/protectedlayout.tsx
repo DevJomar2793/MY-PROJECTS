@@ -1,40 +1,47 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "../context/auth";
-import SideNavBar from "./sidenavbar";
-import Footer from "./footer";
+/**
+ * components/protectedlayout.tsx
+ * ─────────────────────────────────────────────────────────────
+ * Wraps authenticated pages: shows the sidebar, redirects
+ * unauthenticated users to /login.
+ * ─────────────────────────────────────────────────────────────
+ */
 
-export default function ProtectedLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const { isLoggedIn } = useAuth();
+import { useEffect, ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/auth";
+import SideNavBar from "./sidenavbar";
+
+const PUBLIC_PATHS = ["/login"];
+
+export default function ProtectedLayout({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (!isLoggedIn && pathname !== "/login") {
-      router.replace("/login");
-    }
-    // Redirect logged in users away from login page
-    if (isLoggedIn && pathname === "/login") {
-      router.replace("/");
-    }
-  }, [isLoggedIn, pathname, router]);
+  const isPublic = PUBLIC_PATHS.includes(pathname);
 
-  // Handle loading state or specific routes where navbar should be hidden
-  if (!isLoggedIn || pathname === "/login") return <>{children}</>;
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && !isPublic) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, isLoading, isPublic, router]);
+
+  // Always render public pages directly
+  if (isPublic) {
+    return <>{children}</>;
+  }
+
+  // While resolving auth, show nothing (avoid flash)
+  if (isLoading || !isAuthenticated) {
+    return null;
+  }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex min-h-screen">
       <SideNavBar />
-      <main className="flex-1 overflow-y-auto flex flex-col">
-        <div className="grow">{children}</div>
-        <Footer />
-      </main>
+      <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );
 }

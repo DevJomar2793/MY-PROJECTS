@@ -1,7 +1,7 @@
 "use client";
 
 import { Download } from "lucide-react";
-import { Screen } from "../context/database";
+import { Screen } from "@/app/services/api";
 
 export default function ExportReportButton({ data }: { data: Screen[] }) {
   const handleExport = () => {

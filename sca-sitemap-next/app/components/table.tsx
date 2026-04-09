@@ -8,7 +8,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-import type { Screen } from "../page";
+import type { Screen } from "@/app/services/api";
 import EditButton from "./editbutton";
 import DeleteButton from "./deletebutton";
 import Link from "next/link";

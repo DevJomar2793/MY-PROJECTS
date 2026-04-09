@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Edit } from "lucide-react";
 import Swal from "sweetalert2";
-import type { Screen } from "../page";
+import type { Screen } from "@/app/services/api";
 
 const ALPHA_OPTIONS = ["A", "B", "S", "AB", "MWA", "M", "CM", "RM"];
 const STATUS_OPTIONS = ["Active", "Inactive", "Pending"];

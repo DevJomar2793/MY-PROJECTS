@@ -1,14 +1,36 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import ExportButton from "../components/exportreportbutton";
-
-import { useDatabase } from "../context/database";
+import { Screen, fetchAllScreens } from "../services/api";
 import { BarChart3, CheckCircle2, Clock, Layers } from "lucide-react";
 
 export default function ReportsPage() {
-  const { data, isMounted } = useDatabase();
+  const [data, setData] = useState<Screen[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!isMounted) return null;
+  const loadScreens = useCallback(async () => {
+    try {
+      const screens = await fetchAllScreens();
+      setData(screens);
+    } catch {
+      // silently handle — data stays empty
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadScreens();
+  }, [loadScreens]);
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const totalScreens = data.length;
   // Account for case-sensitive mismatch by standardizing to uppercase

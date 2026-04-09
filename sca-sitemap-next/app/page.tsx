@@ -1,21 +1,82 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
+import Swal from "sweetalert2";
 import Table from "./components/table";
 import BellNotif from "./components/bellnotif";
 import SearchFilter from "./components/search";
 import AddButton from "./components/addbutton";
+import {
+  Screen,
+  fetchAllScreens,
+  createScreen,
+  updateScreen,
+  deleteScreen,
+} from "./services/api";
 
-import { useState } from "react";
-
-export type { Screen } from "./context/database";
-import { useDatabase } from "./context/database";
+export type { Screen } from "./services/api";
 
 export default function Dashboard() {
-  const { data, handleAdd, handleEdit, handleDelete, isLoading, error } =
-    useDatabase();
+  const [data, setData] = useState<Screen[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
-  // ── Loading ──────────────────────────────────────────────────────────────
+  // ── Fetch all screens ─────────────────────────────────────────────────────
+  const loadScreens = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const screens = await fetchAllScreens();
+      setData(screens);
+    } catch (err: any) {
+      setError(err.message ?? "Failed to load screens.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadScreens();
+  }, [loadScreens]);
+
+  // ── CRUD handlers ─────────────────────────────────────────────────────────
+  const handleAdd = useCallback(async (payload: any) => {
+    await createScreen({
+      alpha: payload.alpha,
+      Screen_type: payload.screenType,
+      screen_number: Number(payload.screenNumber),
+      screen_description: payload.screenDescription,
+      file_label: payload.fileLabel,
+      screen_label: payload.screenLabel,
+      notes: payload.notes,
+      status: payload.status,
+      sitemap: payload.sitemap,
+    });
+    await loadScreens();
+  }, [loadScreens]);
+
+  const handleEdit = useCallback(async (id: number, payload: any) => {
+    await updateScreen(id, {
+      alpha: payload.alpha,
+      Screen_type: payload.screenType,
+      screen_number: Number(payload.screenNumber),
+      screen_description: payload.screenDescription,
+      file_label: payload.fileLabel,
+      screen_label: payload.screenLabel,
+      notes: payload.notes,
+      status: payload.status,
+      sitemap: payload.sitemap,
+    });
+    await loadScreens();
+  }, [loadScreens]);
+
+  const handleDelete = useCallback(async (id: number) => {
+    await deleteScreen(id);
+    await loadScreens();
+  }, [loadScreens]);
+
+  // ── Loading ───────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-screen">
@@ -29,7 +90,7 @@ export default function Dashboard() {
     );
   }
 
-  // ── Search ───────────────────────────────────────────────────────────────
+  // ── Search ────────────────────────────────────────────────────────────────
   const filteredData = data.filter(
     (item) =>
       item.screen_label.toLowerCase().includes(query.toLowerCase()) ||

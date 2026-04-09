@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -12,7 +12,7 @@ import {
   AlignLeft,
   ShieldAlert,
 } from "lucide-react";
-import { useDatabase } from "../../context/database";
+import { Screen, fetchScreenById } from "../../services/api";
 
 export default function ScreenDetail({
   params,
@@ -22,11 +22,23 @@ export default function ScreenDetail({
   const unwrappedParams = use(params);
   const id = Number(unwrappedParams.id);
 
-  const { data, isMounted } = useDatabase();
+  const [screenData, setScreenData] = useState<Screen | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const screenData = data?.find((s) => s.id === id) || null;
+  useEffect(() => {
+    fetchScreenById(id)
+      .then(setScreenData)
+      .catch(() => setScreenData(null))
+      .finally(() => setIsLoading(false));
+  }, [id]);
 
-  if (!isMounted) return null; // Avoid hydration mismatch
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!screenData) {
     return (
