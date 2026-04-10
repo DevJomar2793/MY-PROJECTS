@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -44,4 +45,18 @@ class ScreenResponse(ScreenBase):
 
     id: int
 
+    model_config = {"from_attributes": True}
+
+
+class NotificationBase(BaseModel):
+    message: str
+    is_read: Optional[bool] = False
+
+class NotificationCreate(NotificationBase):
+    pass
+
+class NotificationResponse(NotificationBase):
+    id: int
+    created_at: datetime
+    
     model_config = {"from_attributes": True}

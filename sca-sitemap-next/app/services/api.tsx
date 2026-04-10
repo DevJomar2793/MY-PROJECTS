@@ -124,10 +124,12 @@ export async function fetchScreenById(id: number): Promise<Screen> {
 
 /** Create a new screen record */
 export async function createScreen(payload: ScreenCreate): Promise<Screen> {
-  return request<Screen>("/screens", {
+  const res = await request<Screen>("/screens", {
     method: "POST",
     body: JSON.stringify(payload),
   });
+  notifyCRUD();
+  return res;
 }
 
 /** Partially update an existing screen */
@@ -135,13 +137,39 @@ export async function updateScreen(
   id: number,
   payload: ScreenUpdate
 ): Promise<Screen> {
-  return request<Screen>(`/screens/${id}`, {
+  const res = await request<Screen>(`/screens/${id}`, {
     method: "PUT",
     body: JSON.stringify(payload),
   });
+  notifyCRUD();
+  return res;
 }
 
 /** Permanently delete a screen */
 export async function deleteScreen(id: number): Promise<void> {
-  return request<void>(`/screens/${id}`, { method: "DELETE" });
+  await request<void>(`/screens/${id}`, { method: "DELETE" });
+  notifyCRUD();
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+
+export interface Notification {
+  id: number;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export async function fetchNotifications(): Promise<Notification[]> {
+  return request<Notification[]>("/notifications");
+}
+
+export async function markNotificationRead(id: number): Promise<Notification> {
+  return request<Notification>(`/notifications/${id}/read`, { method: "PUT" });
+}
+
+function notifyCRUD() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("screenCRUD"));
+  }
 }

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List
+from datetime import datetime, timedelta
 
 import model
 import schema
@@ -131,6 +132,12 @@ def create_screen(payload: schema.ScreenCreate, db: Session = Depends(get_db), c
     """Add a new screen record to the database."""
     new_screen = model.ScreenModel(**payload.model_dump())
     db.add(new_screen)
+    
+    # Add notification and run cleanup
+    notif = model.NotificationModel(message=f"Screen {payload.screen_label} was added.")
+    db.add(notif)
+    cleanup_old_notifications(db)
+    
     db.commit()
     db.refresh(new_screen)
     return new_screen
@@ -167,6 +174,11 @@ def update_screen(
     for field, value in update_data.items():
         setattr(screen, field, value)
 
+    # Add notification and run cleanup
+    notif = model.NotificationModel(message=f"Screen {screen.screen_label} was updated.")
+    db.add(notif)
+    cleanup_old_notifications(db)
+
     db.commit()
     db.refresh(screen)
     return screen
@@ -190,5 +202,58 @@ def delete_screen(screen_id: int, db: Session = Depends(get_db), current_user: T
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Screen with id={screen_id} not found.",
         )
+    
+    # Add notification and run cleanup
+    notif = model.NotificationModel(message=f"Screen {screen.screen_label} was deleted.")
+    db.add(notif)
+    cleanup_old_notifications(db)
+    
     db.delete(screen)
     db.commit()
+
+# ── Notifications ─────────────────────────────────────────────────────────────
+
+def cleanup_old_notifications(db: Session):
+    """Delete notifications older than 30 days."""
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    db.query(model.NotificationModel).filter(
+        model.NotificationModel.created_at < thirty_days_ago
+    ).delete(synchronize_session=False)
+
+@app.get(
+    "/notifications",
+    response_model=List[schema.NotificationResponse],
+    tags=["Notifications"],
+    summary="List all notifications",
+)
+def get_notifications(
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """Return all notifications, newest first."""
+    return db.query(model.NotificationModel).order_by(model.NotificationModel.created_at.desc()).all()
+
+
+@app.put(
+    "/notifications/{notification_id}/read",
+    response_model=schema.NotificationResponse,
+    tags=["Notifications"],
+    summary="Mark a notification as read",
+)
+def mark_notification_read(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    current_user: TokenData = Depends(get_current_user),
+):
+    """Mark the given notification as read."""
+    notif = db.query(model.NotificationModel).filter(model.NotificationModel.id == notification_id).first()
+    if not notif:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Notification with id={notification_id} not found.",
+        )
+    notif.is_read = True
+    db.commit()
+    db.refresh(notif)
+    return notif
+

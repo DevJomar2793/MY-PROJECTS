@@ -79,7 +79,7 @@ export default function SideNavBar() {
           </p>
           <nav className="space-y-1">
             <Link
-              href="/dashboard"
+              href="/"
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-indigo-600/10 text-indigo-400 font-medium transition-all"
             >
               <LayoutDashboard className="w-5 h-5" />

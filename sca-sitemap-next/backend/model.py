@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime
+import datetime
 from database import Base
 
 
@@ -20,3 +21,17 @@ class ScreenModel(Base):
     notes = Column(Text, nullable=True, default="")
     status = Column(String(50), nullable=False, default="Active")
     sitemap = Column(Text, nullable=True, default="")
+
+
+class NotificationModel(Base):
+    """
+    ORM model for the 'notifications' table.
+    Stores system notifications for admins.
+    """
+
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    message = Column(String(255), nullable=False)
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
