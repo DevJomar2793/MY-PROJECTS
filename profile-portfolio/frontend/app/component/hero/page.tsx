@@ -4,7 +4,7 @@ export default function Hero() {
       <section className="h-screen flex items-center justify-center text-center">
         <div className="flex flex-col items-center">
           <img
-            src="https://via.placeholder.com/150"
+            src="https://github.com/DevJomar2793.png"
             alt="Profile"
             className="w-40 h-40 rounded-full mb-6 border-4 border-blue-500 shadow-lg"
           />

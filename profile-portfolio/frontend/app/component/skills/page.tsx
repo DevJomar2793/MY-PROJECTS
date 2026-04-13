@@ -12,7 +12,9 @@ export default function Skills() {
             <div className="bg-gray-900 p-4 rounded-xl text-center">
               JavaScript
             </div>
-
+            <div className="bg-gray-900 p-4 rounded-xl text-center">
+              TypeScript
+            </div>
             <div className="bg-gray-900 p-4 rounded-xl text-center">
               Next.js/Vue.JS
             </div>
