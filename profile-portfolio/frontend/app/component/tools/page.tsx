@@ -29,8 +29,8 @@ export default function Tools() {
             <div className="bg-gray-800 p-6 rounded-2xl">
               <h4 className="text-xl font-semibold mb-4">Deployment</h4>
               <ul className="space-y-2 text-gray-400">
-                <li>• Netlify</li>
-                <li>• Render</li>
+                <li>• Vercel for FrontEnd</li>
+                <li>• Render for Backend</li>
               </ul>
             </div>
 
