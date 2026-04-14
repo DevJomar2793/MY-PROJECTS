@@ -22,7 +22,7 @@ export default function Projects() {
             <p className="text-gray-400">Built with Vue.js and FastAPI</p>
             <p className="text-gray-400 mb-2">Capture Image</p>
             <a
-              href="https://capture-image-app-vue.vercel.app/"
+              href="https://my-photobooth-v1.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400"
