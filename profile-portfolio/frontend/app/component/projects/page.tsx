@@ -9,6 +9,8 @@ export default function Projects() {
             <p className="text-gray-400 mb-4">Built with Vue.js</p>
             <a
               href="https://supahbowl-project.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-blue-400"
             >
               View More →
