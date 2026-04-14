@@ -43,6 +43,21 @@ export default function Projects() {
               View More →
             </a>
           </div>
+          <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:scale-105 transition">
+            <h4 className="text-xl font-semibold mb-2">
+              SCA Hardware Inventory
+            </h4>
+            <p className="text-gray-400">Built with Vue.js and FastAPI</p>
+            <p className="text-gray-400 mb-2">Hardware Inventory</p>
+            <a
+              href="https://sca-hardware-inventory-vue.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400"
+            >
+              View More →
+            </a>
+          </div>
         </div>
       </section>
     </>
