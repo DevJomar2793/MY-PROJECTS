@@ -408,12 +408,12 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="capture-root container py-3">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <div class="d-flex align-items-start gap-3 flex-column flex-md-row">
+  <div class="capture-root container py-4 py-md-5">
+    <div class="glass-card shadow-lg border-0">
+      <div class="card-body p-4 p-md-5">
+        <div class="d-flex align-items-start gap-4 flex-column flex-md-row">
           <div class="media-col flex-fill">
-            <h5 class="mb-2">Capture</h5>
+            <h5 class="mb-3 fw-bold text-uppercase tracking-wider">Capture</h5>
 
             <div
               class="preview rounded overflow-hidden bg-dark position-relative"
@@ -439,7 +439,7 @@ onBeforeUnmount(() => {
             <canvas ref="canvas" class="d-none" aria-hidden="true"></canvas>
 
             <div
-              class="mt-3 d-flex gap-2 flex-wrap controls"
+              class="mt-4 d-flex gap-3 flex-wrap controls"
               role="toolbar"
               aria-label="Capture controls"
             >
@@ -491,8 +491,8 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="thumbs-col" aria-label="Captured thumbnails">
-            <h6 class="mb-2">Thumbnails</h6>
-            <div class="thumb-strip d-flex gap-2" role="list">
+            <h6 class="mb-3 fw-bold text-uppercase tracking-wider">Thumbnails</h6>
+            <div class="thumb-strip d-flex gap-3" role="list">
               <div
                 v-for="(img, idx) in props.imageList"
                 :key="idx"
@@ -520,7 +520,7 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div class="mt-3">
+            <div class="mt-4 mt-md-auto pt-3">
               <button
                 class="btn btn-outline-primary w-100"
                 @click="checkCapturedImage"
@@ -540,7 +540,7 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="mt-3 text-end apply-row">
+        <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 text-end apply-row">
           <button
             class="btn btn-primary apply-btn"
             @click="
@@ -596,7 +596,7 @@ onBeforeUnmount(() => {
             <!-- Handle Images -->
             <div class="row mt-3">
               <div v-for="(img, index) in props.imageList" :key="index">
-                <div class="card mb-4" style="width: 18rem">
+                <div class="glass-card mb-4" style="width: 18rem">
                   <img :src="img" alt="..." class="card-img-top" />
                   <div class="card-body p-2 text-center">
                     <button
