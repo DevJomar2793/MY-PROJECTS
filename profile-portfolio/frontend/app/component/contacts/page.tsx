@@ -14,7 +14,7 @@ export default function Contacts() {
             <MailIcon />
           </div>
           <h3 className="text-4xl font-bold tracking-tight text-white mb-4">Get in Touch</h3>
-          <p className="text-gray-400 text-lg font-light">I'm currently open for new opportunities. Let's work together!</p>
+          <p className="text-gray-400 text-lg font-light">I&apos;m currently open for new opportunities. Let&apos;s work together!</p>
         </div>
 
         <form className="glass cursor-pointer p-8 rounded-4xl border border-white/10 shadow-2xl space-y-6" onSubmit={e => e.preventDefault()}>

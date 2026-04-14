@@ -32,7 +32,7 @@ export default function RootLayout({
         {/* Decorative Background */}
         <div className="fixed inset-0 pointer-events-none z-0 flex items-center justify-center overflow-hidden">
           {/* Subtle massive </ > element */}
-          <div className="text-[40vw] font-mono font-bold text-violet-500/[0.04] select-none tracking-tighter mix-blend-plus-lighter -rotate-6">
+          <div className="text-[40vw] font-mono font-bold text-violet-500/4 select-none tracking-tighter mix-blend-plus-lighter -rotate-6">
             &lt;/&gt;
           </div>
           {/* Subtle Ambient Glowing Orbs */}

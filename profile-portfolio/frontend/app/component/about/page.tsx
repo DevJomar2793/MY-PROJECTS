@@ -18,8 +18,9 @@ export default function About() {
             <span className="text-white font-medium">5+ years</span> of
             experience in IT support and{" "}
             <span className="text-white font-medium">1 year</span> as a QA
-            Tester. I am deeply passionate about building scalable, secure, and
-            beautiful web applications using modern technologies like{" "}
+            Tester. I am excited to learn more about web development and
+            passionate about creating scalable, secure, and beautiful web
+            applications using modern technologies like{" "}
             <span className="text-violet-400 font-medium">Next.js</span> and{" "}
             <span className="text-blue-400 font-medium">FastAPI</span>.
           </p>

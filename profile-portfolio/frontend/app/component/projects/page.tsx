@@ -43,7 +43,7 @@ export default function Projects() {
         {projects.map((proj, idx) => (
           <div key={idx} className="glass-card rounded-4xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 hover:shadow-[0_10px_40px_rgba(124,58,237,0.15)] hover:border-violet-500/30">
             {/* Image Placeholder Overlay with Gradient */}
-            <div className={`h-48 w-full bg-gradient-to-br ${proj.color} relative overflow-hidden flex items-center justify-center`}>
+            <div className={`h-48 w-full bg-linear-to-br ${proj.color} relative overflow-hidden flex items-center justify-center`}>
                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
                <span className="text-white/30 font-bold tracking-widest text-2xl uppercase mix-blend-overlay group-hover:scale-110 transition-transform duration-700">Project Demo</span>
             </div>
