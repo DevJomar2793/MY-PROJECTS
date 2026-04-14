@@ -31,14 +31,17 @@ export default function Projects() {
             </a>
           </div>
           <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:scale-105 transition">
-            <h4 className="text-xl font-semibold mb-2">QA Testing Dashboard</h4>
-            <p className="text-gray-400 mb-4">Track bugs and reports</p>
-            <button className="text-blue-400">View More →</button>
-          </div>
-          <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:scale-105 transition">
-            <h4 className="text-xl font-semibold mb-2">Portfolio Website</h4>
-            <p className="text-gray-400 mb-4">Modern UI using Tailwind</p>
-            <button className="text-blue-400">View More →</button>
+            <h4 className="text-xl font-semibold mb-2">SCA Sitemap</h4>
+            <p className="text-gray-400">Built with Vue.js and FastAPI</p>
+            <p className="text-gray-400 mb-2">Sitemap</p>
+            <a
+              href="https://sca-sitemap-vue.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400"
+            >
+              View More →
+            </a>
           </div>
         </div>
       </section>
