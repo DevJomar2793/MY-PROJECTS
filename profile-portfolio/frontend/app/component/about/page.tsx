@@ -1,7 +1,7 @@
 export default function About() {
   return (
     <section id="about" className="max-w-6xl mx-auto py-24 px-6 relative z-10">
-      <div className="glass-card rounded-[2rem] p-8 md:p-14 relative overflow-hidden group">
+      <div className="glass-card rounded-4xl p-8 md:p-14 relative overflow-hidden group">
         {/* Decorative flares */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-violet-500/10 blur-3xl rounded-full transition-transform duration-700 group-hover:scale-110"></div>
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/10 blur-3xl rounded-full transition-transform duration-700 group-hover:scale-110"></div>

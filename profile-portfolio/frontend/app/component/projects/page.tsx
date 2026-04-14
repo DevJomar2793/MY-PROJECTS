@@ -41,7 +41,7 @@ export default function Projects() {
 
       <div className="grid md:grid-cols-2 gap-8">
         {projects.map((proj, idx) => (
-          <div key={idx} className="glass-card rounded-[2rem] overflow-hidden group hover:-translate-y-2 transition-all duration-500 hover:shadow-[0_10px_40px_rgba(124,58,237,0.15)] hover:border-violet-500/30">
+          <div key={idx} className="glass-card rounded-4xl overflow-hidden group hover:-translate-y-2 transition-all duration-500 hover:shadow-[0_10px_40px_rgba(124,58,237,0.15)] hover:border-violet-500/30">
             {/* Image Placeholder Overlay with Gradient */}
             <div className={`h-48 w-full bg-gradient-to-br ${proj.color} relative overflow-hidden flex items-center justify-center`}>
                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
