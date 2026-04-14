@@ -6,7 +6,8 @@ export default function Projects() {
         <div className="grid md:grid-cols-3 gap-8">
           <div className="bg-gray-800 rounded-2xl p-6 shadow-lg hover:scale-105 transition">
             <h4 className="text-xl font-semibold mb-2">SupahBowl Project</h4>
-            <p className="text-gray-400 mb-4">Built with Vue.js</p>
+            <p className="text-gray-400">Built with Vue.js</p>
+            <p className="text-gray-400 mb-2">Food Website</p>
             <a
               href="https://supahbowl-project.vercel.app/"
               target="_blank"
