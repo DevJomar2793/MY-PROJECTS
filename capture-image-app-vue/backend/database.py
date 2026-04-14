@@ -12,7 +12,7 @@ try:
 except Exception:
     pass
 
-DATABASE_URL = os.getenv("postgresql://photobooth_db_c4bq_user:S1dzx9dA4t3vFZfk6dqaOVjftl1DvWCN@dpg-d7et9cvaqgkc739ss960-a.singapore-postgres.render.com/photobooth_db_c4bq")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://photobooth_db_c4bq_user:S1dzx9dA4t3vFZfk6dqaOVjftl1DvWCN@dpg-d7et9cvaqgkc739ss960-a.singapore-postgres.render.com/photobooth_db_c4bq")
 
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is missing in environment variables")
