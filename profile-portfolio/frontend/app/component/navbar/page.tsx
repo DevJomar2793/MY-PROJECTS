@@ -5,7 +5,7 @@ import { useState } from "react";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
-  const navItems = ["About", "Projects", "Tools", "Skills", "Contact"];
+  const navItems = ["About", "Skills", "Tools", "Projects", "Contact"];
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
