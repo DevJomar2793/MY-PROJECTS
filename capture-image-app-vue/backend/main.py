@@ -13,7 +13,7 @@ app = FastAPI()
 # Add CORS middleware BEFORE other middleware and routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=["https://my-photobooth-v1.vercel.app", "http://localhost:5173"],  # Allow all origins
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
