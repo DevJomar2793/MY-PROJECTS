@@ -19,7 +19,7 @@ app = FastAPI(debug=True)
 # CORS for Vue
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://sca-sitemap-vue.vercel.app/"],  # Allow all origins
+    allow_origins=["https://sca-sitemap-vue.vercel.app/", "http://localhost:5173"],  # Allow all origins
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
