@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Query, APIRouter
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import text, or_, func
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
+from database import Sessionlocal, engine
 from fastapi.middleware.cors import CORSMiddleware
 from schemas import PageCreate, PageResponse, PageUpdate, UserCreate, UserLogin, UserResponse, Token, ForgotPasswordRequest, ResetPasswordRequest
 import secrets
@@ -35,7 +35,7 @@ models.Base.metadata.create_all(bind=engine)
 
 # DB Dependency
 def get_db():
-    db = SessionLocal()
+    db = Sessionlocal()
     try:
         yield db
     finally:
@@ -142,7 +142,7 @@ def get_controller_module_creen(db: Session = Depends(get_db)):
 @app.get("/api/v1/screens/search")
 def search_screen(q: str = Query(..., min_length=1), db: Session = Depends(get_db)):
     
-    results = (db.query(Screen).filter(or_(Screen.screen_label.ilike(f"%{q}"))).order_by(Screen.id.desc()).all())
+    results = (db.query(ScreenList).filter(or_(ScreenList.screen_label.ilike(f"%{q}"))).order_by(ScreenList.id.desc()).all())
 
 
     return results

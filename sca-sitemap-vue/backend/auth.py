@@ -4,7 +4,7 @@ from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from database import Sessionlocal
 
 # ─── Config ───────────────────────────────────────────────────
 SECRET_KEY = "sca-sitemap-super-secret-key-change-in-production"
@@ -31,7 +31,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/login")
 
 def get_db():
-    db = SessionLocal()
+    db = Sessionlocal()
     try:
         yield db
     finally:
