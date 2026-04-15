@@ -19,7 +19,7 @@ app = FastAPI(debug=True)
 # CORS for Vue
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
+    allow_origins=["https://sca-sitemap-vue.vercel.app/"],  # Allow all origins
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
@@ -28,7 +28,7 @@ app.add_middleware(
 
 #Jinja2 Templating
 BASE_DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory="/src/views")
+templates = Jinja2Templates(directory=str(BASE_DIR.parent / "src" / "views"))
 
 #Create Table
 models.Base.metadata.create_all(bind=engine)
@@ -218,6 +218,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     # Validate password length
     if len(user.password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    if len(user.password) > 72:
+        raise HTTPException(status_code=400, detail="Password cannot be longer than 72 characters")
 
     # Check for duplicate email
     existing = db.query(User).filter(User.email == user.email).first()
@@ -280,6 +282,8 @@ def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
 
     if len(req.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    if len(req.new_password) > 72:
+        raise HTTPException(status_code=400, detail="Password cannot be longer than 72 characters")
 
     user = db.query(User).filter(User.reset_token == req.token).first()
     if not user:
