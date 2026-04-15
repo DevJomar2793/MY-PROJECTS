@@ -17,10 +17,11 @@ app = FastAPI()
 # CORS for Vue
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://sca-sitemap-vue.vercel.app/"],
+    allow_origins=["*"],  # Allow all origins
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 #Jinja2 Templating
