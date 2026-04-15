@@ -1,3 +1,4 @@
+from pathlib import Path
 from fastapi import FastAPI, Depends, HTTPException, Query, APIRouter
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import text, or_, func
@@ -12,7 +13,8 @@ from typing import List
 
 import models
 
-app = FastAPI()
+app = FastAPI(debug=True)
+
 
 # CORS for Vue
 app.add_middleware(
@@ -25,6 +27,7 @@ app.add_middleware(
 )
 
 #Jinja2 Templating
+BASE_DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory="/src/views")
 
 #Create Table
