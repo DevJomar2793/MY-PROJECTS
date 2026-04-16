@@ -29,7 +29,7 @@ async function getTotalPagesForSellers() {
 //Get Total Count Screnn of Appraisal Boss
 async function getTotalPagesForAppraisalBoss() {
   const res = await fetch(
-    "/https://atbackend-sca-sitemap-vue.onrender.comapi/v1/gettotalcountforappraisalboss",
+    "https://atbackend-sca-sitemap-vue.onrender.com/api/v1/gettotalcountforappraisalboss",
   );
   totalPagesAppraisalBoss.value = await res.json();
 }
