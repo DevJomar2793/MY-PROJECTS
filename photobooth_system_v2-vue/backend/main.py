@@ -33,10 +33,10 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 app = FastAPI(title="SnapCapture API", version="1.0.0", docs_url="/api/docs")
 
 # Create DB tables
-# models.Base.metadata.create_all(bind=database.engine)
+models.Base.metadata.create_all(bind=database.engine)
 
 # Delete DB tables
-models.Base.metadata.drop_all(bind=database.engine)
+# models.Base.metadata.drop_all(bind=database.engine)
 
 # CORS – allow Vite dev server and any origin in dev
 
