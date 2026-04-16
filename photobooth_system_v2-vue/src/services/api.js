@@ -36,22 +36,22 @@ export const api = {
     formData.append('file', blob, `${originalName}.jpg`)
     formData.append('user', user)
     formData.append('original_name', originalName)
-    return request('POST', '/images/upload', formData, true)
+    return request('POST', '/api/images/upload', formData, true)
   },
 
   /** List all images */
   listImages() {
-    return request('GET', '/images')
+    return request('GET', '/api/images')
   },
 
   /** Delete an image by ID */
   deleteImage(id) {
-    return request('DELETE', `/images/${id}`)
+    return request('DELETE', `/api/images/${id}`)
   },
 
   /** Download URL (link) */
   downloadUrl(id) {
-    return `${BASE}/images/${id}/download`
+    return `${BASE}/api/images/${id}/download`
   },
 
   /** Full URL for serving an image */
