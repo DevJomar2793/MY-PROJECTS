@@ -12,13 +12,17 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
 # ─── Password Hashing ────────────────────────────────────────
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
+
+def _truncate_password(password: str) -> str:
+    """Truncate password to 72 bytes (bcrypt's hard limit)."""
+    return password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password[:72])
+    return pwd_context.hash(_truncate_password(password))
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password[:72], hashed_password)
+    return pwd_context.verify(_truncate_password(plain_password), hashed_password)
 
 # ─── JWT Token ────────────────────────────────────────────────
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
