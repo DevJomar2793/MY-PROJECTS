@@ -12,49 +12,65 @@ const totalPagesControllerModule = ref(0);
 
 // Get Total Count Screen of Buyer
 async function getTotalPagesForBuyers() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/gettotalcountforbuyers");
+  const res = await fetch(
+    "https://atbackend-sca-sitemap-vue.onrender.com/api/v1/gettotalcountforbuyers",
+  );
   totalPagesBuyers.value = await res.json();
 }
 
 // Get Total Count Screen of Seller
 async function getTotalPagesForSellers() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/gettotalcountforsellers");
+  const res = await fetch(
+    "https://atbackend-sca-sitemap-vue.onrender.com/api/v1/gettotalcountforsellers",
+  );
   totalPagesSellers.value = await res.json();
 }
 
 //Get Total Count Screnn of Appraisal Boss
 async function getTotalPagesForAppraisalBoss() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/gettotalcountforappraisalboss");
+  const res = await fetch(
+    "/https://atbackend-sca-sitemap-vue.onrender.comapi/v1/gettotalcountforappraisalboss",
+  );
   totalPagesAppraisalBoss.value = await res.json();
 }
 
 //Get Total Count Screen of Admin
 async function getTotalPagesForAdmin() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/gettotalcountforadmin");
+  const res = await fetch(
+    "https://atbackend-sca-sitemap-vue.onrender.com/api/v1/gettotalcountforadmin",
+  );
   totalPagesAdmin.value = await res.json();
 }
 
 //Get Total Count Screen of Mobile Worker
 async function getTotalPagesForMobileWorker() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/gettotalcountformobileworker");
+  const res = await fetch(
+    "https://atbackend-sca-sitemap-vue.onrender.com/api/v1/gettotalcountformobileworker",
+  );
   totalPagesMobileWorker.value = await res.json();
 }
 
 //Get Total Count Screen of Marketplace
 async function getTotalPagesForMarketplace() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/gettotalcountformarketplace");
+  const res = await fetch(
+    "https://atbackend-sca-sitemap-vue.onrender.com/api/v1/gettotalcountformarketplace",
+  );
   totalPagesMarketplace.value = await res.json();
 }
 
 //Get Total Count Screen of Read Module
 async function getTotalPagesForReadModule() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/gettotalcountforreadmodule");
+  const res = await fetch(
+    "https://atbackend-sca-sitemap-vue.onrender.com/api/v1/gettotalcountforreadmodule",
+  );
   totalPagesReadModule.value = await res.json();
 }
 
 //Get Total Count Screen of Controller Module
 async function getTotalPagesForControllerModule() {
-  const res = await fetch("http://127.0.0.1:8000/api/v1/gettotalcountforcontrollermodule");
+  const res = await fetch(
+    "https://atbackend-sca-sitemap-vue.onrender.com/api/v1/gettotalcountforcontrollermodule",
+  );
   totalPagesControllerModule.value = await res.json();
 }
 
@@ -70,7 +86,7 @@ const refreshCounts = () => {
 };
 
 defineExpose({
-  refreshCounts
+  refreshCounts,
 });
 
 onMounted(() => {
