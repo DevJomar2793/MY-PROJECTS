@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from passlib.context import CryptContext
+import bcrypt
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -12,17 +12,13 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
 # ─── Password Hashing ────────────────────────────────────────
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
-
-def _truncate_password(password: str) -> str:
-    """Truncate password to 72 bytes (bcrypt's hard limit)."""
-    return password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
-
 def hash_password(password: str) -> str:
-    return pwd_context.hash(_truncate_password(password))
+    pwd_bytes = password.encode("utf-8")[:72]
+    return bcrypt.hashpw(pwd_bytes, bcrypt.gensalt()).decode("utf-8")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(_truncate_password(plain_password), hashed_password)
+    pwd_bytes = plain_password.encode("utf-8")[:72]
+    return bcrypt.checkpw(pwd_bytes, hashed_password.encode("utf-8"))
 
 # ─── JWT Token ────────────────────────────────────────────────
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
