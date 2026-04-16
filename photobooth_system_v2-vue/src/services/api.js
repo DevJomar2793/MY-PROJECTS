@@ -3,7 +3,16 @@
  * Base URL is auto-proxied by Vite → http://localhost:8000
  */
 
-const BASE = '/api'
+export let BASE = localStorage.getItem('API_BASE_URL') || (import.meta.env && import.meta.env.VITE_API_BASE_URL) || 'https://my-backend-photobooth-v1.onrender.com'
+
+export function setBaseUrl(url) {
+  BASE = url
+  if (url) {
+    localStorage.setItem('API_BASE_URL', url)
+  } else {
+    localStorage.removeItem('API_BASE_URL')
+  }
+}
 
 async function request(method, url, body = null, isFormData = false) {
   const opts = { method }
@@ -42,11 +51,13 @@ export const api = {
 
   /** Download URL (link) */
   downloadUrl(id) {
-    return `/api/images/${id}/download`
+    return `${BASE}/images/${id}/download`
   },
 
   /** Full URL for serving an image */
   imageUrl(filename) {
-    return `/uploads/images/${filename}`
+    // If BASE is a full URL, we might need to extract the origin, but assuming relative or typical setup:
+    const origin = BASE.startsWith('http') ? BASE.replace(/\/api$/, '') : ''
+    return `${origin}/uploads/images/${filename}`
   },
 }

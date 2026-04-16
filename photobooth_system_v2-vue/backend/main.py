@@ -36,9 +36,16 @@ app = FastAPI(title="SnapCapture API", version="1.0.0", docs_url="/api/docs")
 models.Base.metadata.create_all(bind=database.engine)
 
 # CORS – allow Vite dev server and any origin in dev
+
+origins = [
+    "https://photobooth-system-ten.vercel.app",
+    "http://localhost:5173",
+
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
