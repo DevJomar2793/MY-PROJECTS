@@ -5,15 +5,15 @@ import Table from "../components/tables.vue";
 import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
 import Footer from "../components/footer.vue";
-import Swal from 'sweetalert2';
-import api from '../api/axios';
+import Swal from "sweetalert2";
+import api from "../api/axios";
 
 import { ref, onMounted } from "vue";
 
 const isAuthenticated = ref(false);
 
 onMounted(() => {
-  isAuthenticated.value = !!localStorage.getItem('access_token');
+  isAuthenticated.value = !!localStorage.getItem("access_token");
   getPages();
 });
 
@@ -22,22 +22,23 @@ async function addPage(data) {
   try {
     const res = await api.post("/api/v1/PageCreate", data);
 
-    const modalCloseBtn = document.querySelector('#addScreen .btn-close');
+    const modalCloseBtn = document.querySelector("#addScreen .btn-close");
     if (modalCloseBtn) modalCloseBtn.click();
 
     Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      text: 'Screen added successfully!',
+      icon: "success",
+      title: "Success",
+      text: "Screen added successfully!",
       timer: 1500,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
     getPages();
   } catch (error) {
     Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: error.response?.data?.detail || 'An error occurred while adding screen',
+      icon: "error",
+      title: "Error",
+      text:
+        error.response?.data?.detail || "An error occurred while adding screen",
     });
   }
 }
@@ -62,7 +63,16 @@ async function getPages() {
             <h1>Seller Screens</h1>
             <p>Manage and review seller screen entries.</p>
           </div>
-          <AddScreenModal v-if="isAuthenticated" @submit="addPage" />
+          <div class="d-flex gap-2">
+            <router-link
+              to="/"
+              class="btn btn-outline-secondary"
+              v-if="!isAuthenticated"
+            >
+              <i class="bi bi-arrow-left"></i> Return to Account Selection
+            </router-link>
+            <AddScreenModal v-if="isAuthenticated" @submit="addPage" />
+          </div>
         </div>
       </div>
 
@@ -73,7 +83,11 @@ async function getPages() {
       <div class="d-flex justify-content-between align-items-center mb-3">
         <SearchBar v-model="searchQuery" />
       </div>
-      <Table :pages="pages" :search-query="searchQuery" @updatePage="getPages" />
+      <Table
+        :pages="pages"
+        :search-query="searchQuery"
+        @updatePage="getPages"
+      />
     </div>
   </main>
   <Footer />

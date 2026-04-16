@@ -6,14 +6,14 @@ import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
 import Footer from "../components/footer.vue";
 import Swal from "sweetalert2";
-import api from '../api/axios';
+import api from "../api/axios";
 
 import { ref, onMounted } from "vue";
 
 const isAuthenticated = ref(false);
 
 onMounted(() => {
-  isAuthenticated.value = !!localStorage.getItem('access_token');
+  isAuthenticated.value = !!localStorage.getItem("access_token");
   getPages();
 });
 
@@ -38,7 +38,9 @@ async function addPage(data) {
     Swal.fire({
       icon: "error",
       title: "Error",
-      text: error.response?.data?.detail || "An error occurred while adding the screen.",
+      text:
+        error.response?.data?.detail ||
+        "An error occurred while adding the screen.",
     });
   }
 }
@@ -69,7 +71,16 @@ async function refreshAll() {
             <h1>Dashboard</h1>
             <p>Welcome back! Here's an overview of your sitemap.</p>
           </div>
-          <AddScreenModal v-if="isAuthenticated" @submit="addPage" />
+          <div class="d-flex gap-2">
+            <router-link
+              to="/"
+              class="btn btn-outline-secondary"
+              v-if="!isAuthenticated"
+            >
+              <i class="bi bi-arrow-left"></i> Return to Account Selection
+            </router-link>
+            <AddScreenModal v-if="isAuthenticated" @submit="addPage" />
+          </div>
         </div>
       </div>
 
@@ -80,7 +91,11 @@ async function refreshAll() {
       <div class="d-flex justify-content-between align-items-center mb-3">
         <SearchBar v-model="searchQuery" />
       </div>
-      <Table :pages="pages" :search-query="searchQuery" @updatePage="refreshAll" />
+      <Table
+        :pages="pages"
+        :search-query="searchQuery"
+        @updatePage="refreshAll"
+      />
     </div>
   </main>
   <Footer />
