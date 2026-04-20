@@ -77,8 +77,8 @@ export default function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       <div
-        className={`md:hidden absolute top-full left-0 w-full glass-card border-t border-white/5 transition-all duration-500 ease-in-out overflow-hidden shadow-2xl ${
-          isOpen ? "max-h-[400px] opacity-100 py-8" : "max-h-0 opacity-0 py-0"
+        className={`md:hidden absolute top-full left-0 w-full glass-card border-t border-white/5 transition-all duration-500 ease-in-out overflow-hidden shadow-2xl backdrop-blur-3xl ${
+          isOpen ? "max-h-screen opacity-100 py-12" : "max-h-0 opacity-0 py-0"
         }`}
       >
         <ul className="flex flex-col items-center gap-8">

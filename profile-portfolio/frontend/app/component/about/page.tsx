@@ -1,7 +1,7 @@
 export default function About() {
   return (
-    <section id="about" className="max-w-6xl mx-auto py-24 px-6 relative z-10">
-      <div className="glass-card rounded-4xl p-8 md:p-14 relative overflow-hidden group">
+    <section id="about" className="max-w-6xl mx-auto py-16 md:py-24 px-4 sm:px-6 relative z-10">
+      <div className="glass-card rounded-4xl p-6 md:p-14 relative overflow-hidden group">
         {/* Decorative flares */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-violet-500/10 blur-3xl rounded-full transition-transform duration-700 group-hover:scale-110"></div>
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-blue-500/10 blur-3xl rounded-full transition-transform duration-700 group-hover:scale-110"></div>
@@ -24,7 +24,7 @@ export default function About() {
             <span className="text-violet-400 font-medium">Next.js</span> and{" "}
             <span className="text-blue-400 font-medium">FastAPI</span>.
           </p>
-          <div className="mt-10 flex flex-wrap gap-4">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <div className="glass px-6 py-4 rounded-xl border border-white/5 text-center flex-1 min-w-[140px] hover:bg-white/5 transition">
               <span className="block text-3xl font-bold text-gradient">5+</span>
               <span className="text-sm text-gray-400 font-medium tracking-wider mt-1 block">

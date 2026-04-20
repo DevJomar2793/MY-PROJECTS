@@ -9,11 +9,11 @@ export default function Hero() {
           <img
             src="https://github.com/DevJomar2793.png"
             alt="Jomar's Profile"
-            className="relative w-70 h-70 rounded-full border-2 border-white/10 shadow-2xl object-cover transform transition duration-500 hover:scale-105 hover:rotate-3"
+            className="relative w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-full border-2 border-white/10 shadow-2xl object-cover transform transition duration-500 hover:scale-105 hover:rotate-3"
           />
         </div>
 
-        <h2 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+        <h2 className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
           Hi, I&apos;m <span className="text-gradient">Jomar</span> 👋
         </h2>
         <p className="text-xl md:text-2xl text-gray-400 mb-10 max-w-2xl font-light leading-relaxed">

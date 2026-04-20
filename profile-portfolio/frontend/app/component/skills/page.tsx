@@ -15,14 +15,14 @@ export default function Skills() {
   ];
 
   return (
-    <section id="skills" className="py-24 relative z-10 w-full bg-[#121420]/80 border-y border-white/5 backdrop-blur-xl">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="skills" className="py-16 md:py-24 relative z-10 w-full bg-[#121420]/80 border-y border-white/5 backdrop-blur-xl">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
           <h3 className="text-4xl font-bold tracking-tight mb-4 text-white">Technical Arsenal</h3>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg font-light">Technologies and tools I use to build robust and scalable applications</p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
           {skills.map((skill, idx) => (
             <div 
               key={idx} 

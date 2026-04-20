@@ -3,7 +3,7 @@ const GithubIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="n
 export default function Footer() {
   return (
     <footer className="py-8 relative z-10 text-center font-light bg-[#0a0c13]">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-6 text-sm text-gray-500">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-4 md:px-6 text-sm text-gray-500">
         <div className="mb-4 md:mb-0">
           © {new Date().getFullYear()} Jomar Cerrado. All rights reserved.
         </div>

@@ -50,10 +50,10 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      className="max-w-6xl mx-auto py-24 px-6 relative z-10"
+      className="max-w-6xl mx-auto py-16 md:py-24 px-4 md:px-6 relative z-10"
     >
       <div className="mb-16">
-        <h3 className="text-4xl font-bold tracking-tight mb-4 text-white">
+        <h3 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-white">
           Featured Projects
         </h3>
         <p className="text-gray-400 max-w-2xl text-lg font-light">
@@ -70,7 +70,7 @@ export default function Projects() {
           >
             {/* Image Placeholder Overlay with Gradient */}
             <div
-              className={`h-48 w-full bg-linear-to-br ${proj.color} relative overflow-hidden flex items-center justify-center`}
+              className={`h-40 md:h-48 w-full bg-linear-to-br ${proj.color} relative overflow-hidden flex items-center justify-center`}
             >
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
               <span className="text-white/30 font-bold tracking-widest text-2xl uppercase mix-blend-overlay group-hover:scale-110 transition-transform duration-700">
@@ -78,7 +78,7 @@ export default function Projects() {
               </span>
             </div>
 
-            <div className="p-8">
+            <div className="p-6 md:p-8">
               <div className="flex justify-between items-start mb-4">
                 <h4 className="text-2xl font-bold text-white group-hover:text-violet-400 transition-colors">
                   {proj.title}

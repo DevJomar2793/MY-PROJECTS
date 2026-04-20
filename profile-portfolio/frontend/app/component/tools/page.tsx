@@ -77,15 +77,15 @@ const GitIcon = () => (
 
 export default function Tools() {
   return (
-    <section id="tools" className="py-24 relative z-10">
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="tools" className="py-16 md:py-24 relative z-10">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
         <h3 className="text-3xl font-bold mb-12 tracking-tight">
           Tools & Technologies
         </h3>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* IDE Tools */}
-          <div className="glass p-8 rounded-2xl border border-white/5 hover:border-violet-500/30 transition-colors group">
+          <div className="glass p-6 md:p-8 rounded-2xl border border-white/5 hover:border-violet-500/30 transition-colors group">
             <TerminalIcon />
             <h4 className="text-xl font-semibold mb-3 text-white">IDE & Dev</h4>
             <ul className="space-y-2 text-gray-400 text-sm font-light">
@@ -101,7 +101,7 @@ export default function Tools() {
           </div>
 
           {/* AI Tools */}
-          <div className="glass p-8 rounded-2xl border border-white/5 hover:border-blue-500/30 transition-colors group">
+          <div className="glass p-6 md:p-8 rounded-2xl border border-white/5 hover:border-blue-500/30 transition-colors group">
             <CpuIcon />
             <h4 className="text-xl font-semibold mb-3 text-white">AI Tools</h4>
             <ul className="space-y-2 text-gray-400 text-sm font-light">
@@ -118,7 +118,7 @@ export default function Tools() {
           </div>
 
           {/* Deployment */}
-          <div className="glass p-8 rounded-2xl border border-white/5 hover:border-violet-500/30 transition-colors group">
+          <div className="glass p-6 md:p-8 rounded-2xl border border-white/5 hover:border-violet-500/30 transition-colors group">
             <CloudIcon />
             <h4 className="text-xl font-semibold mb-3 text-white">
               Deployment
@@ -136,7 +136,7 @@ export default function Tools() {
           </div>
 
           {/* Version Control */}
-          <div className="glass p-8 rounded-2xl border border-white/5 hover:border-blue-500/30 transition-colors group">
+          <div className="glass p-6 md:p-8 rounded-2xl border border-white/5 hover:border-blue-500/30 transition-colors group">
             <GitIcon />
             <h4 className="text-xl font-semibold mb-3 text-white">Control</h4>
             <ul className="space-y-2 text-gray-400 text-sm font-light">

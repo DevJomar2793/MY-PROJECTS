@@ -40,7 +40,7 @@ export default function Contacts() {
   return (
     <section
       id="contact"
-      className="py-24 relative z-10 bg-[#0a0c13] border-t border-white/5 font-sans"
+      className="py-16 md:py-24 relative z-10 bg-[#0a0c13] border-t border-white/5 font-sans"
     >
       <div className="max-w-xl mx-auto px-6 relative">
         {/* Glow behind form */}
@@ -60,7 +60,7 @@ export default function Contacts() {
         </div>
 
         <form
-          className="glass cursor-pointer p-8 rounded-4xl border border-white/10 shadow-2xl space-y-6"
+          className="glass cursor-pointer p-6 md:p-8 rounded-4xl border border-white/10 shadow-2xl space-y-6"
           onSubmit={handleSubmit}
         >
           <div className="space-y-1.5">
