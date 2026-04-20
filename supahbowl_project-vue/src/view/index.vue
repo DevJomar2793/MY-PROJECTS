@@ -157,4 +157,9 @@ function showToast(message) {
   <TestimonialComponent />
   <ContactComponent />
   <WebFooter />
+  
+  <!-- Mobile Floating Order Button -->
+  <a href="#menu" class="fab-order" aria-label="Order Now">
+    <i class="bi bi-cart-plus-fill"></i>
+  </a>
 </template>
