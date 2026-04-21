@@ -11,7 +11,7 @@ import secrets
 import base64
 
 import models, schemas
-from database import engine, get_db
+from database import engine, Sessionlocal
 
 # Create all tables in the SQLite database
 models.Base.metadata.create_all(bind=engine)
@@ -45,9 +45,15 @@ _run_migrations()
 app = FastAPI(title="SCA Hardware Inventory API", version="1.0.0")
 
 # Allow requests from Vue dev server
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://sca-hardware-inventory-vue.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,6 +63,14 @@ app.add_middleware(
 os.makedirs("uploads", exist_ok=True)
 # Mount the uploads folder
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+# DB Dependency
+def get_db():
+    db = Sessionlocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 # ---- Health Check ----        
