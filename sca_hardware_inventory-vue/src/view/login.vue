@@ -21,7 +21,7 @@ const handleLogin = async () => {
   }
   loading.value = true;
   try {
-    const res = await api.post("/auth/login", {
+    const res = await api.post("/api/v1/auth/login", {
       username: form.value.username,
       password: form.value.password,
     });
