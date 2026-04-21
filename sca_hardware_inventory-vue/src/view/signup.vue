@@ -41,7 +41,7 @@ const handleSignup = async () => {
 
   loading.value = true;
   try {
-    await api.post("/auth/register", {
+    await api.post("/api/v1/auth/register", {
       username: form.value.username,
       email: form.value.email,
       password: form.value.password,
