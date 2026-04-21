@@ -70,7 +70,7 @@
         <div v-for="img in paginatedImages" :key="img.id" class="gal-card afu">
           <!-- Image -->
           <div class="gal-img-wrap" @click="openLightbox(img)">
-            <img :src="img.url" :alt="img.original_name" loading="lazy" />
+            <img :src="api.imageUrl(img.filename)" :alt="img.original_name" loading="lazy" />
             <div class="gal-overlay">
               <button class="ctrl-btn" style="font-size:.85rem;" @click.stop="openLightbox(img)">
                 <i class="bi bi-zoom-in"></i>
@@ -91,7 +91,7 @@
 
             <!-- Actions -->
             <div class="d-flex gap-2 mt-2">
-              <a :href="'/api/images/' + img.id + '/download'" class="btn-ghost flex-grow-1 text-center" style="padding:.4rem;font-size:.8rem;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:.4rem;">
+              <a :href="api.downloadUrl(img.id)" download class="btn-ghost flex-grow-1 text-center" style="padding:.4rem;font-size:.8rem;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:.4rem;">
                 <i class="bi bi-download"></i>Download
               </a>
               <button class="ctrl-btn" style="padding:.4rem .7rem;font-size:.8rem;" @click="promptDelete(img)" title="Delete">
@@ -132,12 +132,12 @@
           <button class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body p-2 text-center" v-if="selectedImg">
-          <img :src="selectedImg.url" :alt="selectedImg.original_name" class="img-fluid rounded-3" style="max-height:75vh;object-fit:contain;" />
+          <img :src="api.imageUrl(selectedImg.filename)" :alt="selectedImg.original_name" class="img-fluid rounded-3" style="max-height:75vh;object-fit:contain;" />
         </div>
         <div class="modal-footer" v-if="selectedImg">
           <span class="user-badge"><i class="bi bi-person me-1"></i>{{ selectedImg.user }}</span>
           <span style="font-size:.82rem;color:var(--text-muted);margin-left:.5rem;">{{ formatDate(selectedImg.captured_at) }}</span>
-          <a :href="'/api/images/' + selectedImg.id + '/download'" class="btn-accent ms-auto" style="padding:.4rem 1.1rem;font-size:.85rem;">
+          <a :href="api.downloadUrl(selectedImg.id)" download class="btn-accent ms-auto" style="padding:.4rem 1.1rem;font-size:.85rem;">
             <i class="bi bi-download me-1"></i>Download
           </a>
         </div>
