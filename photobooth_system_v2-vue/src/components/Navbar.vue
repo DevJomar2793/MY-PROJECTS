@@ -21,6 +21,11 @@
               <i class="bi bi-images me-1"></i>Gallery
             </RouterLink>
           </li>
+          <li class="nav-item ms-lg-2">
+            <button @click="toggleTheme" class="nav-link btn btn-link text-decoration-none border-0 m-0" aria-label="Toggle Theme">
+              <i :class="isDarkMode ? 'bi bi-sun-fill text-warning' : 'bi bi-moon-stars-fill text-primary'"></i>
+            </button>
+          </li>
         </ul>
       </div>
     </div>
@@ -29,4 +34,21 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
+import { ref, onMounted } from 'vue'
+
+const isDarkMode = ref(false)
+
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value
+  const theme = isDarkMode.value ? 'dark' : 'light'
+  document.documentElement.setAttribute('data-bs-theme', theme)
+  localStorage.setItem('theme', theme)
+}
+
+onMounted(() => {
+  const savedTheme = localStorage.getItem('theme') || 
+                     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  isDarkMode.value = savedTheme === 'dark'
+  document.documentElement.setAttribute('data-bs-theme', savedTheme)
+})
 </script>
