@@ -5,6 +5,7 @@ import Table from "../components/tables.vue";
 import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
 import Footer from "../components/footer.vue";
+import ThemeToggle from "../components/themetoggle.vue";
 import Swal from "sweetalert2";
 import api from "../api/axios";
 
@@ -72,6 +73,7 @@ async function refreshAll() {
             <p>Welcome back! Here's an overview of your sitemap.</p>
           </div>
           <div class="d-flex gap-2">
+            <ThemeToggle />
             <router-link
               to="/"
               class="btn btn-outline-secondary"

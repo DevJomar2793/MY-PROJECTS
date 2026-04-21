@@ -4,6 +4,7 @@ import Cards from "../components/cards.vue";
 import Table from "../components/tables.vue";
 import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
+import ThemeToggle from "../components/themetoggle.vue";
 import Footer from "../components/footer.vue";
 import Swal from "sweetalert2";
 import api from "../api/axios";
@@ -64,6 +65,7 @@ async function getPages() {
             <p>Manage and review seller screen entries.</p>
           </div>
           <div class="d-flex gap-2">
+            <ThemeToggle />
             <router-link
               to="/"
               class="btn btn-outline-secondary"

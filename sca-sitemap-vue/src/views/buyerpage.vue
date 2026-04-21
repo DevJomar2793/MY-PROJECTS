@@ -4,11 +4,13 @@ import Cards from "../components/cards.vue";
 import Table from "../components/tables.vue";
 import AddScreenModal from "../components/addScreenButtonModal.vue";
 import SearchBar from "../components/searchbar.vue";
+import themetoggle from "../components/themetoggle.vue";
 import Footer from "../components/footer.vue";
 import Swal from "sweetalert2";
 import api from "../api/axios";
 
 import { ref, onMounted } from "vue";
+import Themetoggle from "../components/themetoggle.vue";
 
 const isAuthenticated = ref(false);
 
@@ -64,6 +66,7 @@ async function getPages() {
             <p>Manage and review buyer screen entries.</p>
           </div>
           <div class="d-flex gap-2">
+            <Themetoggle />
             <router-link
               to="/"
               class="btn btn-outline-secondary"
