@@ -997,11 +997,13 @@ const saveDeployment = async () => {
       v-if="showTagModal"
       class="modal d-block"
       tabindex="-1"
-      style="z-index: 1070"
+      style="z-index: 1090"
     >
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-          <div class="modal-header border-0 pt-4 px-4 pb-3 bg-white border-bottom border-light">
+          <div
+            class="modal-header border-0 pt-4 px-4 pb-3 bg-white border-bottom border-light"
+          >
             <div class="d-flex align-items-center">
               <div
                 class="rounded-circle bg-primary bg-opacity-10 p-2 me-3 d-flex align-items-center justify-content-center"
@@ -1079,7 +1081,9 @@ const saveDeployment = async () => {
                       class="border-0 text-muted fw-semibold py-3 fs-6 rounded-start custom-sort-header text-nowrap"
                       style="background-color: #f8f9fa"
                     >
-                      <div class="d-flex align-items-center justify-content-between">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
                         CKT Item #
                         <i
                           :class="getTagSortIcon('ckt_item_number')"
@@ -1092,7 +1096,9 @@ const saveDeployment = async () => {
                       class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
                       style="background-color: #f8f9fa"
                     >
-                      <div class="d-flex align-items-center justify-content-between">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
                         Hardware
                         <i
                           :class="getTagSortIcon('manufacturer')"
@@ -1105,7 +1111,9 @@ const saveDeployment = async () => {
                       class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
                       style="background-color: #f8f9fa"
                     >
-                      <div class="d-flex align-items-center justify-content-between">
+                      <div
+                        class="d-flex align-items-center justify-content-between"
+                      >
                         Location
                         <i
                           :class="getTagSortIcon('location')"
@@ -1151,6 +1159,7 @@ const saveDeployment = async () => {
                         v-model="hw.location"
                         class="form-select rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary"
                       >
+                        <option value="">Select Location</option>
                         <option value="Office">Office</option>
                         <option value="Home">Home</option>
                       </select>
