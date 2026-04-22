@@ -928,18 +928,6 @@ const saveDeployment = async () => {
                           </span>
                         </td>
 
-                        <td class="py-2">
-                          <label
-                            class="form-label fw-semibold text-muted small mb-1"
-                            >Location</label
-                          >
-                          <input
-                            v-model="hw.location"
-                            type="text"
-                            class="form-control rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary"
-                            placeholder="e.g. Office A, Desk 12"
-                          />
-                        </td>
                         <td class="py-2 text-center pe-3" @click.stop>
                           <button
                             type="button"
@@ -1062,6 +1050,19 @@ const saveDeployment = async () => {
                   <i class="bi bi-x-circle-fill"></i>
                 </button>
               </div>
+            </div>
+
+            <!-- Hardware Location -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold text-muted small mb-1"
+                >Location</label
+              >
+              <input
+                v-model="newDeployment.location"
+                type="text"
+                class="form-control rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary"
+                placeholder="e.g. Office or Home"
+              />
             </div>
 
             <div v-if="loadingHardware" class="text-center py-4 text-muted">
