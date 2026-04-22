@@ -1052,19 +1052,6 @@ const saveDeployment = async () => {
               </div>
             </div>
 
-            <!-- Hardware Location -->
-            <div class="col-md-6">
-              <label class="form-label fw-semibold text-muted small mb-1"
-                >Location</label
-              >
-              <input
-                v-model="newDeployment.location"
-                type="text"
-                class="form-control rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary"
-                placeholder="e.g. Office or Home"
-              />
-            </div>
-
             <div v-if="loadingHardware" class="text-center py-4 text-muted">
               <div
                 class="spinner-border spinner-border-sm text-primary me-2"
@@ -1106,6 +1093,17 @@ const saveDeployment = async () => {
                       ></i>
                     </th>
                     <th
+                      @click="tagSortBy('location')"
+                      class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
+                      style="background-color: var(--secondary-color)"
+                    >
+                      Location
+                      <i
+                        :class="getTagSortIcon('location')"
+                        style="font-size: 0.8rem"
+                      ></i>
+                    </th>
+                    <th
                       class="border-0 text-muted fw-semibold py-3 fs-6 rounded-end text-center"
                       style="background-color: var(--secondary-color)"
                     >
@@ -1137,6 +1135,15 @@ const saveDeployment = async () => {
                         {{ hw.hardware_type }} &bull; S/N:
                         {{ hw.serial_number }}
                       </div>
+                    </td>
+                    <td class="py-3" @click.stop>
+                      <select
+                        v-model="hw.location"
+                        class="form-select rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary"
+                      >
+                        <option value="Office">Office</option>
+                        <option value="Home">Home</option>
+                      </select>
                     </td>
                     <td class="py-3 text-center" @click.stop>
                       <button
