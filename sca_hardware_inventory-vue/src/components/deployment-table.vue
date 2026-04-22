@@ -1001,12 +1001,16 @@ const saveDeployment = async () => {
     >
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-          <div class="modal-header border-0 pt-4 px-4 pb-3 bg-light">
-            <h5
-              class="modal-title fw-bold text-dark mb-0 d-flex align-items-center gap-2"
-            >
-              <i class="bi bi-pc-display text-primary"></i> Tag Hardware
-            </h5>
+          <div class="modal-header border-0 pt-4 px-4 pb-3 bg-white border-bottom border-light">
+            <div class="d-flex align-items-center">
+              <div
+                class="rounded-circle bg-primary bg-opacity-10 p-2 me-3 d-flex align-items-center justify-content-center"
+                style="width: 40px; height: 40px"
+              >
+                <i class="bi bi-pc-display text-primary fs-5"></i>
+              </div>
+              <h5 class="modal-title fw-bold text-dark mb-0">Tag Hardware</h5>
+            </div>
             <button
               type="button"
               class="btn-close shadow-none"
@@ -1026,7 +1030,7 @@ const saveDeployment = async () => {
               <input
                 v-model="tagIssuedDate"
                 type="date"
-                class="form-control rounded-3 border-light-subtle shadow-none bg-light"
+                class="form-control rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary bg-light"
               />
             </div>
 
@@ -1068,44 +1072,50 @@ const saveDeployment = async () => {
             </div>
             <div v-else class="table-responsive">
               <table class="table table-hover align-middle border-bottom mb-0">
-                <thead>
+                <thead class="bg-light">
                   <tr>
                     <th
                       @click="tagSortBy('ckt_item_number')"
-                      class="border-0 text-muted fw-semibold py-3 fs-6 rounded-start custom-sort-header"
-                      style="background-color: var(--secondary-color)"
+                      class="border-0 text-muted fw-semibold py-3 fs-6 rounded-start custom-sort-header text-nowrap"
+                      style="background-color: #f8f9fa"
                     >
-                      CKT Item #
-                      <i
-                        :class="getTagSortIcon('ckt_item_number')"
-                        style="font-size: 0.8rem"
-                      ></i>
+                      <div class="d-flex align-items-center justify-content-between">
+                        CKT Item #
+                        <i
+                          :class="getTagSortIcon('ckt_item_number')"
+                          style="font-size: 0.8rem"
+                        ></i>
+                      </div>
                     </th>
                     <th
                       @click="tagSortBy('manufacturer')"
                       class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
-                      style="background-color: var(--secondary-color)"
+                      style="background-color: #f8f9fa"
                     >
-                      Hardware
-                      <i
-                        :class="getTagSortIcon('manufacturer')"
-                        style="font-size: 0.8rem"
-                      ></i>
+                      <div class="d-flex align-items-center justify-content-between">
+                        Hardware
+                        <i
+                          :class="getTagSortIcon('manufacturer')"
+                          style="font-size: 0.8rem"
+                        ></i>
+                      </div>
                     </th>
                     <th
                       @click="tagSortBy('location')"
                       class="border-0 text-muted fw-semibold py-3 fs-6 custom-sort-header"
-                      style="background-color: var(--secondary-color)"
+                      style="background-color: #f8f9fa"
                     >
-                      Location
-                      <i
-                        :class="getTagSortIcon('location')"
-                        style="font-size: 0.8rem"
-                      ></i>
+                      <div class="d-flex align-items-center justify-content-between">
+                        Location
+                        <i
+                          :class="getTagSortIcon('location')"
+                          style="font-size: 0.8rem"
+                        ></i>
+                      </div>
                     </th>
                     <th
                       class="border-0 text-muted fw-semibold py-3 fs-6 rounded-end text-center"
-                      style="background-color: var(--secondary-color)"
+                      style="background-color: #f8f9fa"
                     >
                       Action
                     </th>
@@ -1148,7 +1158,7 @@ const saveDeployment = async () => {
                     <td class="py-3 text-center" @click.stop>
                       <button
                         type="button"
-                        class="btn btn-sm rounded-pill fw-bold pt-1 pb-1 px-3 shadow-none transition-all"
+                        class="btn btn-sm rounded-pill fw-bold pt-1 pb-1 px-3 shadow-none transition-all text-nowrap d-inline-flex align-items-center justify-content-center gap-1"
                         :class="
                           newDeployment.tagged_hardware.some(
                             (h) => h.id === hw.id,
