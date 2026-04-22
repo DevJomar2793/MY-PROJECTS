@@ -169,7 +169,10 @@ const openModal = (item = null) => {
       notes: item.notes ?? "",
     };
     imagePreviews.value = item.images
-      ? item.images.map((img) => `http://localhost:8000${img.image_path}`)
+      ? item.images.map(
+          (img) =>
+            `https://atbackend-sca-hardware-inventory-vue.onrender.com${img.image_path}`,
+        )
       : [];
     selectedFiles.value = []; // Prevent re-uploading existing if they are just editing text
   } else {
