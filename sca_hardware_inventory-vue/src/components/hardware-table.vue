@@ -295,7 +295,7 @@ const addHardware = async () => {
     });
 
     try {
-      const uploadRes = await api.post("/upload", formData, {
+      const uploadRes = await api.post("api/v1/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       uploadedPaths = [...uploadedPaths, ...uploadRes.data.file_paths];
