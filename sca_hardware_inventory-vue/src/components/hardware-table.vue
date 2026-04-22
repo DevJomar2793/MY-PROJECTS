@@ -348,7 +348,7 @@ const addHardware = async () => {
 
   try {
     if (isEditing.value) {
-      await api.put(`/hardware/${currentId.value}`, payload);
+      await api.put(`api/v1/hardware/${currentId.value}`, payload);
       Swal.fire({
         icon: "success",
         title: "Updated!",
@@ -391,7 +391,7 @@ const deleteHardware = async () => {
 
   if (result.isConfirmed) {
     try {
-      await api.delete(`/hardware/${currentId.value}`);
+      await api.delete(`api/v1/hardware/${currentId.value}`);
       Swal.fire({
         icon: "success",
         title: "Deleted!",
