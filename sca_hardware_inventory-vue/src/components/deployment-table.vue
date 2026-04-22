@@ -9,6 +9,7 @@ const sortOrder = ref(1); // 1 for ascending, -1 for descending
 
 const deployments = ref([]);
 const loading = ref(false);
+const saving = ref(false);
 
 const isEditing = ref(false);
 const currentId = ref(null);
@@ -494,6 +495,7 @@ const saveDeployment = async () => {
     return;
   }
 
+  saving.value = true;
   const payload = {
     emp_3_code: newDeployment.value.emp_3_code,
     deployed_to: newDeployment.value.deployed_to,
@@ -533,6 +535,8 @@ const saveDeployment = async () => {
       title: "Submission Failed",
       text: error.response?.data?.detail || "Could not save deployment data.",
     });
+  } finally {
+    saving.value = false;
   }
 };
 </script>
@@ -964,15 +968,31 @@ const saveDeployment = async () => {
                     v-if="!isEditing"
                     type="submit"
                     class="btn btn-primary rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
+                    :disabled="saving"
                   >
-                    <i class="bi bi-plus-lg me-2"></i>Save Deployment
+                    <span
+                      v-if="saving"
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <i v-else class="bi bi-plus-lg me-2"></i>
+                    {{ saving ? "Saving..." : "Save Deployment" }}
                   </button>
                   <button
                     v-else
                     type="submit"
                     class="btn btn-success rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
+                    :disabled="saving"
                   >
-                    <i class="bi bi-check2-circle me-2"></i>Update Deployment
+                    <span
+                      v-if="saving"
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <i v-else class="bi bi-check2-circle me-2"></i>
+                    {{ saving ? "Updating..." : "Update Deployment" }}
                   </button>
                 </div>
               </div>
@@ -997,7 +1017,7 @@ const saveDeployment = async () => {
       v-if="showTagModal"
       class="modal d-block"
       tabindex="-1"
-      style="z-index: 1090"
+      style="z-index: 1230"
     >
       <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
@@ -1162,6 +1182,7 @@ const saveDeployment = async () => {
                         <option value="">Select Location</option>
                         <option value="Office">Office</option>
                         <option value="Home">Home</option>
+                        <option value="Home/Office">Home/Office</option>
                       </select>
                     </td>
                     <td class="py-3 text-center" @click.stop>

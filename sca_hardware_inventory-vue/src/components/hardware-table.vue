@@ -9,6 +9,7 @@ const sortOrder = ref(1); // 1 for ascending, -1 for descending
 
 const hardwareItems = ref([]);
 const loading = ref(false);
+const saving = ref(false);
 const isEditing = ref(false);
 const currentId = ref(null);
 
@@ -289,6 +290,7 @@ const addHardware = async () => {
     return;
   }
 
+  saving.value = true;
   // Handle Image Upload First
   let uploadedPaths = [...(newHardware.value.images || [])];
   if (selectedFiles.value.length > 0) {
@@ -309,6 +311,7 @@ const addHardware = async () => {
         title: "Upload Error",
         text: "Failed to upload images.",
       });
+      saving.value = false;
       return;
     }
   }
@@ -375,6 +378,8 @@ const addHardware = async () => {
       title: "Submission Failed",
       text: error.response?.data?.detail || "Could not save hardware data.",
     });
+  } finally {
+    saving.value = false;
   }
 };
 
@@ -1184,15 +1189,31 @@ const filteredAndSortedHardware = computed(() => {
                     v-if="!isEditing"
                     type="submit"
                     class="btn btn-primary rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
+                    :disabled="saving"
                   >
-                    <i class="bi bi-plus-lg me-2"></i>Save Hardware
+                    <span
+                      v-if="saving"
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <i v-else class="bi bi-plus-lg me-2"></i>
+                    {{ saving ? "Saving..." : "Save Hardware" }}
                   </button>
                   <button
                     v-else
                     type="submit"
                     class="btn btn-success rounded-pill py-2.5 px-4 fw-bold shadow-sm flex-grow-2"
+                    :disabled="saving"
                   >
-                    <i class="bi bi-check2-circle me-2"></i>Update Hardware
+                    <span
+                      v-if="saving"
+                      class="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    <i v-else class="bi bi-check2-circle me-2"></i>
+                    {{ saving ? "Updating..." : "Update Hardware" }}
                   </button>
                 </div>
               </div>
