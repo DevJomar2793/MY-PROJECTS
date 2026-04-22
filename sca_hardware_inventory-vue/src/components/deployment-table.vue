@@ -929,7 +929,7 @@ const saveDeployment = async () => {
                         </td>
                         <td class="py-2">
                           <span
-                            class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1"
+                            class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2 py-1"
                           >
                             {{ hw.location || "—" }}
                           </span>
@@ -1189,7 +1189,6 @@ const saveDeployment = async () => {
                         v-model="hw.location"
                         class="form-select rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary"
                       >
-                        <option value="">Select Location</option>
                         <option value="Office">Office</option>
                         <option value="Home">Home</option>
                         <option value="Home/Office">Home/Office</option>
