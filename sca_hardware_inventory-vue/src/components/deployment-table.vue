@@ -85,7 +85,7 @@ const openTagModal = async () => {
   loadingHardware.value = true;
   showTagModal.value = true;
   try {
-    const res = await api.get("/hardware");
+    const res = await api.get("api/v1/hardware");
     availableHardware.value = res.data.filter(
       (h) =>
         !h.deployment_id ||
@@ -124,7 +124,7 @@ const toggleHardwareTag = (hw) => {
 const fetchDeployments = async () => {
   loading.value = true;
   try {
-    const response = await api.get("/deployments");
+    const response = await api.get("api/v1/deployments");
     deployments.value = response.data;
   } catch (error) {
     console.error("Error fetching deployments:", error);
@@ -515,7 +515,7 @@ const saveDeployment = async () => {
         showConfirmButton: false,
       });
     } else {
-      await api.post("/deployments", payload);
+      await api.post("api/v1/deployments", payload);
       Swal.fire({
         icon: "success",
         title: "Added!",
