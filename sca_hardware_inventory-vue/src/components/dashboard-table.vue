@@ -12,7 +12,7 @@ const hardwareItems = ref([]);
 const fetchDashboardData = async () => {
   loading.value = true;
   try {
-    const response = await api.get("/hardware");
+    const response = await api.get("api/v1/hardware");
     hardwareItems.value = response.data;
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
