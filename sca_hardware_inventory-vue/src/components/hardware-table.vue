@@ -354,7 +354,7 @@ const addHardware = async () => {
         showConfirmButton: false,
       });
     } else {
-      await api.post("/hardware", payload);
+      await api.post("api/v1/hardware", payload);
       Swal.fire({
         icon: "success",
         title: "Added!",
