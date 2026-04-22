@@ -892,6 +892,9 @@ const saveDeployment = async () => {
                           Equipment Details
                         </th>
                         <th class="border-0 text-muted fw-semibold py-2 fs-7">
+                          Location
+                        </th>
+                        <th class="border-0 text-muted fw-semibold py-2 fs-7">
                           Issued Date
                         </th>
                         <th
@@ -923,6 +926,13 @@ const saveDeployment = async () => {
                             {{ hw.hardware_type }} &bull; S/N:
                             {{ hw.serial_number }}
                           </div>
+                        </td>
+                        <td class="py-2">
+                          <span
+                            class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-2 py-1"
+                          >
+                            {{ hw.location || "—" }}
+                          </span>
                         </td>
                         <td class="py-2">
                           <span
