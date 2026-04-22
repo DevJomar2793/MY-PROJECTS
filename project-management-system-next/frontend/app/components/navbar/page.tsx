@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Navbar() {
   return (
     <>
@@ -8,24 +10,27 @@ export default function Navbar() {
             <p className="text-slate-400 text-xs">Project Management</p>
           </div>
           <nav className="hidden md:flex items-center gap-2">
-            <a
-              href="#"
+            <Link
+              href="/"
               className="px-4 py-2 rounded-xl bg-indigo-500 font-medium"
             >
               Dashboard
-            </a>
-            <a href="#" className="px-4 py-2 rounded-xl hover:bg-slate-800">
-              Projects
-            </a>
-            <a href="#" className="px-4 py-2 rounded-xl hover:bg-slate-800">
-              Tasks
-            </a>
-            <a href="#" className="px-4 py-2 rounded-xl hover:bg-slate-800">
+            </Link>
+            <Link
+              href="/ticket"
+              className="px-4 py-2 rounded-xl hover:bg-slate-800"
+            >
+              Tickets
+            </Link>
+            <Link href="#" className="px-4 py-2 rounded-xl hover:bg-slate-800">
+              CO
+            </Link>
+            {/* <a href="#" className="px-4 py-2 rounded-xl hover:bg-slate-800">
               Team
             </a>
             <a href="#" className="px-4 py-2 rounded-xl hover:bg-slate-800">
               Reports
-            </a>
+            </a> */}
           </nav>
         </div>
         <div className="flex items-center gap-3">

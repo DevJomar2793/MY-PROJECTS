@@ -1,12 +1,10 @@
-import Navbar from "./navbar/page";
-import Cards from "./cards/page";
-import Progress from "./progress/page";
-import Task from "./task/page";
+import Cards from "./components/cards/page";
+import Progress from "./components/progress/page";
+import Task from "./components/task/page";
 
 export default function Home() {
   return (
     <>
-      <Navbar />
       <Cards />
       <Progress />
       <Task />
