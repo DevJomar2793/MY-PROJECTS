@@ -792,7 +792,7 @@ const saveDeployment = async () => {
                       required
                     />
                   </div>
-                  <div class="col-md-6">
+                  <!-- <div class="col-md-6">
                     <label class="form-label fw-semibold text-muted small mb-1"
                       >Location</label
                     >
@@ -802,7 +802,7 @@ const saveDeployment = async () => {
                       class="form-control rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary"
                       placeholder="e.g. Office A, Desk 12"
                     />
-                  </div>
+                  </div> -->
                   <div class="col-md-6">
                     <label class="form-label fw-semibold text-muted small mb-1"
                       >Department</label
@@ -926,6 +926,19 @@ const saveDeployment = async () => {
                           >
                             {{ hw.issued_date || "—" }}
                           </span>
+                        </td>
+
+                        <td class="py-2">
+                          <label
+                            class="form-label fw-semibold text-muted small mb-1"
+                            >Location</label
+                          >
+                          <input
+                            v-model="hw.location"
+                            type="text"
+                            class="form-control rounded-3 border-light-subtle shadow-none focus-ring focus-ring-primary"
+                            placeholder="e.g. Office A, Desk 12"
+                          />
                         </td>
                         <td class="py-2 text-center pe-3" @click.stop>
                           <button
