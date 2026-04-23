@@ -45,6 +45,13 @@ export default function Projects() {
       link: "https://sca-hardware-inventory-vue.vercel.app/",
       color: "from-emerald-500/20 to-teal-500/20",
     },
+    {
+      title: "Project Management System",
+      tech: ["Next.js", "FastAPI", "PostgreSQL"],
+      desc: "Project Is Under Development",
+      // link: "https://project-management-system-next-six.vercel.app/",
+      color: "from-purple-500/20 to-violet-500/20",
+    },
   ];
 
   return (
