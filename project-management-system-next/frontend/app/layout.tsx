@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Ubuntu, Ubuntu_Mono } from "next/font/google";
 import Navbar from "./components/navbar/page";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ubuntuSans = Ubuntu({
+  variable: "--font-ubuntu-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ubuntuMono = Ubuntu_Mono({
+  variable: "--font-ubuntu-mono",
   subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -26,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${ubuntuSans.variable} ${ubuntuMono.variable} h-full antialiased`}
     >
       <body className="bg-slate-100 text-slate-800 min-h-screen dark:bg-slate-950 dark:text-slate-100">
         <Navbar />
