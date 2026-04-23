@@ -6,8 +6,8 @@ export default function Navbar() {
       <header className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between gap-6 sticky top-0 z-20">
         <div className="flex items-center gap-8">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">FlowDesk</h1>
-            <p className="text-slate-400 text-xs">Project Management</p>
+            <h1 className="text-2xl font-bold tracking-tight">SCA</h1>
+            <p className="text-slate-400 text-xs">Project Management System</p>
           </div>
           <nav className="hidden md:flex items-center gap-2">
             <Link

@@ -1,6 +1,7 @@
 "use client";
 
 import SubmitTicketButton from "../submitticketbtn/page";
+import ArchiveBtn from "../archivebtn/page";
 
 // import { useState } from "react";
 
@@ -29,7 +30,10 @@ export default function TableAdmin() {
               className="pl-10 pr-4 py-2 w-80 bg-slate-800 text-white rounded-xl"
             />
           </div>
-          <SubmitTicketButton />
+          <div className="flex gap-3">
+            <ArchiveBtn />
+            <SubmitTicketButton />
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
