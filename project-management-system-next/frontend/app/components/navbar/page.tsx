@@ -34,12 +34,12 @@ export default function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          <button
+          {/* <button
             id="themeToggle"
             className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sm"
           >
             🌙
-          </button>
+          </button> */}
           <div className="hidden lg:block min-w-[280px]">
             <div className="p-3 rounded-2xl bg-slate-800 flex items-center justify-between gap-4">
               <div>
