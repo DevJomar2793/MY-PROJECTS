@@ -1,7 +1,7 @@
 export default function Task() {
   return (
     <>
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-6 h-full flex flex-col">
         <h3 className="text-lg font-semibold mb-5">Today's Tasks</h3>
         <div className="space-y-3">
           <label className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">

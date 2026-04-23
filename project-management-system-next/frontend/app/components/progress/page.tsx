@@ -1,8 +1,7 @@
 export default function Progress() {
   return (
     <>
-      <div className="p-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-6">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm p-6 h-full flex flex-col">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-lg font-semibold">Active Projects</h3>
             <button className="text-indigo-500 text-sm font-medium">
@@ -43,7 +42,6 @@ export default function Progress() {
               </div>
             </div>
           </div>
-        </div>
       </div>
     </>
   );

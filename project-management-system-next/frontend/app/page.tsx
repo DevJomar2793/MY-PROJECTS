@@ -7,8 +7,14 @@ export default function Home() {
   return (
     <>
       <Cards />
-      <Progress />
-      <Task />
+      <div className="px-6 pb-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2">
+          <Progress />
+        </div>
+        <div className="xl:col-span-1">
+          <Task />
+        </div>
+      </div>
     </>
   );
 }
