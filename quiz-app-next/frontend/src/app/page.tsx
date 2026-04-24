@@ -1,7 +1,5 @@
-import QuizApp from "./quizapp/page";
+import QuizApp from "./quizapp/quizapp";
 
 export default function Home() {
-  return (
-    <QuizApp />
-  );
+  return <QuizApp />;
 }
