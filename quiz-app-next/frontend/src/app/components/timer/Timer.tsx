@@ -61,11 +61,11 @@ export default function Timer({
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-xl dark:bg-amber-500/20">
           ⏱
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs text-slate-500 dark:text-slate-400">
             Time Remaining
           </p>
-          <p className="font-bold text-slate-800 dark:text-slate-100">
+          <p className="text-lg font-bold text-slate-800 dark:text-slate-100">
             {formatTime(timeLeft)}
           </p>
         </div>

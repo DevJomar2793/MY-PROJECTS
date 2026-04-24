@@ -39,12 +39,11 @@ export default function Difficulty() {
   ];
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,#e0f2fe_0%,#eef4ff_35%,#ffffff_100%)] px-6 py-12 transition-colors dark:bg-[radial-gradient(circle_at_top,#1e293b_0%,#0f172a_35%,#020617_100%)]">
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,#e0f2fe_0%,#eef4ff_35%,#ffffff_100%)] px-4 py-8 transition-colors dark:bg-[radial-gradient(circle_at_top,#1e293b_0%,#0f172a_35%,#020617_100%)] sm:px-6 sm:py-12">
       <div className="absolute -left-24 top-16 h-40 w-40 rounded-full bg-cyan-300/30 blur-3xl dark:bg-cyan-500/10" />
       <div className="absolute -right-16 bottom-10 h-56 w-56 rounded-full bg-indigo-300/40 blur-3xl dark:bg-indigo-500/10" />
 
-      <div className="relative z-10 flex w-full max-w-5xl flex-col items-center gap-12">
-        {/* Header Section */}
+      <div className="relative z-10 flex w-full max-w-5xl flex-col items-center gap-8 sm:gap-12">
         <div className="flex w-full flex-col items-center justify-between gap-6 sm:flex-row sm:items-start">
           <Link
             href="/"
@@ -53,26 +52,25 @@ export default function Difficulty() {
             <span aria-hidden="true">←</span> Back
           </Link>
           <div className="text-center sm:text-left">
-            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl text-center">
+            <h1 className="text-center text-3xl font-black tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
               Select Difficulty
             </h1>
-            <p className="mt-2 text-slate-600 dark:text-slate-400 text-center">
+            <p className="mt-2 text-center text-sm text-slate-600 dark:text-slate-400 sm:text-base">
               Choose your preferred challenge level to begin the quiz.
             </p>
           </div>
           <DarkModeToggle />
         </div>
 
-        {/* Difficulty Cards */}
         <div className="grid w-full gap-6 sm:grid-cols-3">
           {levels.map((level) => (
             <Link
               key={level.id}
               href={level.href}
-              className={`group flex flex-col items-center rounded-3xl border bg-white/75 p-8 text-center shadow-xl backdrop-blur-xl transition-all duration-300 dark:bg-slate-900/80 ${level.borderClass} ${level.hoverClass}`}
+              className={`group flex flex-col items-center rounded-3xl border bg-white/75 p-6 text-center shadow-xl backdrop-blur-xl transition-all duration-300 dark:bg-slate-900/80 sm:p-8 ${level.borderClass} ${level.hoverClass}`}
             >
               <div
-                className={`mb-6 flex h-20 w-20 items-center justify-center rounded-2xl text-4xl transition-transform duration-300 group-hover:scale-110 ${level.bgClass}`}
+                className={`mb-5 flex h-18 w-18 items-center justify-center rounded-2xl text-3xl transition-transform duration-300 group-hover:scale-110 sm:mb-6 sm:h-20 sm:w-20 sm:text-4xl ${level.bgClass}`}
               >
                 {level.icon}
               </div>
