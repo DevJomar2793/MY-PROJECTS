@@ -54,7 +54,8 @@ export default function QuizLevel({
   const [quizAttempt, setQuizAttempt] = useState(0);
 
   const currentQuestion = shuffledQuestions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex + 1) / shuffledQuestions.length) * 100;
+  const progress =
+    ((currentQuestionIndex + 1) / shuffledQuestions.length) * 100;
   const isLastQuestion = currentQuestionIndex === shuffledQuestions.length - 1;
   const selectedAnswer = selectedAnswers[currentQuestionIndex];
   const score = selectedAnswers.filter(
@@ -143,20 +144,32 @@ export default function QuizLevel({
           </div>
           <div className="flex flex-col items-start gap-3 sm:items-end">
             <DarkModeToggle />
-            <div className="rounded-2xl bg-slate-100 px-4 py-3 text-left dark:bg-slate-800/80 sm:text-right">
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Question
-              </p>
-              <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-                {currentQuestionIndex + 1}/{shuffledQuestions.length}
-              </p>
+            <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
+              <div className="rounded-2xl bg-slate-100 px-4 py-3 text-left dark:bg-slate-800/80 sm:text-right">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Question
+                </p>
+                <p className="text-2xl font-bold text-slate-800 dark:text-slate-100">
+                  {currentQuestionIndex + 1}/{shuffledQuestions.length}
+                </p>
+              </div>
+              <div className="w-full sm:w-auto">
+                <Timer
+                  key={`${quizAttempt}-${currentQuestionIndex}`}
+                  buttonDisabled={!selectedAnswer}
+                  buttonLabel={isLastQuestion ? "Finish Quiz" : "Next Question"}
+                  onNextQuestion={handleNextQuestion}
+                  onTimeUp={handleTimeUp}
+                  paused={showResults}
+                />
+              </div>
             </div>
           </div>
         </div>
 
         <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
           <div
-            className="h-full rounded-full bg-indigo-600"
+            className="h-full rounded-full bg-indigo-600 transition-all duration-500 ease-in-out"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
@@ -190,17 +203,6 @@ export default function QuizLevel({
               </span>
             </button>
           ))}
-        </div>
-
-        <div className="border-t border-slate-100 pt-6 dark:border-slate-800">
-          <Timer
-            key={`${quizAttempt}-${currentQuestionIndex}`}
-            buttonDisabled={!selectedAnswer}
-            buttonLabel={isLastQuestion ? "Finish Quiz" : "Next Question"}
-            onNextQuestion={handleNextQuestion}
-            onTimeUp={handleTimeUp}
-            paused={showResults}
-          />
         </div>
       </div>
 

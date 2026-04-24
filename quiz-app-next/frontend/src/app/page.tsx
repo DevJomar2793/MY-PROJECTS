@@ -7,7 +7,7 @@ export default function Home() {
       <div className="absolute -left-24 top-16 h-40 w-40 rounded-full bg-cyan-300/30 blur-3xl dark:bg-cyan-500/10" />
       <div className="absolute bottom-10 -right-16 h-56 w-56 rounded-full bg-indigo-300/40 blur-3xl dark:bg-indigo-500/10" />
 
-      <section className="relative z-10 w-full max-w-5xl rounded-[2rem] border border-white/60 bg-white/75 p-5 shadow-[0_30px_80px_rgba(37,99,235,0.18)] backdrop-blur-xl transition-colors dark:border-slate-800/80 dark:bg-slate-900/80 dark:shadow-[0_30px_80px_rgba(2,6,23,0.55)] sm:rounded-4xl sm:p-10">
+      <section className="relative z-10 w-full max-w-5xl rounded-4xl border border-white/60 bg-white/75 p-5 shadow-[0_30px_80px_rgba(37,99,235,0.18)] backdrop-blur-xl transition-colors dark:border-slate-800/80 dark:bg-slate-900/80 dark:shadow-[0_30px_80px_rgba(2,6,23,0.55)] sm:rounded-4xl sm:p-10">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-200">
