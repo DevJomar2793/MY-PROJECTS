@@ -31,7 +31,7 @@ export default function Timer({
   const [timeLeft, setTimeLeft] = useState(INITIAL_SECONDS);
 
   useEffect(() => {
-    if (paused || timeLeft <= 0) {
+    if (paused) {
       return;
     }
 
@@ -47,7 +47,7 @@ export default function Timer({
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [paused, timeLeft]);
+  }, [paused]);
 
   useEffect(() => {
     if (!paused && timeLeft === 0) {

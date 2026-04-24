@@ -1,100 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import DarkModeToggle from "../components/darkmodetoggle/darkmodetoggle";
-import RestartBtn from "../components/restartbtn/restartbtn";
-import Timer from "../components/timer/Timer";
+import { useRouter } from "next/navigation";
+import DarkModeToggle from "../darkmodetoggle/darkmodetoggle";
+import RestartBtn from "../restartbtn/restartbtn";
+import Timer from "../timer/Timer";
 
 const TIMEOUT_ANSWER = "__TIMEOUT__";
 
-const questions = [
-  {
-    question: "What does HTML stand for?",
-    difficulty: "Easy",
-    points: 10,
-    options: [
-      "Hyper Text Markup Language",
-      "High Transfer Machine Language",
-      "Hyperlinks and Text Markup Language",
-      "Home Tool Markup Language",
-    ],
-    correctAnswer: "Hyper Text Markup Language",
-  },
-  {
-    question: "Which CSS property changes the text color of an element?",
-    difficulty: "Easy",
-    points: 10,
-    options: ["font-style", "color", "background-color", "text-transform"],
-    correctAnswer: "color",
-  },
-  {
-    question: "Which HTML tag is used to create a hyperlink?",
-    difficulty: "Easy",
-    points: 10,
-    options: ["<link>", "<a>", "<href>", "<nav>"],
-    correctAnswer: "<a>",
-  },
-  {
-    question: "Which JavaScript keyword declares a block-scoped variable?",
-    difficulty: "Easy",
-    points: 10,
-    options: ["var", "const", "function", "import"],
-    correctAnswer: "const",
-  },
-  {
-    question:
-      "What is the default HTTP method used when submitting a basic HTML form?",
-    difficulty: "Medium",
-    points: 15,
-    options: ["PUT", "PATCH", "GET", "DELETE"],
-    correctAnswer: "GET",
-  },
-  {
-    question:
-      "Which CSS layout module is best suited for arranging items in a single row or column?",
-    difficulty: "Medium",
-    points: 15,
-    options: ["Grid", "Flexbox", "Float", "Position"],
-    correctAnswer: "Flexbox",
-  },
-  {
-    question: "Which React hook is commonly used to manage component state?",
-    difficulty: "Easy",
-    points: 10,
-    options: ["useFetch", "useState", "useServer", "useClass"],
-    correctAnswer: "useState",
-  },
-  {
-    question:
-      "Which JavaScript array method creates a new array with items transformed by a callback?",
-    difficulty: "Medium",
-    points: 15,
-    options: ["forEach", "find", "map", "filter"],
-    correctAnswer: "map",
-  },
-  {
-    question:
-      "Which semantic HTML element is intended for the main content of a page?",
-    difficulty: "Easy",
-    points: 10,
-    options: ["<main>", "<section>", "<article>", "<aside>"],
-    correctAnswer: "<main>",
-  },
-  {
-    question: "What does API stand for?",
-    difficulty: "Easy",
-    points: 10,
-    options: [
-      "Application Programming Interface",
-      "Applied Program Internet",
-      "Automated Protocol Integration",
-      "Advanced Programming Input",
-    ],
-    correctAnswer: "Application Programming Interface",
-  },
-];
+export type QuizQuestion = {
+  question: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  points: number;
+  options: string[];
+  correctAnswer: string;
+};
 
-export default function QuizApp() {
+type QuizLevelProps = {
+  heading: string;
+  description: string;
+  questions: QuizQuestion[];
+};
+
+export default function QuizLevel({
+  heading,
+  description,
+  questions,
+}: QuizLevelProps) {
+  const router = useRouter();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<(string | null)[]>(
     () => questions.map(() => null),
@@ -183,10 +116,10 @@ export default function QuizApp() {
           <div className="space-y-1">
             <p className="text-sm font-semibold text-indigo-600">Quiz App</p>
             <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100">
-              Frontend Basics Challenge
+              {heading}
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Answer each question before the 25-second timer runs out.
+              {description}
             </p>
           </div>
           <div className="flex flex-col items-start gap-3 sm:items-end">
@@ -264,23 +197,23 @@ export default function QuizApp() {
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Incorrect Answers: {incorrectAnswers}
             </p>
-            {score >= 8 ? (
+            {score >= Math.ceil(questions.length * 0.8) ? (
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                You got Passed the Quiz
+                You passed the quiz!
               </p>
             ) : (
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                You got Failed the Quiz
+                You failed the quiz.
               </p>
             )}
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-              {/* <button
+              <button
                 type="button"
-                onClick={() => setShowResults(false)}
+                onClick={() => router.push("/")}
                 className="rounded-2xl border border-slate-200 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
               >
-                Close
-              </button> */}
+                Close App
+              </button>
               <RestartBtn onRestart={handleRestartQuiz} />
             </div>
           </div>
