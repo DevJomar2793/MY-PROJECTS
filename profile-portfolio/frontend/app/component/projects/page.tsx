@@ -128,6 +128,11 @@ export default function Projects() {
             Check out my interactive Quiz Game application! Test your knowledge
             and have some fun.
           </p>
+          <p className="text-gray-300 font-light text-lg">
+            This Project built using{" "}
+            <span className="text-violet-400 font-medium">Next.js</span> and{" "}
+            <span className="text-violet-400 font-medium">Tailwind CSS</span>.
+          </p>
         </div>
         <a
           href="https://quiz-game-project-six.vercel.app/"
