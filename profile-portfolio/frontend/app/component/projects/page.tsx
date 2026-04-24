@@ -116,6 +116,42 @@ export default function Projects() {
           </div>
         ))}
       </div>
+
+      {/* Quiz Game CTA */}
+      <div className="glass-card rounded-4xl p-8 md:p-12 relative overflow-hidden group border border-violet-500/20 bg-linear-to-br from-violet-500/10 to-fuchsia-500/10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8 mt-12 hover:shadow-[0_10px_40px_rgba(124,58,237,0.15)] transition-all duration-500">
+        <div className="absolute inset-0 bg-violet-500/5 group-hover:bg-violet-500/10 transition-colors duration-500"></div>
+        <div className="relative z-10 max-w-2xl">
+          <h4 className="text-3xl font-bold text-white mb-4 group-hover:text-violet-400 transition-colors">
+            Want to take a break?
+          </h4>
+          <p className="text-gray-300 font-light text-lg">
+            Check out my interactive Quiz Game application! Test your knowledge
+            and have some fun.
+          </p>
+        </div>
+        <a
+          href="https://quiz-game-project-six.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative z-10 shrink-0 px-8 py-4 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-full transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(124,58,237,0.5)] flex items-center gap-3"
+          aria-label="Play Quiz Game"
+        >
+          Play Quiz Game
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+        </a>
+      </div>
     </section>
   );
 }
